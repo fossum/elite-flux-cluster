@@ -1,4 +1,4 @@
-age.agekey
+*.key
 ^clustertool.exe
 ^clustertool*
 ^clustertool
