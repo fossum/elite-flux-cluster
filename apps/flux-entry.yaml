@@ -4,8 +4,8 @@ metadata:
   name: flux-entry
   namespace: flux-system
 spec:
-  interval: 10m
-  path: ./flux-system/flux
+  interval: 1m
+  path: ./apps
   prune: true
   sourceRef:
     kind: GitRepository
@@ -33,8 +33,6 @@ spec:
             substituteFrom:
               - kind: ConfigMap
                 name: cluster-config
-              # - kind: ConfigMap
-              #   name: upgrade-settings
       target:
         group: kustomize.toolkit.fluxcd.io
         kind: Kustomization
