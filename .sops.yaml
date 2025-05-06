@@ -2,6 +2,6 @@
 creation_rules:
   - path_regex: .*.yaml$ # Apply to all YAML files in this dir/subtree
     # Or be more specific, e.g., 'kubernetes/.*secret\.sops\.yaml$'
-    encrypted_regex: ^(data|stringData)$ # Encrypt Secret data fields by default
+    encrypted_regex: ((?i)(displayname|email|pass|ca|id|bootstraptoken|secretboxencryptionsecret|secrets|secrets|password|cert|secret($|[^N])|key|token|^data$|^stringData))
     age: >-
       age1r0y2hakc227f26hlnuhsk6pfuy7qauqy2ak2ntwwjdpr4q6fuvuqdk8kpq
