@@ -4,4 +4,6 @@ kind: Kustomization
 resources:
   - ./cluster-settings.secret.yaml
   - ./flux-entry.yaml
+patchesStrategicMerge:
+  - ./patches/controller-sops-keys.yaml
   # - Any other resources you want to include.
