@@ -30,6 +30,9 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
+  postBuild:
+    substitute:
+      BASE_DOMAIN: thefoss.org
   values:
     TZ: America/Los_Angeles
 
