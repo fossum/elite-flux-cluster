@@ -1,8 +1,10 @@
-apiVersion: helm.toolkit.fluxcd.io/v2
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
   name: sonarr
   namespace: torrents
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: enabled
 spec:
   interval: 15m
   chart:
@@ -30,12 +32,8 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
-  postBuild:
-    substitute:
-      BASE_DOMAIN: ***REMOVED***
   values:
     TZ: America/Los_Angeles
-
     ingress:
       main:
         enabled: true
@@ -54,7 +52,6 @@ spec:
             widget:
               custom:
                 key: "${HP_API_SONARR}"
-
     persistence:
       config:
         enabled: true
