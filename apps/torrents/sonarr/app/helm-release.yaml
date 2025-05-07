@@ -30,6 +30,9 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
+  postBuild:
+    substitute:
+      BASE_DOMAIN: ***REMOVED***
   values:
     TZ: America/Los_Angeles
 
