@@ -10,3 +10,9 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
+  postBuild:
+    substitute:
+      BASE_DOMAIN: thefoss.org
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
