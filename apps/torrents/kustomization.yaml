@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   # - pvc.yaml
-  # - prowlarr/ks.yaml
-  # - readarr/ks.yaml
-  # - radarr/ks.yaml
+  - prowlarr/ks.yaml
+  - readarr/ks.yaml
+  - radarr/ks.yaml
   - sonarr/ks.yaml
