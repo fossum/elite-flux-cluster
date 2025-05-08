@@ -11,6 +11,8 @@ spec:
     kind: GitRepository
     name: flux-system
   postBuild:
+    substitute:
+      BASE_DOMAIN: ***REMOVED***
     substituteFrom:
       - kind: ConfigMap
         name: cluster-config
