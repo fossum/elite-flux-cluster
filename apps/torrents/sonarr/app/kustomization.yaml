@@ -2,11 +2,3 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - helm-release.yaml
-spec:
-  postBuild:
-    substitute:
-      BASE_DOMAIN: ***REMOVED***
-    substituteFrom:
-      - kind: ConfigMap
-        name: cluster-config
-        namespace: flux-system
