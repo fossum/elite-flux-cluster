@@ -31,3 +31,9 @@ spec:
           homepage:
             enabled: true
             group: "Services"
+    homeassistant:
+      trusted_proxies:
+        # Trust the Kubernetes Pod Network CIDR
+        - "10.42.0.0/16"
+        # Trust the Kubernetes Service Network CIDR
+        - "10.43.0.0/16"
