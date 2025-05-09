@@ -21,7 +21,7 @@ spec:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: home-assistant.***REMOVED***
+          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
         integrations:
           traefik:
             enabled: false

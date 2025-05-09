@@ -21,7 +21,7 @@ spec:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+          - host: "bookstack.${BASE_DOMAIN}"
         integrations:
           traefik:
             enabled: false
