@@ -8,7 +8,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./
+  path: ./apps
   prune: true
   decryption:
     provider: sops
