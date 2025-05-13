@@ -1,0 +1,25 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cloudflare-ddns
+  namespace: web-services
+spec:
+  chart:
+    spec:
+      chart: cloudflare-ddns
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      version: 11.5.11
+  interval: 1m0s
+  timeout: 10m0s
+  values:
+    # https://truecharts.org/charts/stable/cloudflareddns
+    cloudflareddns:
+      api_token: ${DOMAIN_0_CLOUDFLARE_TOKEN}
+      host_zone_record:
+        - domain: ${DOMAIN_0}
+          record: A
+          zone: ${DOMAIN_0}
