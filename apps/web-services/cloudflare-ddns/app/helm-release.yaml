@@ -20,6 +20,6 @@ spec:
     cloudflareddns:
       api_token: ${DOMAIN_0_CLOUDFLARE_TOKEN}
       host_zone_record:
-        - domain: ${DOMAIN_0}
+        - domain: ${BASE_DOMAIN}
           record: A
-          zone: ${DOMAIN_0}
+          zone: ${BASE_DOMAIN}
