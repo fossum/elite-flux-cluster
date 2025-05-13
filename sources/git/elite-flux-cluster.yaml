@@ -6,3 +6,5 @@ metadata:
 spec:
   interval: 10m
   url: https://github.com/fossum/elite-flux-cluster.git
+  ref:
+    branch: main
