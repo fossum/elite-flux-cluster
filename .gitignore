@@ -1,5 +1,7 @@
 # Keys
 *.key
+*.agekey
+*.gpg
 
 # Local Environment
 *.env
