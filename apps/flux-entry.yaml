@@ -9,7 +9,7 @@ spec:
   prune: true
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: cluster
   decryption:
     provider: sops
     secretRef:
@@ -33,7 +33,7 @@ spec:
             substituteFrom:
               - kind: ConfigMap
                 name: cluster-config
-      # target:
-      #   group: kustomize.toolkit.fluxcd.io
-      #   kind: Kustomization
+      target:
+        group: kustomize.toolkit.fluxcd.io
+        kind: Kustomization
       #   labelSelector: substitution.flux.home.arpa/disabled notin (true)
