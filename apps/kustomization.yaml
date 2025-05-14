@@ -5,6 +5,7 @@ resources:
   - ../secrets
   - flux-entry.yaml
   # - decryption.yaml
+  - gitlab
   - infrastructure
   - torrents
   - web-services
