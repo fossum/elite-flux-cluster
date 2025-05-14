@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - bitnami.yaml
   - cloudnative-pg.yaml
+  - gitlab.yaml
   - jetstack.yaml
   - prometheus.yaml
   - truecharts-repo.yaml
