@@ -4,7 +4,7 @@ resources:
   - ../sources
   - ../secrets
   - flux-entry.yaml
-  - decryption.yaml
+  # - decryption.yaml
   - infrastructure
   - torrents
   - web-services
