@@ -1,0 +1,58 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: postgresql
+  namespace: web-services
+spec:
+  chart:
+    spec:
+      chart: postgresql
+      version: 15.5.38
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami-charts
+        namespace: flux-system
+  interval: 1m0s
+  timeout: 15m0s
+  values:
+    auth:
+      existingSecret: postgres-credentials
+      secretKeys:
+        adminPasswordKey: POSTGRES_PASSWORD
+        userPasswordKey: APP_DB_PASSWORD
+
+    primary:
+      persistence:
+        storageClass: "longhorn"
+        size: 10Gi
+        accessModes:
+          - ReadWriteOnce
+        annotations: {}
+      resources:
+        requests:
+          memory: "512Mi" # Request 512 MiB of RAM
+          cpu: "250m"    # Request 0.25 CPU cores
+        limits:
+          memory: "1Gi"  # Limit usage to 1 GiB of RAM
+          cpu: "500m"     # Limit usage to 0.5 CPU cores
+
+    readReplicas:
+      resources:
+        requests:
+          memory: "512Mi" # Request 512 MiB of RAM
+          cpu: "250m"    # Request 0.25 CPU cores
+        limits:
+          memory: "1Gi"  # Limit usage to 1 GiB of RAM
+          cpu: "500m"     # Limit usage to 0.5 CPU cores
+
+    service:
+      type: ClusterIP
+      ports:
+        postgresql: 5432
+
+    # Backup and monitoring options
+    backup:
+      enabled: true
+      cronjob:
+        schedule: "0 2 * * *"  # Daily backup at 2 AM
+
