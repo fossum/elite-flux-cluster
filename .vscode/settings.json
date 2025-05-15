@@ -3,9 +3,11 @@
         "bitnami",
         "cloudnative",
         "fluxcd",
+        "sidekiq",
         "sonarr",
         "thefoss",
         "traefik",
-        "truecharts"
+        "truecharts",
+        "webservice"
     ]
 }
