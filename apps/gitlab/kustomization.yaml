@@ -7,5 +7,6 @@ resources:
   - oauth.secret.yaml
   - postgres.secret.yaml
   - redis.secret.yaml
+  - s3-config.secret.yaml
   - smtp.secret.yaml
   # - gitlab/ks.yaml
