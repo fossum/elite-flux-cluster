@@ -6,3 +6,4 @@ resources:
   - bookstack/ks.yaml
   - cloudflare-ddns/ks.yaml
   - home-assistant/ks.yaml
+  - sshwifty/ks.yaml
