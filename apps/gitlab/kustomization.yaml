@@ -1,12 +1,13 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  # - namespace.yaml
+  - namespace.yaml
   - cnpg-cluster.yaml
+  - gitlab-rails.secret.yaml
   - minio.secret.yaml
   - oauth.secret.yaml
   - postgres.secret.yaml
   - redis.secret.yaml
   - s3-config.secret.yaml
   - smtp.secret.yaml
-  # - gitlab/ks.yaml
+  - gitlab/ks.yaml

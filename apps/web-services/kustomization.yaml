@@ -6,4 +6,3 @@ resources:
   - bookstack/ks.yaml
   - cloudflare-ddns/ks.yaml
   - home-assistant/ks.yaml
-  - postgresql/ks.yaml
