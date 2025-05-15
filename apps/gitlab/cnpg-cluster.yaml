@@ -10,6 +10,12 @@ spec:
   # or can be specified with `imageName` or `imageTag` if you need a specific version.
   # Refer to the CNPG documentation for how to specify PostgreSQL versions if needed.
   # e.g., imageName: "ghcr.io/cloudnative-pg/postgresql:15.6" (check for current supported images)
+  # imageCatalogRef:
+  #   apiGroup: postgresql.cnpg.io
+  #   kind: ImageCatalog
+  #   name: postgresql
+  #   major: 16
+  imageName: "ghcr.io/cloudnative-pg/postgresql:16.8"
 
   # Initial database and owner setup during bootstrap
   bootstrap:
