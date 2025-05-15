@@ -1,0 +1,59 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: sshwifty
+  namespace: web-services
+spec:
+  chart:
+    spec:
+      chart: sshwifty
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      version: 7.5.6
+  interval: 1m0s
+  timeout: 15m0s
+  values:
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        hosts:
+          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+        integrations:
+          traefik:
+            enabled: false
+          certManager:
+            enabled: true
+            certificateIssuer: thefoss-le-prod
+          homepage:
+            enabled: true
+            group: "Services"
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                # empty to accept request from all hosts
+                SSHWIFTY_HOSTNAME: ""
+                # web access password
+                SSHWIFTY_SHAREDKEY: "***REMOVED***"
+                DialTimeout: 10
+                # SSHWIFTY_SOCKS5: "" When set, Sshwifty backend will try to connect remote through the given proxy
+                # SSHWIFTY_SOCKS5_USER
+                # SSHWIFTY_SOCKS5_PASSWORD
+                SSHWIFTY_LISTENINTERFACE: "0.0.0.0"
+                SSHWIFTY_INITIALTIMEOUT: 3
+                SSHWIFTY_READTIMEOUT: 60
+                SSHWIFTY_WRITETIMEOUT: 60
+                SSHWIFTY_HEARTBEATTIMEOUT: 20
+                SSHWIFTY_READDELAY: 10
+                SSHWIFTY_WRITEELAY: 10
+                # SSHWIFTY_TLSCERTIFICATEFILE: ""
+                # SSHWIFTY_TLSCERTIFICATEKEYFILE: ""
+                # SSHWIFTY_PRESETS: [] json obj array https://github.com/nirui/sshwifty#configuration-file | preset section.
+                # Can not set this variable, only functional via config file.
+                # SSHWIFTY_ONLYALLOWPRESETREMOTES:
