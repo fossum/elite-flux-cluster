@@ -1,0 +1,60 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: minecraft-gate
+  namespace: games
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: minecraft-gate
+      version: 1.3.11
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 5m
+  install:
+    createNamespace: false
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    global:
+      fallbackDefaults:
+        storageClass: "truenas-nfs-csi"
+
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerIP: "192.168.1.155"
+
+    configmap:
+      config:
+        enabled: true
+        data:
+          config.yml: |
+            config:
+              bind: 0.0.0.0:{{ .Values.service.main.ports.main.port }}
+              onlineMode: true
+              debug: false
+              onlineModeKickExistingPlayers: true
+              query:
+                enabled: true
+                port: {{ .Values.service.main.ports.query.port }}
+                showPlugins: false
+              servers:
+                britannia: minecraft-britannia-minecraft-java.games.svc.cluster.local:25565
+              try:
+                - britannia
+              lite:
+                enabled: true
+                routes:
+                  - host: britannia.${BASE_DOMAIN}
+                    backend: minecraft-britannia-minecraft-java.games.svc.cluster.local:25565
+                  - host: venture.${BASE_DOMAIN}
+                    backend: minecraft-venture-minecraft-java.games.svc.cluster.local:25565

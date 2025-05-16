@@ -1,0 +1,127 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: minecraft-britannia
+  namespace: games
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: minecraft-java
+      version: 22.34.11
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 5m
+  install:
+    createNamespace: false
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    global:
+      fallbackDefaults:
+        # -- Define a storageClassName that will be used for all PVCs
+        # Can be overruled per PVC
+        storageClass: "truenas-nfs-csi"
+
+    TZ: "America/Los_Angeles"
+
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                # GUI: "FALSE"
+                OVERRIDE_SERVER_PROPERTIES: true
+                # VERSION: "LATEST"
+                # TYPE: "VANILLA"
+                # DIFFICULTY: easy
+                # MAX_PLAYERS: 20
+                # MAX_WORLD_SIZE: 10000
+                # ALLOW_NETHER: true
+                # ANNOUNCE_PLAYER_ACHIEVEMENTS: true
+                # ENABLE_COMMAND_BLOCK: false
+                # FORCE_GAMEMODE: false
+                # GENERATE_STRUCTURES: true
+                # HARDCORE: false
+                # MAX_BUILD_HEIGHT: 256
+                # MAX_TICK_TIME: 60000
+                # SPAWN_ANIMALS: true
+                # SPAWN_MONSTERS: true
+                # SPAWN_NPCS: true
+                VIEW_DISTANCE: 32
+                # MODE: survival
+                MOTD: "Welcome to Venture Britannia Minecraft!"
+                # PVP: false
+                # LEVEL_TYPE: DEFAULT
+                # LEVEL: world
+                # ONLINE_MODE: true
+                # MEMORY: 2048M
+                RCON_PASSWORD: "Q9ZT6ypXgfKLQQ7xyRufxRPfFfSZhG"
+                # PACKWIZ_URL: ""
+                # CUSTOM_SERVER: ""
+                # QUILT_LOADER_VERSION: ""
+                # QUILT_LAUNCHER: ""
+                # QUILT_LAUNCHER_URL: ""
+                # PUFFERFISH_BUILD: "lastSuccessfulBuild"
+                # FORGEVERSION: ""
+                # FORGE_INSTALLER: ""
+                # FORGE_INSTALLER_URL: ""
+                # FABRIC_LOADER_VERSION: ""
+                # FABRIC_INSTALLER: ""
+                # FABRIC_INSTALLER_URL: ""
+                # SPIGOT_DOWNLOAD_URL: ""
+                # BUILD_FROM_SOURCE: false
+                # BUKKIT_DOWNLOAD_URL: ""
+                # PAPERBUILD: ""
+                # PAPER_DOWNLOAD_URL: ""
+                # AIRPLANE_BUILD: "lastSuccessfulBuild"
+                # MAGMA_CHANNEL: "stable"
+                # MOHIST_BUILD: ""
+                # CANYON_BUILD: ""
+                # SPONGEBRANCH: "STABLE"
+                # SPONGEVERSION: ""
+                # LIMBO_BUILD: "LATEST"
+                # LIMBO_SCHEMA_FILENAME: "default.schem"
+                # CRUCIBLE_RELEASE: "latest"
+                # FTB_MODPACK_ID: ""
+                # FTB_MODPACK_VERSION_ID: ""
+                # CF_SERVER_MOD: ""
+                # CF_BASE_DIR: ""
+                # USE_MODPACK_START_SCRIPT: true
+                # FTB_LEGACYJAVAFIXER: false
+                # WHITELIST: ""
+                # OPS: ""
+                # ICON: ""
+                # SEED: ""
+                # GENERATOR_SETTINGS: ""
+                # WORLD: ""
+                # FORCE_REDOWNLOAD: false
+                # USE_FLARE_FLAGS: false
+                # USE_AIKAR_FLAGS: true
+                # USE_SIMD_FLAGS: false
+                # JVM_OPTS: ""
+                # JVM_XX_OPTS: ""
+                # CF_API_KEY
+                # CF_PAGE_URL
+                # CF_SLUG
+                # CF_EXCLUDE_INCLUDE_FILE
+                # CF_EXCLUDE_MODS
+                # CF_FORCE_INCLUDE_MODS
+                # CF_FORCE_SYNCHRONIZE
+                # CF_OVERRIDES_SKIP_EXISTING
+                # CF_PARALLEL_DOWNLOADS
+                # CF_SET_LEVEL_FROM
+
+    service:
+      main:
+        annotations:
+          mc-router.itzg.me/defaultServer: "true"
+          mc-router.itzg.me/externalServerName: "britannia-mc.***REMOVED***"
