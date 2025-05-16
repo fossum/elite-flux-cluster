@@ -7,5 +7,6 @@ resources:
   - games
   - gitlab
   - infrastructure
+  - nextcloud
   - torrents
   - web-services
