@@ -4,7 +4,7 @@ resources:
   - ../sources
   - ../secrets
   - flux-entry.yaml
-  # - decryption.yaml
+  - games
   - gitlab
   - infrastructure
   - torrents
