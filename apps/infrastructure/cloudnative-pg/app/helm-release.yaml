@@ -26,3 +26,16 @@ spec:
   values:
     crds:
       create: true
+    # This is an example structure, the exact keys might vary slightly
+    # with chart version 0.23.2 but are generally under 'admission' or 'webhook'
+    admission:
+      create: true # This might be a master switch for all admission related resources
+      # OR more granularly:
+    webhook:
+      mutating:
+        create: true
+      validating:
+        create: true
+    # Sometimes it's also seen as:
+    # createAdmissionWebhooks: true
+    # or similar.
