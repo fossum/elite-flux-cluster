@@ -34,9 +34,9 @@ spec:
 
     resources:
       limits:
-        memory: 10Gi
+        memory: 16Gi
       requests:
-        memory: 1Gi
+        memory: 4Gi
 
     workload:
       main:
@@ -69,7 +69,7 @@ spec:
                 # LEVEL_TYPE: DEFAULT
                 # LEVEL: world
                 # ONLINE_MODE: true
-                MEMORY: 4096M
+                MEMORY: 16384M
                 RCON_PASSWORD: "Q9ZT6ypXgfKLQQ7xyRufxRPfFfSZhG"
                 # PACKWIZ_URL: ""
                 # CUSTOM_SERVER: ""
