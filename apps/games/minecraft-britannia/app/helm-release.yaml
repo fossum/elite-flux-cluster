@@ -35,6 +35,8 @@ spec:
     resources:
       requests:
         memory: 4Gi
+      limits:
+        memory: 16Gi
 
     workload:
       main:
@@ -42,9 +44,15 @@ spec:
           containers:
             main:
               env:
-                # GUI: "FALSE"
                 - name: OVERRIDE_SERVER_PROPERTIES
                   value: "true"
+                - name: VIEW_DISTANCE
+                  value: "32"
+                - name: MOTD
+                  value: "Welcome to Venture Britannia Minecraft!"
+                - name: MEMORY
+                  value: "16384M"
+                # GUI: "FALSE"
                 # - name: VERSION
                 #   value: "LATEST"
                 # - name: TYPE
@@ -77,12 +85,8 @@ spec:
                 #   value: "true"
                 # - name: SPAWN_NPCS
                 #   value: "true"
-                - name: VIEW_DISTANCE
-                  value: "32"
                 # - name: MODE
                 #   value: "survival"
-                - name: MOTD
-                  value: "Welcome to Venture Britannia Minecraft!"
                 # - name: PVP
                 #   value: "false"
                 # - name: LEVEL_TYPE
@@ -91,13 +95,11 @@ spec:
                 #   value: "world"
                 # - name: ONLINE_MODE
                 #   value: "true"
-                - name: MEMORY
-                  value: "16384M"
-                - name: RCON_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: rcon-secret
-                      key: rcon_password
+                # - name: RCON_PASSWORD
+                #   valueFrom:
+                #     secretKeyRef:
+                #       name: rcon-secret
+                #       key: rcon_password
                 # - name: PACKWIZ_URL
                 #   value: ""
                 # - name: CUSTOM_SERVER
