@@ -52,6 +52,11 @@ spec:
                   value: "Welcome to Venture Britannia Minecraft!"
                 - name: MEMORY
                   value: "16384M"
+                - name: RCON_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: rcon-secret
+                      key: rcon_password
                 # GUI: "FALSE"
                 # - name: VERSION
                 #   value: "LATEST"
@@ -95,11 +100,6 @@ spec:
                 #   value: "world"
                 # - name: ONLINE_MODE
                 #   value: "true"
-                # - name: RCON_PASSWORD
-                #   valueFrom:
-                #     secretKeyRef:
-                #       name: rcon-secret
-                #       key: rcon_password
                 # - name: PACKWIZ_URL
                 #   value: ""
                 # - name: CUSTOM_SERVER
