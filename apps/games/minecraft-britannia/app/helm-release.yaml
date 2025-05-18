@@ -33,10 +33,10 @@ spec:
     TZ: "America/Los_Angeles"
 
     resources:
-      requests:
-        memory: 4Gi
       limits:
-        memory: 16Gi
+        memory: 10Gi
+      requests:
+        memory: 1Gi
 
     workload:
       main:
@@ -44,170 +44,87 @@ spec:
           containers:
             main:
               env:
-                - name: OVERRIDE_SERVER_PROPERTIES
-                  value: "true"
-                - name: VIEW_DISTANCE
-                  value: "32"
-                - name: MOTD
-                  value: "Welcome to Venture Britannia Minecraft!"
-                - name: MEMORY
-                  value: "16384M"
-                - name: RCON_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: rcon-secret
-                      key: rcon_password
                 # GUI: "FALSE"
-                # - name: VERSION
-                #   value: "LATEST"
-                # - name: TYPE
-                #   value: "VANILLA"
-                # - name: DIFFICULTY
-                #   value: "easy"
-                # - name: MAX_PLAYERS
-                #   value: "20"
-                # - name: MAX_WORLD_SIZE
-                #   value: "10000"
-                # - name: ALLOW_NETHER
-                #   value: "true"
-                # - name: ANNOUNCE_PLAYER_ACHIEVEMENTS
-                #   value: "true"
-                # - name: ENABLE_COMMAND_BLOCK
-                #   value: "false"
-                # - name: FORCE_GAMEMODE
-                #   value: "false"
-                # - name: GENERATE_STRUCTURES
-                #   value: "true"
-                # - name: HARDCORE
-                #   value: "false"
-                # - name: MAX_BUILD_HEIGHT
-                #   value: "256"
-                # - name: MAX_TICK_TIME
-                #   value: "60000"
-                # - name: SPAWN_ANIMALS
-                #   value: "true"
-                # - name: SPAWN_MONSTERS
-                #   value: "true"
-                # - name: SPAWN_NPCS
-                #   value: "true"
-                # - name: MODE
-                #   value: "survival"
-                # - name: PVP
-                #   value: "false"
-                # - name: LEVEL_TYPE
-                #   value: "DEFAULT"
-                # - name: LEVEL
-                #   value: "world"
-                # - name: ONLINE_MODE
-                #   value: "true"
-                # - name: PACKWIZ_URL
-                #   value: ""
-                # - name: CUSTOM_SERVER
-                #   value: ""
-                # - name: QUILT_LOADER_VERSION
-                #   value: ""
-                # - name: QUILT_LAUNCHER
-                #   value: ""
-                # - name: QUILT_LAUNCHER_URL
-                #   value: ""
-                # - name: PUFFERFISH_BUILD
-                #   value: "lastSuccessfulBuild"
-                # - name: FORGEVERSION
-                #   value: ""
-                # - name: FORGE_INSTALLER
-                #   value: ""
-                # - name: FORGE_INSTALLER_URL
-                #   value: ""
-                # - name: FABRIC_LOADER_VERSION
-                #   value: ""
-                # - name: FABRIC_INSTALLER
-                #   value: ""
-                # - name: FABRIC_INSTALLER_URL
-                #   value: ""
-                # - name: SPIGOT_DOWNLOAD_URL
-                #   value: ""
-                # - name: BUILD_FROM_SOURCE
-                #   value: "false"
-                # - name: BUKKIT_DOWNLOAD_URL
-                #   value: ""
-                # - name: PAPERBUILD
-                #   value: ""
-                # - name: PAPER_DOWNLOAD_URL
-                #   value: ""
-                # - name: AIRPLANE_BUILD
-                #   value: "lastSuccessfulBuild"
-                # - name: MAGMA_CHANNEL
-                #   value: "stable"
-                # - name: MOHIST_BUILD
-                #   value: ""
-                # - name: CANYON_BUILD
-                #   value: ""
-                # - name: SPONGEBRANCH
-                #   value: "STABLE"
-                # - name: SPONGEVERSION
-                #   value: ""
-                # - name: LIMBO_BUILD
-                #   value: "LATEST"
-                # - name: LIMBO_SCHEMA_FILENAME
-                #   value: "default.schem"
-                # - name: CRUCIBLE_RELEASE
-                #   value: "latest"
-                # - name: FTB_MODPACK_ID
-                #   value: ""
-                # - name: FTB_MODPACK_VERSION_ID
-                #   value: ""
-                # - name: CF_SERVER_MOD
-                #   value: ""
-                # - name: CF_BASE_DIR
-                #   value: ""
-                # - name: USE_MODPACK_START_SCRIPT
-                #   value: "true"
-                # - name: FTB_LEGACYJAVAFIXER
-                #   value: "false"
-                # - name: WHITELIST
-                #   value: ""
-                # - name: OPS
-                #   value: ""
-                # - name: ICON
-                #   value: ""
-                # - name: SEED
-                #   value: ""
-                # - name: GENERATOR_SETTINGS
-                #   value: ""
-                # - name: WORLD
-                #   value: ""
-                # - name: FORCE_REDOWNLOAD
-                #   value: "false"
-                # - name: USE_FLARE_FLAGS
-                #   value: "false"
-                # - name: USE_AIKAR_FLAGS
-                #   value: "true"
-                # - name: USE_SIMD_FLAGS
-                #   value: "false"
-                # - name: JVM_OPTS
-                #   value: "-server nogui" # -Xms512M -Xmx2048M
-                # - name: JVM_XX_OPTS
-                #   value: "+UseG1GC"
-                # - name: CF_API_KEY
-                #   value: ""
-                # - name: CF_PAGE_URL
-                #   value: ""
-                # - name: CF_SLUG
-                #   value: ""
-                # - name: CF_EXCLUDE_INCLUDE_FILE
-                #   value: ""
-                # - name: CF_EXCLUDE_MODS
-                #   value: ""
-                # - name: CF_FORCE_INCLUDE_MODS
-                #   value: ""
-                # - name: CF_FORCE_SYNCHRONIZE
-                #   value: ""
-                # - name: CF_OVERRIDES_SKIP_EXISTING
-                #   value: ""
-                # - name: CF_PARALLEL_DOWNLOADS
-                #   value: ""
-                # - name: CF_SET_LEVEL_FROM
-                #   value: ""
+                OVERRIDE_SERVER_PROPERTIES: true
+                # VERSION: "LATEST"
+                # TYPE: "VANILLA"
+                # DIFFICULTY: easy
+                # MAX_PLAYERS: 20
+                # MAX_WORLD_SIZE: 10000
+                # ALLOW_NETHER: true
+                # ANNOUNCE_PLAYER_ACHIEVEMENTS: true
+                # ENABLE_COMMAND_BLOCK: false
+                # FORCE_GAMEMODE: false
+                # GENERATE_STRUCTURES: true
+                # HARDCORE: false
+                # MAX_BUILD_HEIGHT: 256
+                # MAX_TICK_TIME: 60000
+                # SPAWN_ANIMALS: true
+                # SPAWN_MONSTERS: true
+                # SPAWN_NPCS: true
+                VIEW_DISTANCE: 32
+                # MODE: survival
+                MOTD: "Welcome to Venture Britannia Minecraft!"
+                # PVP: false
+                # LEVEL_TYPE: DEFAULT
+                # LEVEL: world
+                # ONLINE_MODE: true
+                MEMORY: 4096M
+                RCON_PASSWORD: "Q9ZT6ypXgfKLQQ7xyRufxRPfFfSZhG"
+                # PACKWIZ_URL: ""
+                # CUSTOM_SERVER: ""
+                # QUILT_LOADER_VERSION: ""
+                # QUILT_LAUNCHER: ""
+                # QUILT_LAUNCHER_URL: ""
+                # PUFFERFISH_BUILD: "lastSuccessfulBuild"
+                # FORGEVERSION: ""
+                # FORGE_INSTALLER: ""
+                # FORGE_INSTALLER_URL: ""
+                # FABRIC_LOADER_VERSION: ""
+                # FABRIC_INSTALLER: ""
+                # FABRIC_INSTALLER_URL: ""
+                # SPIGOT_DOWNLOAD_URL: ""
+                # BUILD_FROM_SOURCE: false
+                # BUKKIT_DOWNLOAD_URL: ""
+                # PAPERBUILD: ""
+                # PAPER_DOWNLOAD_URL: ""
+                # AIRPLANE_BUILD: "lastSuccessfulBuild"
+                # MAGMA_CHANNEL: "stable"
+                # MOHIST_BUILD: ""
+                # CANYON_BUILD: ""
+                # SPONGEBRANCH: "STABLE"
+                # SPONGEVERSION: ""
+                # LIMBO_BUILD: "LATEST"
+                # LIMBO_SCHEMA_FILENAME: "default.schem"
+                # CRUCIBLE_RELEASE: "latest"
+                # FTB_MODPACK_ID: ""
+                # FTB_MODPACK_VERSION_ID: ""
+                # CF_SERVER_MOD: ""
+                # CF_BASE_DIR: ""
+                # USE_MODPACK_START_SCRIPT: true
+                # FTB_LEGACYJAVAFIXER: false
+                # WHITELIST: ""
+                # OPS: ""
+                # ICON: ""
+                # SEED: ""
+                # GENERATOR_SETTINGS: ""
+                # WORLD: ""
+                # FORCE_REDOWNLOAD: false
+                # USE_FLARE_FLAGS: false
+                # USE_AIKAR_FLAGS: true
+                # USE_SIMD_FLAGS: false
+                # JVM_OPTS: ""
+                # JVM_XX_OPTS: ""
+                # CF_API_KEY
+                # CF_PAGE_URL
+                # CF_SLUG
+                # CF_EXCLUDE_INCLUDE_FILE
+                # CF_EXCLUDE_MODS
+                # CF_FORCE_INCLUDE_MODS
+                # CF_FORCE_SYNCHRONIZE
+                # CF_OVERRIDES_SKIP_EXISTING
+                # CF_PARALLEL_DOWNLOADS
+                # CF_SET_LEVEL_FROM
 
     service:
       main:
