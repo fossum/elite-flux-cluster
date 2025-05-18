@@ -62,7 +62,7 @@ spec:
                 # SPAWN_ANIMALS: true
                 # SPAWN_MONSTERS: true
                 # SPAWN_NPCS: true
-                VIEW_DISTANCE: 32
+                VIEW_DISTANCE: 8
                 # MODE: survival
                 MOTD: "Welcome to Venture Britannia Minecraft!"
                 # PVP: false
@@ -71,6 +71,7 @@ spec:
                 # ONLINE_MODE: true
                 INIT_MEMORY: 4G
                 MAX_MEMORY: 16G
+                MEMORY: 8G
                 RCON_PASSWORD: "Q9ZT6ypXgfKLQQ7xyRufxRPfFfSZhG"
                 # PACKWIZ_URL: ""
                 # CUSTOM_SERVER: ""
