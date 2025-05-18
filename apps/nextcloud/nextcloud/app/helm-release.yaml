@@ -1,7 +1,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: nextcloud
+  name: nextcloud2
   namespace: nextcloud
 spec:
   interval: 5m
@@ -31,146 +31,142 @@ spec:
         storageClass: "longhorn"
 
     persistence:
-      enabled: true
-      storageClass: longhorn
-      nextcloudData:
-        enabled: true
+      data:
         storageClass: truenas-nfs-csi
         size: 2T
-        accessMode: ReadWriteMany
 
-    nextcloud:
-      host: nextcloud.***REMOVED***
-      configs:
-        previews.config.php: |-
-          <?php
-          $CONFIG = array (
-              'enable_previews' => true,
-              'enabledPreviewProviders' => array (
-                  'OC\Preview\Movie',
-                  'OC\Preview\PNG',
-                  'OC\Preview\JPEG',
-                  'OC\Preview\GIF',
-                  'OC\Preview\BMP',
-                  'OC\Preview\XBitmap',
-                  'OC\Preview\MP3',
-                  'OC\Preview\MP4',
-                  'OC\Preview\TXT',
-                  'OC\Preview\MarkDown',
-                  'OC\Preview\PDF',
-                  'OC\Preview\ImaginaryPDF',
-                  'OC\Preview\Krita',
-                  'OC\Preview\OpenDocument',
-                  'OC\Preview\Font',
-                  'OC\Preview\HEIC',
-                  'OC\Preview\Illustrator',
-                  'OC\Preview\MSOffice2003',
-                  'OC\Preview\MSOffice2007',
-                  'OC\Preview\MSOfficeDoc',
-                  'OC\Preview\Photoshop',
-                  'OC\Preview\Postscript',
-                  'OC\Preview\StarOffice',
-                  'OC\Preview\SVG',
-                  'OC\Preview\TIFF',
-                  'OC\Preview\EMF',
-              ),
-          );
-        mail.config.php: |-
-            <?php
-            $CONFIG = array (
-                'mail_smtpmode' => 'smtp',
-                'mail_smtpsecure' => 'ssl',
-                'mail_sendmailmode' => 'smtp',
-                'mail_from_address' => 'fossum.eric',
-                'mail_domain' => 'gmail.com',
-                'mail_smtpauthtype' => 'LOGIN',
-                'mail_smtpauth' => 1,
-                'mail_smtphost' => 'smtp.gmail.com',
-                'mail_smtpport' => '465',
-                'mail_smtpname' => 'fossum.eric@gmail.com',
-                'mail_smtppassword' => 'gwvmintmjqiwlqvn',
-            );
-        instance.config.php: |-
-          <?php
-          $CONFIG = array (
-              'overwrite.cli.url' => 'https://nextcloud.***REMOVED***',
-              'overwritehost' => 'nextcloud.***REMOVED***',
-              'overwriteprotocol' => 'https',
-              'instanceid' => 'oc0eseu24utd',
-              'installed' => true,
-              'passwordsalt' => 'fP9hj+GgVzmnlIi+AdMsX84/YMJIR6',
-              'secret' => '9kXhpzQu/FFuvXKFwAmY6UQgsHyG02uV1rrFMEiDOaVzk0/Q',
-              'trusted_domains' =>
-              array (
-                  0 => '192.168.1.51',
-                  0 => '192.168.1.52',
-                  0 => '192.168.1.53',
-                  0 => '192.168.1.54',
-                  0 => '192.168.1.55',
-                  1 => 'nextcloud.***REMOVED***',
-              ),
-              'trusted_proxies' =>
-              array (
-                  0 => '192.168.1.60',
-              ),
-              'dbtableprefix' => 'oc_',
-              'mysql.utf8mb4' => true,
-              'data-fingerprint' => 'f10d1171641028748c4b5df517740b55',
-              'default_phone_region' => 'US',
-          );
-      # redis.config.php: |-
-      #     <?php
-      #     $CONFIG = array (
-      #         'has_rebuilt_cache' => true,
-      #         'filelocking.enabled' => 'true',
-      #         'memcache.local' => '\\OC\\Memcache\\Redis',
-      #         'memcache.distributed' => '\\OC\\Memcache\\Redis',
-      #         'redis' =>
-      #         array (
-      #             'host' => '/var/run/redis/redis-server.sock',
-      #             'port' => 0,
-      #             'timeout' => 0.1,
-      #         ),
-      #         'memcache.locking' => '\\OC\\Memcache\\Redis',
-      #     );
+    # nextcloud:
+    #   host: nextcloud.***REMOVED***
+    #   configs:
+    #     previews.config.php: |-
+    #       <?php
+    #       $CONFIG = array (
+    #           'enable_previews' => true,
+    #           'enabledPreviewProviders' => array (
+    #               'OC\Preview\Movie',
+    #               'OC\Preview\PNG',
+    #               'OC\Preview\JPEG',
+    #               'OC\Preview\GIF',
+    #               'OC\Preview\BMP',
+    #               'OC\Preview\XBitmap',
+    #               'OC\Preview\MP3',
+    #               'OC\Preview\MP4',
+    #               'OC\Preview\TXT',
+    #               'OC\Preview\MarkDown',
+    #               'OC\Preview\PDF',
+    #               'OC\Preview\ImaginaryPDF',
+    #               'OC\Preview\Krita',
+    #               'OC\Preview\OpenDocument',
+    #               'OC\Preview\Font',
+    #               'OC\Preview\HEIC',
+    #               'OC\Preview\Illustrator',
+    #               'OC\Preview\MSOffice2003',
+    #               'OC\Preview\MSOffice2007',
+    #               'OC\Preview\MSOfficeDoc',
+    #               'OC\Preview\Photoshop',
+    #               'OC\Preview\Postscript',
+    #               'OC\Preview\StarOffice',
+    #               'OC\Preview\SVG',
+    #               'OC\Preview\TIFF',
+    #               'OC\Preview\EMF',
+    #           ),
+    #       );
+    #     mail.config.php: |-
+    #         <?php
+    #         $CONFIG = array (
+    #             'mail_smtpmode' => 'smtp',
+    #             'mail_smtpsecure' => 'ssl',
+    #             'mail_sendmailmode' => 'smtp',
+    #             'mail_from_address' => 'fossum.eric',
+    #             'mail_domain' => 'gmail.com',
+    #             'mail_smtpauthtype' => 'LOGIN',
+    #             'mail_smtpauth' => 1,
+    #             'mail_smtphost' => 'smtp.gmail.com',
+    #             'mail_smtpport' => '465',
+    #             'mail_smtpname' => 'fossum.eric@gmail.com',
+    #             'mail_smtppassword' => 'gwvmintmjqiwlqvn',
+    #         );
+    #     instance.config.php: |-
+    #       <?php
+    #       $CONFIG = array (
+    #           'overwrite.cli.url' => 'https://nextcloud.***REMOVED***',
+    #           'overwritehost' => 'nextcloud.***REMOVED***',
+    #           'overwriteprotocol' => 'https',
+    #           'instanceid' => 'oc0eseu24utd',
+    #           'installed' => true,
+    #           'passwordsalt' => 'fP9hj+GgVzmnlIi+AdMsX84/YMJIR6',
+    #           'secret' => '9kXhpzQu/FFuvXKFwAmY6UQgsHyG02uV1rrFMEiDOaVzk0/Q',
+    #           'trusted_domains' =>
+    #           array (
+    #               0 => '192.168.1.51',
+    #               0 => '192.168.1.52',
+    #               0 => '192.168.1.53',
+    #               0 => '192.168.1.54',
+    #               0 => '192.168.1.55',
+    #               1 => 'nextcloud.***REMOVED***',
+    #           ),
+    #           'trusted_proxies' =>
+    #           array (
+    #               0 => '192.168.1.60',
+    #           ),
+    #           'dbtableprefix' => 'oc_',
+    #           'mysql.utf8mb4' => true,
+    #           'data-fingerprint' => 'f10d1171641028748c4b5df517740b55',
+    #           'default_phone_region' => 'US',
+    #       );
+    # redis.config.php: |-
+    #     <?php
+    #     $CONFIG = array (
+    #         'has_rebuilt_cache' => true,
+    #         'filelocking.enabled' => 'true',
+    #         'memcache.local' => '\\OC\\Memcache\\Redis',
+    #         'memcache.distributed' => '\\OC\\Memcache\\Redis',
+    #         'redis' =>
+    #         array (
+    #             'host' => '/var/run/redis/redis-server.sock',
+    #             'port' => 0,
+    #             'timeout' => 0.1,
+    #         ),
+    #         'memcache.locking' => '\\OC\\Memcache\\Redis',
+    #     );
 
 
-    ingress:
-      enabled: true
-      className: external
-      tls:
-        - secretName: nextcloud-tls
-          hosts:
-            - nextcloud.***REMOVED***
-      annotations:
-        # Reference the Origin CA Issuer you created above, which must be in the same namespace.
-        cert-manager.io/issuer: cloudflare-cluster-issuer
-        cert-manager.io/issuer-kind: ClusterOriginIssuer
-        cert-manager.io/issuer-group: cert-manager.k8s.cloudflare.com
-        nginx.ingress.kubernetes.io/affinity: cookie
-        nginx.ingress.kubernetes.io/enable-cors: "true"
-        nginx.ingress.kubernetes.io/cors-allow-headers: "X-Forwarded-For"
-        nginx.ingress.kubernetes.io/server-snippet: |-
-          server_tokens off;
-          proxy_hide_header X-Powered-By;
-          rewrite ^/.well-known/webfinger /index.php/.well-known/webfinger last;
-          rewrite ^/.well-known/nodeinfo /index.php/.well-known/nodeinfo last;
-          rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
-          rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json;
-          location = /.well-known/carddav {
-            return 301 $scheme://$host/remote.php/dav;
-          }
-          location = /.well-known/caldav {
-            return 301 $scheme://$host/remote.php/dav;
-          }
-          location = /robots.txt {
-            allow all;
-            log_not_found off;
-            access_log off;
-          }
-          location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {
-            deny all;
-          }
-          location ~ ^/(?:autotest|occ|issue|indie|db_|console) {
-            deny all;
-          }
+    # ingress:
+    #   enabled: true
+    #   className: external
+    #   tls:
+    #     - secretName: nextcloud-tls
+    #       hosts:
+    #         - nextcloud.***REMOVED***
+    #   annotations:
+    #     # Reference the Origin CA Issuer you created above, which must be in the same namespace.
+    #     cert-manager.io/issuer: cloudflare-cluster-issuer
+    #     cert-manager.io/issuer-kind: ClusterOriginIssuer
+    #     cert-manager.io/issuer-group: cert-manager.k8s.cloudflare.com
+    #     nginx.ingress.kubernetes.io/affinity: cookie
+    #     nginx.ingress.kubernetes.io/enable-cors: "true"
+    #     nginx.ingress.kubernetes.io/cors-allow-headers: "X-Forwarded-For"
+    #     nginx.ingress.kubernetes.io/server-snippet: |-
+    #       server_tokens off;
+    #       proxy_hide_header X-Powered-By;
+    #       rewrite ^/.well-known/webfinger /index.php/.well-known/webfinger last;
+    #       rewrite ^/.well-known/nodeinfo /index.php/.well-known/nodeinfo last;
+    #       rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
+    #       rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json;
+    #       location = /.well-known/carddav {
+    #         return 301 $scheme://$host/remote.php/dav;
+    #       }
+    #       location = /.well-known/caldav {
+    #         return 301 $scheme://$host/remote.php/dav;
+    #       }
+    #       location = /robots.txt {
+    #         allow all;
+    #         log_not_found off;
+    #         access_log off;
+    #       }
+    #       location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {
+    #         deny all;
+    #       }
+    #       location ~ ^/(?:autotest|occ|issue|indie|db_|console) {
+    #         deny all;
+    #       }
