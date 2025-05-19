@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - bitnami.yaml
   - cloudnative-pg.yaml
+  - democratic-csi.yaml
   - gitlab.yaml
   - jetstack.yaml
   - prometheus.yaml
