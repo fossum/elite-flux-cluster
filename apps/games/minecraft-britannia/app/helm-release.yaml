@@ -38,6 +38,14 @@ spec:
       requests:
         memory: 4Gi
 
+    service:
+      main:
+        annotations:
+          mc-router.itzg.me/defaultServer: "true"
+          mc-router.itzg.me/externalServerName: "britannia-mc.***REMOVED***"
+        type: LoadBalancer
+        loadBalancerIP: "192.168.1.170"
+
     workload:
       main:
         podSpec:
@@ -128,9 +136,3 @@ spec:
                 # CF_OVERRIDES_SKIP_EXISTING
                 # CF_PARALLEL_DOWNLOADS
                 # CF_SET_LEVEL_FROM
-
-    service:
-      main:
-        annotations:
-          mc-router.itzg.me/defaultServer: "true"
-          mc-router.itzg.me/externalServerName: "britannia-mc.***REMOVED***"
