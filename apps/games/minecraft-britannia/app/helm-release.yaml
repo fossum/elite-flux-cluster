@@ -63,6 +63,7 @@ spec:
                 # SPAWN_MONSTERS: true
                 # SPAWN_NPCS: true
                 VIEW_DISTANCE: 8
+                SIMULATION_DISTANCE: 10
                 # MODE: survival
                 MOTD: "Welcome to Venture Britannia Minecraft!"
                 # PVP: false
