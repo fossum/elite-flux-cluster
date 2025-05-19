@@ -4,6 +4,7 @@
         "cloudnative",
         "fluxcd",
         "nextcloud",
+        "rcon",
         "sidekiq",
         "sonarr",
         "thefoss",
