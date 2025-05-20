@@ -20,12 +20,12 @@ spec:
     persistence:
       data:
         enabled: true
-        storageClass: truenas-nfs-csi
+        storageClass: truenas-iscsi-api-csi
         size: 10Gi
         accessModes:
           - ReadWriteOnce
         retain: true
-        # existingClaim: "actual-budget-data"
+        # existingClaim: "pvc-ffc507ea-f793-43bf-9f50-d1c11707e067"
     ingress:
       main:
         enabled: true
