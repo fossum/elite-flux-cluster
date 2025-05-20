@@ -6,7 +6,7 @@ metadata:
 spec:
   chart:
     spec:
-      chart: actual
+      chart: actualserver
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
