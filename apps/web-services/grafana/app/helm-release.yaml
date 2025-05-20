@@ -1,0 +1,42 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: grafana
+  namespace: web-services
+spec:
+  chart:
+    spec:
+      chart: grafana
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      version: 18.0.0
+  interval: 1m0s
+  timeout: 10m0s
+  values:
+    # https://truecharts.org/charts/premium/grafana/
+    persistence:
+      data:
+        enabled: true
+        storageClass: truenas-iscsi-api-csi
+        size: 10Gi
+        accessModes:
+          - ReadWriteOnce
+        retain: true
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        hosts:
+          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+        integrations:
+          traefik:
+            enabled: false
+          certManager:
+            enabled: true
+            certificateIssuer: thefoss-le-prod
+          homepage:
+            enabled: true
+            group: "Services"
