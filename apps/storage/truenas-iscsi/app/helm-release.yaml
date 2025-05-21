@@ -13,7 +13,7 @@ spec:
       version: 0.15.0
       sourceRef:
         kind: HelmRepository
-        name: truecharts
+        name: democratic-charts
         namespace: flux-system
       interval: 15m
   timeout: 20m
@@ -33,13 +33,25 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    driver:
+      existingConfigSecret: driver-config
+      config:
+        driver: "freenas-api-iscsi"
+
+    controller:
+      driver:
+        enabled: true
+        image:
+          registry: docker.io/democraticcsi/democratic-csi
+          tag: next
+
     csiDriver:
       # should be globally unique for a given cluster
       name: "org.democratic-csi.api.iscsi"
 
     storageClasses:
     - name: truenas-iscsi-api-csi
-      defaultClass: false
+      defaultClass: true
       reclaimPolicy: Retain
       volumeBindingMode: Immediate
       allowVolumeExpansion: true
@@ -54,49 +66,3 @@ spec:
         node-stage-secret:
         node-publish-secret:
         controller-expand-secret:
-
-    driver:
-      config:
-        driver: freenas-api-iscsi
-        instance_id:
-        httpConnection:
-          protocol: https
-          host: 192.168.1.10
-          port: 444
-          allowInsecure: true
-          apiKey: 1-p3oY7Z2Cwk9qKgbqB5PreQvPpPsV4RuV5cmAkg5gzvhorAVIKrvlv3ZUDcWEw5y2
-        zfs:
-          datasetParentName: local-raid/kubeset/iscsi/data
-          detachedSnapshotsDatasetParentName: local-raid/kubeset/iscsi/snapshots
-          datasetEnableQuotas: true
-          datasetEnableReservation: false
-          datasetPermissionsMode: "0777"
-          datasetPermissionsUser: root
-          datasetPermissionsGroup: wheel
-        iscsi:
-          targetPortal: "192.168.1:3260"
-          targetPortals: []
-          # leave empty to omit usage of -I with iscsiadm
-          interface:
-          namePrefix: csi-
-          nameSuffix: "-cluster"
-          # add as many as needed
-          targetGroups:
-            # get the correct ID from the "portal" section in the UI
-            - targetGroupPortalGroup: 1
-              # get the correct ID from the "initiators" section in the UI
-              targetGroupInitiatorGroup: 3
-              # None, CHAP, or CHAP Mutual
-              targetGroupAuthType: None
-              # get the correct ID from the "Authorized Access" section of the UI
-              # only required if using Chap
-              targetGroupAuthGroup:
-          extentInsecureTpc: true
-          extentXenCompat: false
-          extentDisablePhysicalBlocksize: true
-          # 512, 1024, 2048, or 4096,
-          extentBlocksize: 4096
-          # "" (let FreeNAS decide, currently defaults to SSD), Unknown, SSD, 5400, 7200, 10000, 15000
-          extentRpm: "7200"
-          # 0-100 (0 == ignore)
-          extentAvailThreshold: 0

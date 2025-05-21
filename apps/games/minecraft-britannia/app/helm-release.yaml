@@ -38,6 +38,14 @@ spec:
       requests:
         memory: 4Gi
 
+    service:
+      main:
+        annotations:
+          mc-router.itzg.me/defaultServer: "true"
+          mc-router.itzg.me/externalServerName: "britannia-mc.***REMOVED***"
+        type: LoadBalancer
+        loadBalancerIP: "192.168.1.170"
+
     workload:
       service:
         main:
@@ -66,8 +74,8 @@ spec:
                 # SPAWN_ANIMALS: true
                 # SPAWN_MONSTERS: true
                 # SPAWN_NPCS: true
-                VIEW_DISTANCE: 8
-                SIMULATION_DISTANCE: 10
+                VIEW_DISTANCE: 16
+                # SIMULATION_DISTANCE: 10
                 # MODE: survival
                 MOTD: "Welcome to Venture Britannia Minecraft!"
                 # PVP: false
@@ -76,7 +84,6 @@ spec:
                 # ONLINE_MODE: true
                 INIT_MEMORY: 4G
                 MAX_MEMORY: 16G
-                MEMORY: 8G
                 RCON_PASSWORD: "Q9ZT6ypXgfKLQQ7xyRufxRPfFfSZhG"
                 # PACKWIZ_URL: ""
                 # CUSTOM_SERVER: ""
@@ -132,9 +139,3 @@ spec:
                 # CF_OVERRIDES_SKIP_EXISTING
                 # CF_PARALLEL_DOWNLOADS
                 # CF_SET_LEVEL_FROM
-
-    service:
-      main:
-        annotations:
-          mc-router.itzg.me/defaultServer: "true"
-          mc-router.itzg.me/externalServerName: "britannia-mc.***REMOVED***"
