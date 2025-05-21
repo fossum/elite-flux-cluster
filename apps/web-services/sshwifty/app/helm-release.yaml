@@ -19,6 +19,9 @@ spec:
     ingress:
       main:
         enabled: true
+        annotations:
+          # https://kubernetes.github.io/ingress-nginx/user-guide/miscellaneous/#websockets
+          nginx.org/websocket-services: sshwifty
         ingressClassName: external
         hosts:
           - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
