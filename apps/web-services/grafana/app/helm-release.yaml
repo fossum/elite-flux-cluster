@@ -1,22 +1,22 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: actual
+  name: grafana
   namespace: web-services
 spec:
   chart:
     spec:
-      chart: actualserver
+      chart: grafana
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
         name: truecharts
         namespace: flux-system
-      version: 13.5.0
+      version: 18.0.0
   interval: 1m0s
   timeout: 10m0s
   values:
-    # https://artifacthub.io/packages/helm/community-charts/actualbudget
+    # https://truecharts.org/charts/premium/grafana/
     persistence:
       data:
         enabled: true
@@ -25,7 +25,6 @@ spec:
         accessModes:
           - ReadWriteOnce
         retain: true
-        # existingClaim: "pvc-ffc507ea-f793-43bf-9f50-d1c11707e067"
     ingress:
       main:
         enabled: true
