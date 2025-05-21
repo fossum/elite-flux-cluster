@@ -6,5 +6,6 @@ resources:
   - democratic-csi.yaml
   - gitlab.yaml
   - jetstack.yaml
+  - nginx.yaml
   - prometheus.yaml
   - truecharts-repo.yaml

@@ -1,0 +1,108 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nginx-ext
+  namespace: infrastructure
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: ingress-nginx
+      version: 20.0.3
+      sourceRef:
+        kind: HelmRepository
+        name: nginx-charts
+        namespace: flux-system
+      interval: 5m
+  install:
+    createNamespace: false
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    ## nginx configuration
+    ## Ref: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/index.md
+    ##
+    controller:
+      replicaCount: 2
+      service:
+        # -- External traffic policy of the external controller service. Set to "Local" to preserve source IP on providers supporting it.
+        # Ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+        externalTrafficPolicy: Local
+        annotations:
+          metallb.io/ip-allocated-from-pool: main
+          metallb.io/loadBalancerIPs: ${NGINX_EXTERNAL_IP}
+      ingressClassByName: true
+      # -- Process Ingress objects without ingressClass annotation/ingressClassName field
+      # Overrides value for --watch-ingress-without-class flag of the controller binary
+      # Defaults to false
+      watchIngressWithoutClass: false
+      # -- This section refers to the creation of the IngressClass resource.
+      # IngressClasses are immutable and cannot be changed after creation.
+      # We do not support namespaced IngressClasses, yet, so a ClusterRole and a ClusterRoleBinding is required.
+      ingressClassResource:
+        name: external
+        # -- If true, Ingresses without `ingressClassName` get assigned to this IngressClass on creation.
+        # Ingress creation gets rejected if there are multiple default IngressClasses.
+        # Ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#default-ingress-class
+        default: false
+        # -- Controller of the IngressClass. An Ingress Controller looks for IngressClasses it should reconcile by this value.
+        # This value is also being set as the `--controller-class` argument of this Ingress Controller.
+        # Ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-class
+        controllerValue: k8s.io/external
+      # -- Global configuration passed to the ConfigMap consumed by the controller. Values may contain Helm templates.
+      # Ref.: https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/
+      config:
+        allow-snippet-annotations: true
+        annotations-risk-level: Critical
+        client-body-buffer-size: 100M
+        client-body-timeout: 120
+        client-header-timeout: 120
+        enable-brotli: "true"
+        enable-ocsp: "true"
+        enable-real-ip: "true"
+        force-ssl-redirect: "true"
+        hide-headers: Server,X-Powered-By
+        hsts-max-age: "31449600"
+        keep-alive-requests: 10000
+        keep-alive: 120
+        proxy-body-size: 0  # Unlimited
+        proxy-read-timeout: 60
+        proxy-send-timeout: 60
+        proxy-buffer-size: 16k
+        ssl-protocols: TLSv1.3 TLSv1.2
+        use-forwarded-headers: "true"
+      metrics:
+        enabled: true
+      # -- Additional command line arguments to pass to Ingress-Nginx Controller
+      # E.g. to specify the default SSL certificate you can use
+      ## extraArgs:
+      ##   default-ssl-certificate: "<namespace>/<secret_name>"
+      ##   time-buckets: "0.005,0.01,0.025,0.05,0.1,0.25,0.5,1,2.5,5,10"
+      ##   length-buckets: "10,20,30,40,50,60,70,80,90,100"
+      ##   size-buckets: "10,100,1000,10000,100000,1e+06,1e+07"
+      extraArgs:
+        default-ssl-certificate: "clusterissuer/certificate-issuer-general-wildcard"
+        publish-status-address: ${NGINX_EXTERNAL_IP}
+      # -- `terminationGracePeriodSeconds` to avoid killing pods before we are ready
+      ## wait up to five minutes for the drain of connections
+      ##
+      terminationGracePeriodSeconds: 120
+      # -- Allows customization of the source of the IP address or FQDN to report
+      # in the ingress status field. By default, it reads the information provided
+      # by the service. If disable, the status field reports the IP address of the
+      # node or nodes where an ingress controller pod is running.
+      publishService:
+        enabled: false
+      resources:
+        requests:
+          cpu: 100m
+        limits:
+          memory: 500Mi
+    ## Default 404 backend
+    defaultBackend:
+      enabled: false
