@@ -17,6 +17,17 @@ spec:
   timeout: 10m0s
   values:
     # https://truecharts.org/charts/premium/grafana/
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                GF_SECURITY_ADMIN_USER: "admin"
+                GF_SECURITY_ADMIN_PASSWORD:
+                  secretKeyRef:
+                    name: grafana-secret
+                    key: password
     persistence:
       data:
         enabled: true
