@@ -1,7 +1,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: minecraft-britannia
+  name: minecraft-venture
   namespace: games
 spec:
   interval: 5m
@@ -32,19 +32,11 @@ spec:
 
     TZ: "America/Los_Angeles"
 
-    resources:
-      limits:
-        memory: 16Gi
-      requests:
-        memory: 4Gi
-
     service:
       main:
         annotations:
-          mc-router.itzg.me/defaultServer: "true"
-          mc-router.itzg.me/externalServerName: "britannia-mc.${BASE_DOMAIN}"
-        type: LoadBalancer
-        loadBalancerIP: "192.168.1.170"
+          # mc-router.itzg.me/defaultServer: "true"
+          mc-router.itzg.me/externalServerName: "venture-mc.${BASE_DOMAIN}"
 
     workload:
       main:
@@ -73,13 +65,13 @@ spec:
                 VIEW_DISTANCE: 16
                 # SIMULATION_DISTANCE: 10
                 # MODE: survival
-                MOTD: "Welcome to Venture Britannia Minecraft!"
+                MOTD: "Welcome to Venture Minecraft!"
                 # PVP: false
                 # LEVEL_TYPE: DEFAULT
                 # LEVEL: world
                 # ONLINE_MODE: true
-                INIT_MEMORY: 4G
-                MAX_MEMORY: 16G
+                # INIT_MEMORY: 4G
+                # MAX_MEMORY: 16G
                 RCON_PASSWORD: "Q9ZT6ypXgfKLQQ7xyRufxRPfFfSZhG"
                 # PACKWIZ_URL: ""
                 # CUSTOM_SERVER: ""

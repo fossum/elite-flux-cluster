@@ -3,4 +3,6 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - minecraft-britannia/ks.yaml
+  - minecraft-venture/ks.yaml
   - minecraft-gate/ks.yaml
+  - minecraft-router/ks.yaml

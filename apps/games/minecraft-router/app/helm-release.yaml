@@ -1,0 +1,68 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: minecraft-router
+  namespace: games
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: minecraft-router
+      version: 1.10.0
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 5m
+  install:
+    createNamespace: false
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  values:
+    global:
+      fallbackDefaults:
+        storageClass: "longhorn"
+
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerIP: "192.168.1.171"
+
+    TZ: "America/Los_Angeles"
+
+    mcrouter:
+      default: minecraft-britannia-minecraft-java.games.svc.cluster.local:25565
+    #   mappings:
+    #     - minecraft-britannia-minecraft-java.games.svc.cluster.local=britannia.${BASE_DOMAIN}:25565
+    #     - minecraft-venture-minecraft-java.games.svc.cluster.local=venture.${BASE_DOMAIN}:25565
+
+    workload:
+      main:
+        podSpec:
+          automountServiceAccountToken: true
+          containers:
+            main:
+              args: ["--in-kube-cluster"]
+
+    rbac:
+      minecraft-router:
+        enabled: true
+        primary: true
+        clusterWide: true
+        serviceAccounts:
+          - minecraft-router
+        rules:
+          - apiGroups: [""] # Core API group
+            resources: ["services"]
+            verbs: ["get", "list", "watch"]
+
+    serviceAccount:
+      minecraft-router:
+        enabled: true
+        primary: true
+        targetSelectAll: true
