@@ -1,0 +1,84 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: transmission
+  namespace: torrents
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: enabled
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: transmission
+      version: 23.0.12
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    persistence:
+      config:
+        enabled: true
+        storageClass: longhorn
+        size: 1Gi
+      media:
+        enabled: true
+        type: nfs
+        path: /mnt/local-raid/no-backup/dvr
+        mountPath: /media
+        server: truenas.${BASE_DOMAIN}
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: internal
+        hosts:
+          - host: transmission.elite.internal
+        integrations:
+          traefik:
+            enabled: false
+          certManager:
+            enabled: true
+            certificateIssuer: selfsigned
+
+    addons:
+      vpn:
+        type: gluetun
+        killSwitch: true
+        excludedNetworks_IPv4:
+          - ${DEFAULT_SUBNET}
+          - ${SERVER_SUBNET}
+        excludedNetworks_IPv6: []
+        env:
+          VPN_SERVICE_PROVIDER: private internet access
+          VPN_TYPE: ${VPN_TYPE}
+          OPENVPN_USER: ${VPN_USER}
+          OPENVPN_PASSWORD: ${VPN_PASSWORD}
+          # SERVER_REGIONS: Comma separated list of regions
+          SERVER_REGIONS: ${VPN_REGIONS}
+          # SERVER_NAMES: Comma separated list of server names
+          # SERVER_HOSTNAMES: Comma separated list of server hostnames
+          # PORT_FORWARD_ONLY: Set to true to select servers with port forwarding only
+          # PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET: Encryption preset, defaulting to strong, which can be set to normal, strong or none. ⚠️ none disables the cipher and auth OpenVPN options.
+          # OPENVPN_ENDPOINT_PORT: Custom OpenVPN server endpoint port
+          # VPN_PORT_FORWARDING: defaults to off and can be set to onto enable port forwarding on the VPN server
+          # VPN_PORT_FORWARDING_STATUS_FILE: File path to write the forwarded port number to. It defaults to /tmp/gluetun/forwarded_port.
+          DNS_KEEP_NAMESERVER: false
+          DNS_ADDRESS: 8.8.8.8
