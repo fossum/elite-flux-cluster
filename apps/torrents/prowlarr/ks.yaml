@@ -10,9 +10,3 @@ spec:
   sourceRef:
     kind: GitRepository
     name: cluster
-  postBuild:
-    substitute:
-      BASE_DOMAIN: ***REMOVED***
-    substituteFrom:
-      - kind: ConfigMap
-        name: cluster-config
