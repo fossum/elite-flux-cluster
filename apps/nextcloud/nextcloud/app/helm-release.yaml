@@ -24,17 +24,21 @@ spec:
     remediation:
       retries: 3
   values:
+    global:
+      fallbackDefaults:
+        # -- Define a storageClassName that will be used for all PVCs
+        # Can be overruled per PVC
+        storageClass: "longhorn"
+
     nextcloud:
-      credentials:
-        # An admin username needs to be set
-        initialAdminUser: admin
-        # An admin password needs to be set.
-        initialAdminPassword: somepassword
       general:
-        # The default phone region needs to be set (if you are unsure about your region, you can find your code for your region in this [wiki](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements))
         default_phone_region: US
-        # You must set `accessIP` to the ip address used by _Traefik_
-        accessIP: 192.168.0.10
+        accessIP: ${NGINX_EXTERNAL_IP}
+
+    persistence:
+      data:
+        size: 2T
+        storageClass: truenas-iscsi-api-csi
 
     ingress:
       main:
@@ -48,3 +52,6 @@ spec:
           certManager:
             enabled: true
             certificateIssuer: thefoss-le-prod
+        homepage:
+          enabled: true
+          group: "Services"
