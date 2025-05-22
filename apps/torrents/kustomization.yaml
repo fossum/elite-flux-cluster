@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   # - pvc.yaml
+  - flaresolverr/ks.yaml
   - prowlarr/ks.yaml
   - readarr/ks.yaml
   - radarr/ks.yaml
