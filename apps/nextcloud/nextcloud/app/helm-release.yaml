@@ -51,7 +51,7 @@ spec:
             enabled: false
           certManager:
             enabled: true
-            certificateIssuer: thefoss-le-prod
+            certificateIssuer: thefoss-le-stage
         homepage:
           enabled: true
           group: "Services"
