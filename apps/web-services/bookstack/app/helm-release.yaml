@@ -21,7 +21,7 @@ spec:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "bookstack.${BASE_DOMAIN}"
+          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
         integrations:
           traefik:
             enabled: false
@@ -31,3 +31,10 @@ spec:
           homepage:
             enabled: true
             group: "Services"
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                APP_URL: "https://{{ .Release.Name }}.${BASE_DOMAIN}/"
