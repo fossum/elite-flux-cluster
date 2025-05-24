@@ -5,4 +5,5 @@ resources:
   - cloudnative-pg/ks.yaml
   - le-prod/ks.yaml
   - le-stage/ks.yaml
+  - prometheus/ks.yaml
   - redis/ks.yaml
