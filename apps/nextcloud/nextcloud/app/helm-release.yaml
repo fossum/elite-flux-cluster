@@ -30,6 +30,7 @@ spec:
         # Can be overruled per PVC
         storageClass: "longhorn"
         pvcSize: 10Gi
+        pvcRetain: false
 
     nextcloud:
       general:
@@ -40,6 +41,15 @@ spec:
       data:
         size: 2T
         storageClass: truenas-iscsi-api-csi
+        retain: true
+        accessModes:
+          - ReadWriteMany
+      html:
+        accessModes:
+          - ReadWriteMany
+      config:
+        accessModes:
+          - ReadWriteMany
 
     ingress:
       main:
@@ -56,3 +66,7 @@ spec:
         homepage:
           enabled: true
           group: "Services"
+
+    # redis:
+    #   enabled: false
+
