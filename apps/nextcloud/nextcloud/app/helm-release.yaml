@@ -29,6 +29,7 @@ spec:
         # -- Define a storageClassName that will be used for all PVCs
         # Can be overruled per PVC
         storageClass: "longhorn"
+        pvcSize: 10Gi
 
     nextcloud:
       general:
