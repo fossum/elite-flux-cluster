@@ -34,7 +34,7 @@ spec:
     keepHistory: false
   values:
     driver:
-      existingConfigSecret: driver-config
+      existingConfigSecret: driver-iscsi-config
       config:
         driver: "freenas-api-iscsi"
 
@@ -58,7 +58,6 @@ spec:
       parameters:
         # for block-based storage can be ext3, ext4, xfs
         fsType: xfs
-
       mountOptions: []
       secrets:
         provisioner-secret:
