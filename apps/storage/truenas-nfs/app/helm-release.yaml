@@ -38,6 +38,13 @@ spec:
       config:
         driver: freenas-api-nfs
 
+    controller:
+      driver:
+        enabled: true
+        image:
+          registry: docker.io/democraticcsi/democratic-csi
+          tag: next
+
     csiDriver:
       name: org.democratic-csi.freenas-api-nfs
 
