@@ -4,6 +4,7 @@ resources:
   - namespace.yaml
   - actual/ks.yaml
   - bookstack/ks.yaml
+  - chrome/ks.yaml
   - cloudflare-ddns/ks.yaml
   - grafana.secret.yaml
   - grafana/ks.yaml
