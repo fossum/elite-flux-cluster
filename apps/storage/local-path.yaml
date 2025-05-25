@@ -1,0 +1,25 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-path # This must match the name of the existing StorageClass
+  annotations:
+    # This is a strategic merge patch or server-side apply directive for the annotation
+    # It ensures only this annotation is changed as specified.
+    storageclass.kubernetes.io/is-default-class: "false"
+    # IMPORTANT: If other annotations exist on local-path and you want to keep them,
+    # you might need to list them here, or use a different patch strategy
+    # if your Flux Kustomization controller is old.
+    # For modern Kustomize controllers, this should merge correctly.
+    # Alternatively, a JSON patch is more precise:
+---
+# If you prefer a more explicit JSON patch managed by a Kustomization:
+# Add this to your kustomization.yaml:
+# patches:
+#  - patch: |-
+#      - op: add # or "replace" if it already exists
+#        path: /metadata/annotations/storageclass.kubernetes.io~1is-default-class
+#        value: "false"
+#    target:
+#      kind: StorageClass
+#      name: local-path
+# And then you don't need the above StorageClass manifest with the annotation directly.

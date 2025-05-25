@@ -51,7 +51,7 @@ spec:
 
     storageClasses:
     - name: truenas-iscsi-api-csi
-      defaultClass: true
+      defaultClass: false
       reclaimPolicy: Retain
       volumeBindingMode: Immediate
       allowVolumeExpansion: true
