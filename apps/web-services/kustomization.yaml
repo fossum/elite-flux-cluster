@@ -12,3 +12,4 @@ resources:
   - home-assistant/ks.yaml
   - portainer/ks.yaml
   - sshwifty/ks.yaml
+  - vpn/ks.yaml

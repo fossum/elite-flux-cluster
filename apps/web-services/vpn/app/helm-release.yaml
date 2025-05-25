@@ -1,0 +1,50 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vpn
+  namespace: web-services
+spec:
+  chart:
+    spec:
+      chart: dockovpn
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      version: 3.5.1
+  interval: 1m0s
+  timeout: 10m0s
+  values:
+    # https://truecharts.org/charts/stable/dockovpn
+    global:
+      fallbackDefaults:
+        # -- Define a storageClassName that will be used for all PVCs
+        # Can be overruled per PVC
+        storageClass: "truenas-iscsi-api-csi"
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                HOST_ADDR: "{{ .Release.Name }}.${BASE_DOMAIN}"
+    service:
+      main:
+        type: LoadBalancer
+        loadBalancerIP: "192.168.1.159"
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        hosts:
+          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+        integrations:
+          traefik:
+            enabled: false
+          certManager:
+            enabled: true
+            certificateIssuer: thefoss-le-prod
+          homepage:
+            enabled: true
+            group: "Services"
