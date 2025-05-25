@@ -1,0 +1,38 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: chrome
+  namespace: web-services
+spec:
+  chart:
+    spec:
+      chart: browserless-chrome
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      version: 11.5.1
+  interval: 1m0s
+  timeout: 10m0s
+  values:
+    # https://truecharts.org/charts/stable/browserless-chrome/
+    global:
+      fallbackDefaults:
+        storageClass: "truenas-iscsi-api-csi"
+        pvcSize: 100Gi
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        hosts:
+          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+        integrations:
+          traefik:
+            enabled: false
+          certManager:
+            enabled: true
+            certificateIssuer: thefoss-le-prod
+          homepage:
+            enabled: true
+            group: "Services"
