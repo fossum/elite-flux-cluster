@@ -28,9 +28,19 @@ spec:
       fallbackDefaults:
         # -- Define a storageClassName that will be used for all PVCs
         # Can be overruled per PVC
-        storageClass: "longhorn"
-        pvcSize: 10Gi
+        storageClass: "truenas-iscsi-api-csi"
+        pvcSize: 20Gi
         pvcRetain: false
+
+    # credentials:
+    #   mys3:
+    #     type: s3
+    #     url: "${S3_URL}"
+    #     bucket: "nextcloud_pgsql"
+    #     accessKey: "${S3_ACCESKEY}"
+    #     secretKey: "${S3_SECRETKEY}"
+    #     # encrKey: "myencryptionkey"
+
 
     nextcloud:
       general:
@@ -40,14 +50,17 @@ spec:
     persistence:
       data:
         size: 2T
-        storageClass: truenas-iscsi-api-csi
+        storageClass: truenas-nfs-api-csi
         retain: true
         accessModes:
           - ReadWriteMany
+        # existingClaim: pvc-4bf0acbd-f255-425e-9ab7-a422dec76d16
       html:
+        storageClass: longhorn
         accessModes:
           - ReadWriteMany
       config:
+        storageClass: longhorn
         accessModes:
           - ReadWriteMany
 
