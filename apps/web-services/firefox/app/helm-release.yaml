@@ -1,0 +1,41 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: firefox
+  namespace: web-services
+spec:
+  chart:
+    spec:
+      chart: firefox
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      version: 24.0.4
+  interval: 1m0s
+  timeout: 10m0s
+  values:
+    # https://truecharts.org/charts/stable/firefox
+    global:
+      fallbackDefaults:
+        storageClass: "truenas-iscsi-api-csi"
+        pvcSize: 10Gi
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          # For kubectl terminal.
+          nginx.org/websocket-services: sshwifty
+        ingressClassName: external
+        hosts:
+          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+        integrations:
+          traefik:
+            enabled: false
+          certManager:
+            enabled: true
+            certificateIssuer: thefoss-le-prod
+          homepage:
+            enabled: true
+            group: "Services"
