@@ -4,6 +4,6 @@ resources:
   - namespace.yaml
   - driver-iscsi-config.secret.yaml
   - driver-nfs-config.secret.yaml
-  - local-path.yaml
+  # - local-path.yaml
   - truenas-iscsi/ks.yaml
   - truenas-nfs/ks.yaml
