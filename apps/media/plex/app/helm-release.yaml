@@ -27,6 +27,8 @@ spec:
     persistence:
       config:
         enabled: true
+        size: 5Gi
+        storageClass: "longhorn"
       media:
         enabled: true
         type: nfs
