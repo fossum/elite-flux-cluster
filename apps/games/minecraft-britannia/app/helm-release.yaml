@@ -24,12 +24,6 @@ spec:
     remediation:
       retries: 3
   values:
-    global:
-      fallbackDefaults:
-        # -- Define a storageClassName that will be used for all PVCs
-        # Can be overruled per PVC
-        storageClass: "truenas-nfs-csi"
-
     TZ: "America/Los_Angeles"
 
     resources:
@@ -51,7 +45,7 @@ spec:
         podSpec:
           containers:
             mcbackup:
-              enabled: false
+              enabled: true
             main:
               env:
                 # GUI: "FALSE"
@@ -137,3 +131,11 @@ spec:
                 # CF_OVERRIDES_SKIP_EXISTING
                 # CF_PARALLEL_DOWNLOADS
                 # CF_SET_LEVEL_FROM
+
+    persistence:
+      data:
+        storageClass: "longhorn"
+        size: 10Gi
+      backups:
+        storageClass: "truenas-nfs-api-csi"
+        size: 100Gi
