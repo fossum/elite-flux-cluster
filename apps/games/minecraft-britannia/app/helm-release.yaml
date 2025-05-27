@@ -50,6 +50,8 @@ spec:
       main:
         podSpec:
           containers:
+            mcbackup:
+              enabled: false
             main:
               env:
                 # GUI: "FALSE"
