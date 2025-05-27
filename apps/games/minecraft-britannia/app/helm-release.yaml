@@ -4,7 +4,7 @@ metadata:
   name: minecraft-britannia
   namespace: games
 spec:
-  interval: 5m
+  interval: 1h30m
   chart:
     spec:
       chart: minecraft-java
@@ -12,8 +12,8 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: truecharts
-        namespace: flux-system
-      interval: 5m
+        namespace: cluster
+      interval: 1h
   install:
     createNamespace: false
     crds: CreateReplace
@@ -45,7 +45,7 @@ spec:
         podSpec:
           containers:
             mcbackup:
-              enabled: true
+              enabled: false
             main:
               env:
                 # GUI: "FALSE"
@@ -74,9 +74,9 @@ spec:
                 # LEVEL_TYPE: DEFAULT
                 # LEVEL: world
                 # ONLINE_MODE: true
-                INIT_MEMORY: 4G
-                MAX_MEMORY: 16G
-                RCON_PASSWORD: "Q9ZT6ypXgfKLQQ7xyRufxRPfFfSZhG"
+                # INIT_MEMORY: 4G
+                # MAX_MEMORY: 16G
+                # RCON_PASSWORD: "Q9ZT6ypXgfKLQQ7xyRufxRPfFfSZhG"
                 # PACKWIZ_URL: ""
                 # CUSTOM_SERVER: ""
                 # QUILT_LOADER_VERSION: ""
