@@ -4,7 +4,7 @@ metadata:
   name: minecraft-venture
   namespace: games
 spec:
-  interval: 5m
+  interval: 30m
   chart:
     spec:
       chart: minecraft-java
@@ -13,7 +13,7 @@ spec:
         kind: HelmRepository
         name: truecharts
         namespace: flux-system
-      interval: 5m
+      interval: 1h
   install:
     createNamespace: false
     crds: CreateReplace
@@ -24,18 +24,11 @@ spec:
     remediation:
       retries: 3
   values:
-    global:
-      fallbackDefaults:
-        # -- Define a storageClassName that will be used for all PVCs
-        # Can be overruled per PVC
-        storageClass: "truenas-nfs-csi"
-
     TZ: "America/Los_Angeles"
 
     service:
       main:
         annotations:
-          # mc-router.itzg.me/defaultServer: "true"
           mc-router.itzg.me/externalServerName: "venture-mc.${BASE_DOMAIN}"
 
     workload:
@@ -72,7 +65,7 @@ spec:
                 # ONLINE_MODE: true
                 # INIT_MEMORY: 4G
                 # MAX_MEMORY: 16G
-                RCON_PASSWORD: "Q9ZT6ypXgfKLQQ7xyRufxRPfFfSZhG"
+                RCON_PASSWORD: ${RCON_PASSWORD}
                 # PACKWIZ_URL: ""
                 # CUSTOM_SERVER: ""
                 # QUILT_LOADER_VERSION: ""
@@ -127,3 +120,11 @@ spec:
                 # CF_OVERRIDES_SKIP_EXISTING
                 # CF_PARALLEL_DOWNLOADS
                 # CF_SET_LEVEL_FROM
+
+    persistence:
+      data:
+        storageClass: "longhorn"
+        size: 10Gi
+      backups:
+        storageClass: "truenas-nfs-api-csi"
+        size: 100Gi

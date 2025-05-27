@@ -4,7 +4,7 @@ metadata:
   name: minecraft-gate
   namespace: games
 spec:
-  interval: 5m
+  interval: 20m
   chart:
     spec:
       chart: minecraft-gate
@@ -13,7 +13,7 @@ spec:
         kind: HelmRepository
         name: truecharts
         namespace: flux-system
-      interval: 5m
+      interval: 40m
   install:
     createNamespace: false
     crds: CreateReplace
