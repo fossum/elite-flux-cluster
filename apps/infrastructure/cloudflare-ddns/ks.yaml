@@ -5,7 +5,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m
-  path: apps/web-services/cloudflare-ddns/app
+  path: apps/infrastructure/cloudflare-ddns/app
   prune: true
   sourceRef:
     kind: GitRepository
