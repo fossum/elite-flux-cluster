@@ -5,5 +5,7 @@ resources:
   - driver-iscsi-config.secret.yaml
   - driver-nfs-config.secret.yaml
   # - local-path.yaml
+  - minio/ks.yaml
+  - minio.secret.yaml
   - truenas-iscsi/ks.yaml
   - truenas-nfs/ks.yaml
