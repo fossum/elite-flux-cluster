@@ -33,6 +33,11 @@ spec:
         pvcSize: 20Gi
         pvcRetain: false
 
+    image:
+      repository: docker.io/library/nextcloud
+      pullPolicy: Always
+      tag: 30.0.11-fpm@sha256:29f0a0e5bd6957666b264bd4b51785356bbae6239db40bf627eee7ae1fd76fb6
+
     # credentials:
     #   mys3:
     #     type: s3
