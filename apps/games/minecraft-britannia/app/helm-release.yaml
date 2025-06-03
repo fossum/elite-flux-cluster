@@ -70,7 +70,7 @@ spec:
                 SIMULATION_DISTANCE: 24
                 # MODE: survival
                 MOTD: "Welcome to Venture Britannia Minecraft!"
-                # PVP: false
+                PVP: true
                 # LEVEL_TYPE: DEFAULT
                 LEVEL: world
                 # ONLINE_MODE: true
