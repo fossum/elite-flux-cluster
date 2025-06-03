@@ -12,7 +12,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: truecharts
-        namespace: cluster
+        namespace: flux-system
       interval: 1h
   install:
     createNamespace: false
@@ -52,18 +52,18 @@ spec:
         podSpec:
           containers:
             mcbackup:
-              enabled: false
+              enabled: true
             main:
               env:
                 # GUI: "FALSE"
-                OVERRIDE_SERVER_PROPERTIES: true
+                OVERRIDE_SERVER_PROPERTIES: false
                 # VERSION: "LATEST"
                 # TYPE: "VANILLA"
-                # DIFFICULTY: easy
+                DIFFICULTY: hard
                 # MAX_PLAYERS: 20
-                # MAX_WORLD_SIZE: 10000
-                # ALLOW_NETHER: true
-                # ANNOUNCE_PLAYER_ACHIEVEMENTS: true
+                MAX_WORLD_SIZE: 20000000
+                ALLOW_NETHER: true
+                ANNOUNCE_PLAYER_ACHIEVEMENTS: true
                 # ENABLE_COMMAND_BLOCK: false
                 # FORCE_GAMEMODE: false
                 # GENERATE_STRUCTURES: true
@@ -73,13 +73,13 @@ spec:
                 # SPAWN_ANIMALS: true
                 # SPAWN_MONSTERS: true
                 # SPAWN_NPCS: true
-                VIEW_DISTANCE: 16
-                # SIMULATION_DISTANCE: 10
+                VIEW_DISTANCE: 24
+                SIMULATION_DISTANCE: 24
                 # MODE: survival
                 MOTD: "Welcome to Venture Britannia Minecraft!"
-                # PVP: false
+                PVP: true
                 # LEVEL_TYPE: DEFAULT
-                # LEVEL: world
+                LEVEL: world
                 # ONLINE_MODE: true
                 # INIT_MEMORY: 4G
                 # MAX_MEMORY: 16G
