@@ -45,7 +45,7 @@ spec:
         podSpec:
           containers:
             mcbackup:
-              enabled: false
+              enabled: true
             main:
               env:
                 # GUI: "FALSE"
