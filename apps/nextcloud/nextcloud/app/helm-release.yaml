@@ -4,16 +4,16 @@ metadata:
   name: nextcloud2
   namespace: nextcloud
 spec:
-  interval: 5m
+  interval: 30m
   chart:
     spec:
       chart: nextcloud
-      version: 34.0.3
+      version: 35.0.12
       sourceRef:
         kind: HelmRepository
         name: truecharts
         namespace: flux-system
-      interval: 5m
+      interval: 60m
   install:
     createNamespace: false
     crds: CreateReplace
@@ -21,10 +21,37 @@ spec:
       retries: 3
     timeout: 20m0s
   upgrade:
+    timeout: 45m
     crds: CreateReplace
     remediation:
       retries: 3
+  valuesFrom:
+    - kind: Secret
+      name: nextcloud-configs
+      valuesKey: instance-config
+      targetPath: "nextcloud.configs.instance\\.config\\.php"
+    - kind: Secret
+      name: nextcloud-configs
+      valuesKey: mail-config
+      targetPath: "nextcloud.configs.mail\\.config\\.php"
   values:
+    # startupProbe:
+    #   initialDelaySeconds: 601
+    # workload:
+    #   main:
+    #     podSpec:
+    #       containers:
+    #         main:
+    #           probes:
+    #             liveness:
+    #               spec:
+    #                 initialDelaySeconds: 600
+    #             readiness:
+    #               spec:
+    #                 initialDelaySeconds: 600
+    #             startup:
+    #               spec:
+    #                 initialDelaySeconds: 600
     global:
       fallbackDefaults:
         # -- Define a storageClassName that will be used for all PVCs
@@ -36,7 +63,7 @@ spec:
     image:
       repository: docker.io/library/nextcloud
       pullPolicy: Always
-      tag: 30.0.11-fpm@sha256:29f0a0e5bd6957666b264bd4b51785356bbae6239db40bf627eee7ae1fd76fb6
+      tag: 31.0.4-fpm@sha256:21468f5acb6d66b5abb0b78192e94a03ba1aef2ca0303f3800226363c0ee7cda
 
     # credentials:
     #   mys3:
@@ -49,38 +76,121 @@ spec:
 
 
     nextcloud:
+      # probes:
+      #   startup: # Startup probes are ideal for long-starting applications
+      #     enabled: true
+      #     # type: http # Usually defaults to httpGet if not specified, or what the chart sets
+      #     # spec: # You might need to provide the full spec if custom: true, or just override fields
+      #     #   httpGet:
+      #     #     path: /status.php # Or the chart's default startup probe path
+      #     #     port: http # Or the chart's default http port
+      #     initialDelaySeconds: 600    # Start probing relatively early after container starts
+      #     periodSeconds: 15        # Probe every 15 seconds
+      #     failureThreshold: 120    # Allow 120 failures (120 * 15s = 1800s = 30 minutes for startup)
+      #     timeoutSeconds: 10       # Give each probe attempt 10 seconds to respond
+
+      #   liveness:
+      #     enabled: true
+      #     # type: http
+      #     # spec:
+      #     #   httpGet:
+      #     #     path: /status.php # Or the chart's default liveness probe path
+      #     #     port: http
+      #     initialDelaySeconds: 1800 # Start liveness probe only after a long delay (e.g., 30 minutes, after startup probe should have passed)
+      #     periodSeconds: 30
+      #     timeoutSeconds: 15
+      #     failureThreshold: 6      # More aggressive after startup
+
+      #   readiness:
+      #     enabled: true
+      #     # type: http
+      #     # spec:
+      #     #   httpGet:
+      #     #     path: /status.php # Or the chart's default readiness probe path
+      #     #     port: http
+      #     initialDelaySeconds: 1700 # Start readiness probe only after a long delay (e.g., 30 minutes)
+      #     periodSeconds: 30
+      #     timeoutSeconds: 15
+      #     failureThreshold: 3
       general:
         default_phone_region: US
         accessIP: ${NGINX_EXTERNAL_IP}
-      configs:
-        instance.config.php: |-
-          <?php
-          $CONFIG = array (
-              'overwrite.cli.url' => 'https://nextcloud.***REMOVED***',
-              'overwritehost' => 'nextcloud.***REMOVED***',
-              'overwriteprotocol' => 'https',
-              'instanceid' => 'oc0eseu24utd',
-              'installed' => true,
-              'passwordsalt' => 'fP9hj+GgVzmnlIi+AdMsX84/YMJIR6',
-              'secret' => '9kXhpzQu/FFuvXKFwAmY6UQgsHyG02uV1rrFMEiDOaVzk0/Q',
-              'trusted_domains' =>
-              array (
-                  0 => '192.168.1.51',
-                  0 => '192.168.1.52',
-                  0 => '192.168.1.53',
-                  0 => '192.168.1.54',
-                  0 => '192.168.1.55',
-                  1 => 'nextcloud.***REMOVED***',
-              ),
-              'trusted_proxies' =>
-              array (
-                  0 => '192.168.1.60',
-              ),
-              'dbtableprefix' => 'oc_',
-              'mysql.utf8mb4' => true,
-              'data-fingerprint' => 'f10d1171641028748c4b5df517740b55',
-              'default_phone_region' => 'US',
-          );
+      # previews:
+      #   # Casings are important
+      #   # https://github.com/nextcloud/server/blob/master/config/config.sample.php#L1269
+      #   # Only the last part of the provider is needed
+      #   providers:
+      #     - BMP
+      #     - EMF
+      #     - Font
+      #     - GIF
+      #     - HEIC
+      #     - Illustrator
+      #     - ImaginaryPDF
+      #     - JPEG
+      #     - MarkDown
+      #     - Movie
+      #     - MP3
+      #     - MP4
+      #     - MSOffice2003
+      #     - MSOffice2007
+      #     - MSOfficeDoc
+      #     - OpenDocument
+      #     - PDF
+      #     - Photoshop
+      #     - PNG
+      #     - Postscript
+      #     - StarOffice
+      #     - SVG
+      #     - TIFF
+      #     - TXT
+      #     - XBitmap
+      # clamav:
+      #   enabled: true
+      #   stream_max_length: 26214400
+      #   file_max_size: -1
+      #   infected_action: only_log
+      # collabora:
+      #   enabled: true
+      #   # default|compact|tabbed
+      #   interface_mode: default
+      #   username: admin
+      #   password: ${TEMP_PASSWORD}
+      #   dictionaries:
+      #     - de_DE
+      #     - en_GB
+      #     - en_US
+      #     - el_GR
+      #     - es_ES
+      #     - fr_FR
+      #     - pt_BR
+      #     - pt_PT
+      #     - it
+      #     - nl
+      #     - ru
+      # onlyoffice:
+      #   # It will not deploy the container
+      #   # Only add the OnlyOffice settings
+      #   enabled: false
+      #   url: ""
+      #   internal_url: ""
+      #   verify_ssl: true
+      #   jwt: ""
+      #   jwt_header: Authorization
+      # configs:
+      #   redis.config.php: |-
+      #     <?php
+      #     $CONFIG = array (
+      #         'redis' =>
+      #         array (
+      #           'host' => 'redis.infrastructure.svc.cluster.local',
+      #           'port' => 6379,
+      #           'password' => ${REDIS_PASSWORD},
+      #         ),
+      #         'memcache.local' => '\\OC\\Memcache\\APCu',
+      #         'memcache.distributed' => '\\OC\\Memcache\\Redis',
+      #         'memcache.locking' => '\\OC\\Memcache\\Redis',
+      #     );
 
     persistence:
       data:
@@ -104,7 +214,7 @@ spec:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+          - host: "nextcloud.${BASE_DOMAIN}"
         integrations:
           traefik:
             enabled: false
@@ -117,4 +227,5 @@ spec:
 
     # redis:
     #   enabled: false
+    #   includeCommon: false
 

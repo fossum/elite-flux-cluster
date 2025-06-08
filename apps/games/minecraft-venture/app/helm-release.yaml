@@ -4,7 +4,7 @@ metadata:
   name: minecraft-venture
   namespace: games
 spec:
-  interval: 30m
+  interval: 5m
   chart:
     spec:
       chart: minecraft-java
@@ -13,7 +13,7 @@ spec:
         kind: HelmRepository
         name: truecharts
         namespace: flux-system
-      interval: 1h
+      interval: 10m
   install:
     createNamespace: false
     crds: CreateReplace
