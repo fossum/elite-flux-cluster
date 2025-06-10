@@ -61,8 +61,8 @@ spec:
                 BACKUPS_INTERVAL: 43200
                 BACKUPS_MAX_AGE: 3
                 SUPERVISOR_HTTP_USER: ericfoss
-                SUPERVISOR_HTTP_PASS: {{ .Values.TEMP_PASSWORD }}
-                SERVER_PASS: {{ .Values.GAME_PASSWORD }}
+                SUPERVISOR_HTTP_PASS: "{{ .Values.TEMP_PASSWORD }}"
+                SERVER_PASS: "{{ .Values.GAME_PASSWORD }}"
                 VALHEIM_PLUS: false
                 BEPINEX: true
 

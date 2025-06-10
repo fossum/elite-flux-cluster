@@ -53,6 +53,10 @@ spec:
       name: torrents-config
       valuesKey: VPN_REGIONS
       targetPath: VPN_REGIONS
+    - kind: ConfigMap
+      name: torrents-config
+      valuesKey: DEFAULT_SUBNET
+      targetPath: DEFAULT_SUBNET
   values:
     persistence:
       config:

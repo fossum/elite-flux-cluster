@@ -13,11 +13,11 @@ spec:
   decryption:
     provider: sops
     secretRef:
-      name: sops-age  # Or whatever you named your Secret. Update patches accordingly.
+      name: sops-age
   postBuild:
     substituteFrom:
       - kind: ConfigMap
-        name: cluster-config  # Or whatever you named your ConfigMap.
+        name: cluster-config
   patches:
     - patch: |-
         apiVersion: kustomize.toolkit.fluxcd.io/v1

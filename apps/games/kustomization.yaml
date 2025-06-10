@@ -1,5 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+metadata:
+  name: games
+  namespace: flux-system
 resources:
   - namespace.yaml
   - games.secret.yaml
