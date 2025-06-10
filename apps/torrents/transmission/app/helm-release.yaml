@@ -32,6 +32,27 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
+  valuesFrom:
+    - kind: ConfigMap
+      name: torrents-config
+      valuesKey: BASE_DOMAIN
+      targetPath: BASE_DOMAIN
+    - kind: ConfigMap
+      name: torrents-config
+      valuesKey: VPN_TYPE
+      targetPath: VPN_TYPE
+    - kind: ConfigMap
+      name: torrents-config
+      valuesKey: VPN_USER
+      targetPath: VPN_USER
+    - kind: ConfigMap
+      name: torrents-config
+      valuesKey: VPN_PASSWORD
+      targetPath: VPN_PASSWORD
+    - kind: ConfigMap
+      name: torrents-config
+      valuesKey: VPN_REGIONS
+      targetPath: VPN_REGIONS
   values:
     persistence:
       config:
@@ -43,7 +64,7 @@ spec:
         type: nfs
         path: /mnt/local-raid/no-backup/dvr
         mountPath: /media
-        server: truenas.${BASE_DOMAIN}
+        server: truenas.{{ .Values.BASE_DOMAIN }}
 
     ingress:
       main:
@@ -63,16 +84,16 @@ spec:
         type: gluetun
         killSwitch: true
         excludedNetworks_IPv4:
-          - ${DEFAULT_SUBNET}
-          - ${SERVER_SUBNET}
+          - {{ .Values.DEFAULT_SUBNET }}
+          - {{ .Values.SERVER_SUBNET }}
         excludedNetworks_IPv6: []
         env:
           VPN_SERVICE_PROVIDER: private internet access
-          VPN_TYPE: ${VPN_TYPE}
-          OPENVPN_USER: ${VPN_USER}
-          OPENVPN_PASSWORD: ${VPN_PASSWORD}
+          VPN_TYPE: {{ .Values.VPN_TYPE }}
+          OPENVPN_USER: {{ .Values.VPN_USER }}
+          OPENVPN_PASSWORD: {{ .Values.VPN_PASSWORD }}
           # SERVER_REGIONS: Comma separated list of regions
-          SERVER_REGIONS: ${VPN_REGIONS}
+          SERVER_REGIONS: {{ .Values.VPN_REGIONS }}
           # SERVER_NAMES: Comma separated list of server names
           # SERVER_HOSTNAMES: Comma separated list of server hostnames
           # PORT_FORWARD_ONLY: Set to true to select servers with port forwarding only
