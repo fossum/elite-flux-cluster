@@ -23,5 +23,10 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: infrastructure-secrets
+      valuesKey: REDIS_PASSWORD
+      targetPath: REDIS_PASSWORD
   values:
-    password: ${REDIS_PASSWORD}
+    password: {{ .Values.REDIS_PASSWORD }}

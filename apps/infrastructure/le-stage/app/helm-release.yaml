@@ -23,13 +23,22 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: infrastructure-secrets
+      valuesKey: DOMAIN_0_EMAIL
+      targetPath: DOMAIN_0_EMAIL
+    - kind: ConfigMap
+      name: infrastructure-secrets
+      valuesKey: DOMAIN_0_CLOUDFLARE_TOKEN
+      targetPath: DOMAIN_0_CLOUDFLARE_TOKEN
   values:
     clusterIssuer:
       ACME:
         - name: thefoss-le-stage
           # Used for both logging in to the DNS provider AND ACME registration
-          email: "${DOMAIN_0_EMAIL}"
+          email: "{{ .Values.DOMAIN_0_EMAIL }}"
           server: 'https://acme-staging-v02.api.letsencrypt.org/directory'
           type: "cloudflare"
           # Obtained using instructions above
-          cfapitoken: "${DOMAIN_0_CLOUDFLARE_TOKEN}"
+          cfapitoken: "{{ .Values.DOMAIN_0_CLOUDFLARE_TOKEN }}"

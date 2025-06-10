@@ -15,11 +15,20 @@ spec:
       version: 11.5.11
   interval: 1m0s
   timeout: 10m0s
+  valuesFrom:
+    - kind: ConfigMap
+      name: game-secrets
+      valuesKey: BASE_DOMAIN
+      targetPath: BASE_DOMAIN
+    - kind: ConfigMap
+      name: game-secrets
+      valuesKey: DOMAIN_0_CLOUDFLARE_TOKEN
+      targetPath: DOMAIN_0_CLOUDFLARE_TOKEN
   values:
     # https://truecharts.org/charts/stable/cloudflareddns
     cloudflareddns:
-      api_token: ${DOMAIN_0_CLOUDFLARE_TOKEN}
+      api_token: {{ .Values.DOMAIN_0_CLOUDFLARE_TOKEN }}
       host_zone_record:
-        - domain: ${BASE_DOMAIN}
+        - domain: {{ .Values.BASE_DOMAIN }}
           record: A
-          zone: ${BASE_DOMAIN}
+          zone: {{ .Values.BASE_DOMAIN }}

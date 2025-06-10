@@ -4,6 +4,7 @@ resources:
   - namespace.yaml
   - cloudflare-ddns/ks.yaml
   - cloudnative-pg/ks.yaml
+  - infrastructure.secret.yaml
   - le-prod/ks.yaml
   - le-stage/ks.yaml
   - prometheus/ks.yaml
