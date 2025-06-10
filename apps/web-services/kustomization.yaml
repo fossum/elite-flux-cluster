@@ -12,4 +12,5 @@ resources:
   - homepage/ks.yaml
   - portainer/ks.yaml
   - sshwifty/ks.yaml
+  - web-services.secret.yaml
   - vpn/ks.yaml

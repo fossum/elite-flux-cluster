@@ -15,13 +15,18 @@ spec:
       version: 16.1.1
   interval: 1m0s
   timeout: 15m0s
+  valuesFrom:
+    - kind: ConfigMap
+      name: web-secrets
+      valuesKey: BASE_DOMAIN
+      targetPath: BASE_DOMAIN
   values:
     ingress:
       main:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+          - host: "{{ .Release.Name }}.{{ .Values.BASE_DOMAIN }}"
         integrations:
           traefik:
             enabled: false
@@ -37,4 +42,4 @@ spec:
           containers:
             main:
               env:
-                APP_URL: "https://{{ .Release.Name }}.${BASE_DOMAIN}/"
+                APP_URL: "https://{{ .Release.Name }}.{{ .Values.BASE_DOMAIN }}/"

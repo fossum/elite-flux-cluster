@@ -15,6 +15,11 @@ spec:
       version: 10.2.0
   interval: 1m0s
   timeout: 15m0s
+  valuesFrom:
+    - kind: ConfigMap
+      name: web-secrets
+      valuesKey: BASE_DOMAIN
+      targetPath: BASE_DOMAIN
   values:
     workload:
       main:
@@ -22,13 +27,13 @@ spec:
           containers:
             main:
               env:
-                HOMEPAGE_ALLOWED_HOSTS: ${BASE_DOMAIN}
+                HOMEPAGE_ALLOWED_HOSTS: {{ .Values.BASE_DOMAIN }}
     ingress:
       main:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "${BASE_DOMAIN}"
+          - host: "{{ .Values.BASE_DOMAIN }}"
         integrations:
           traefik:
             enabled: false

@@ -15,6 +15,11 @@ spec:
       version: 18.0.0
   interval: 1m0s
   timeout: 10m0s
+  valuesFrom:
+    - kind: ConfigMap
+      name: web-secrets
+      valuesKey: BASE_DOMAIN
+      targetPath: BASE_DOMAIN
   values:
     # https://truecharts.org/charts/premium/grafana/
     workload:
@@ -41,7 +46,7 @@ spec:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+          - host: "{{ .Release.Name }}.{{ .Values.BASE_DOMAIN }}"
         integrations:
           traefik:
             enabled: false

@@ -15,6 +15,11 @@ spec:
       version: 24.0.4
   interval: 1m0s
   timeout: 10m0s
+  valuesFrom:
+    - kind: ConfigMap
+      name: web-secrets
+      valuesKey: BASE_DOMAIN
+      targetPath: BASE_DOMAIN
   values:
     # https://truecharts.org/charts/stable/firefox
     global:
@@ -29,7 +34,7 @@ spec:
           nginx.org/websocket-services: firefox
         ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+          - host: "{{ .Release.Name }}.{{ .Values.BASE_DOMAIN }}"
         integrations:
           traefik:
             enabled: false

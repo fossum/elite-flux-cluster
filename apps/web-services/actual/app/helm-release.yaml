@@ -15,6 +15,11 @@ spec:
       version: 13.5.0
   interval: 1m0s
   timeout: 10m0s
+  valuesFrom:
+    - kind: ConfigMap
+      name: web-secrets
+      valuesKey: BASE_DOMAIN
+      targetPath: BASE_DOMAIN
   values:
     # https://artifacthub.io/packages/helm/community-charts/actualbudget
     persistence:
@@ -31,7 +36,7 @@ spec:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+          - host: "{{ .Release.Name }}.{{ .Values.BASE_DOMAIN }}"
         integrations:
           traefik:
             enabled: false

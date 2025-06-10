@@ -15,6 +15,15 @@ spec:
       version: 7.5.6
   interval: 1m0s
   timeout: 15m0s
+  valuesFrom:
+    - kind: ConfigMap
+      name: web-secrets
+      valuesKey: BASE_DOMAIN
+      targetPath: BASE_DOMAIN
+    - kind: ConfigMap
+      name: web-secrets
+      valuesKey: TEMP_PASSWORD
+      targetPath: TEMP_PASSWORD
   values:
     ingress:
       main:
@@ -24,7 +33,7 @@ spec:
           nginx.org/websocket-services: sshwifty
         ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+          - host: "{{ .Release.Name }}.{{ .Values.BASE_DOMAIN }}"
         integrations:
           traefik:
             enabled: false
@@ -43,7 +52,7 @@ spec:
                 # empty to accept request from all hosts
                 SSHWIFTY_HOSTNAME: ""
                 # web access password
-                SSHWIFTY_SHAREDKEY: ${TEMP_PASSWORD}
+                SSHWIFTY_SHAREDKEY: {{ .Values.TEMP_PASSWORD }}
                 DialTimeout: 10
                 # SSHWIFTY_SOCKS5: "" When set, Sshwifty backend will try to connect remote through the given proxy
                 # SSHWIFTY_SOCKS5_USER
