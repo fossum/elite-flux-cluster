@@ -38,9 +38,10 @@ spec:
     persistence:
       config:
         enabled: true
-        # storageClass: "longhorn"
-        storageClass: "truenas-iscsi-api-csi"
+        storageClass: "longhorn"
+        # storageClass: "truenas-iscsi-api-csi"
         mountPath: /config
+        size: 1Gi
       backups:
         enabled: true
         storageClass: "truenas-nfs-api-csi"
