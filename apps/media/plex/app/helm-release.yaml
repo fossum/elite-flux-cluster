@@ -23,6 +23,11 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: media-config
+      valuesKey: BASE_DOMAIN
+      targetPath: baseDomain
   values:
     persistence:
       config:
@@ -34,7 +39,7 @@ spec:
         type: nfs
         path: /mnt/local-raid/no-backup/dvr
         mountPath: /media
-        server: "truenas.${BASE_DOMAIN}"
+        server: "truenas.{{ .Values.baseDomain }}"
 
     workload:
       main:
@@ -50,7 +55,7 @@ spec:
         type: LoadBalancer
 
     plex:
-      additionalAdvertiseURL: "https://{{ .Release.Name }}.${BASE_DOMAIN}/"
+      additionalAdvertiseURL: "https://{{ .Release.Name }}.{{ .Values.baseDomain }}/"
       # requireHTTPS: true
       # disableGDM: false
 
@@ -59,7 +64,7 @@ spec:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
+          - host: "{{ .Release.Name }}.{{ .Values.baseDomain }}"
         integrations:
           traefik:
             enabled: false
