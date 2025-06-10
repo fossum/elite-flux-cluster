@@ -23,13 +23,22 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: game-secrets
+      valuesKey: BASE_DOMAIN
+      targetPath: BASE_DOMAIN
+    - kind: ConfigMap
+      name: game-secrets
+      valuesKey: RCON_PASSWORD
+      targetPath: RCON_PASSWORD
   values:
     TZ: "America/Los_Angeles"
 
     service:
       main:
         annotations:
-          mc-router.itzg.me/externalServerName: "venture-mc.${BASE_DOMAIN}"
+          mc-router.itzg.me/externalServerName: "venture-mc.{{ .Values.BASE_DOMAIN }}"
 
     workload:
       main:
@@ -65,7 +74,7 @@ spec:
                 # ONLINE_MODE: true
                 # INIT_MEMORY: 4G
                 # MAX_MEMORY: 16G
-                RCON_PASSWORD: ${RCON_PASSWORD}
+                RCON_PASSWORD: {{ .Values.RCON_PASSWORD }}
                 # PACKWIZ_URL: ""
                 # CUSTOM_SERVER: ""
                 # QUILT_LOADER_VERSION: ""

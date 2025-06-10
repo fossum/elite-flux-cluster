@@ -23,6 +23,15 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: game-secrets
+      valuesKey: TEMP_PASSWORD
+      targetPath: TEMP_PASSWORD
+    - kind: ConfigMap
+      name: game-secrets
+      valuesKey: GAME_PASSWORD
+      targetPath: GAME_PASSWORD
   values:
     TZ: "America/Los_Angeles"
 
@@ -51,8 +60,8 @@ spec:
                 BACKUPS_INTERVAL: 43200
                 BACKUPS_MAX_AGE: 3
                 SUPERVISOR_HTTP_USER: ericfoss
-                SUPERVISOR_HTTP_PASS: ${TEMP_PASSWORD}
-                SERVER_PASS: ${GAME_PASSWORD}
+                SUPERVISOR_HTTP_PASS: {{ .Values.TEMP_PASSWORD }}
+                SERVER_PASS: {{ .Values.GAME_PASSWORD }}
                 VALHEIM_PLUS: false
                 BEPINEX: true
 

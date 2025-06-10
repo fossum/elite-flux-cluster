@@ -23,6 +23,11 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: game-secrets
+      valuesKey: BASE_DOMAIN
+      targetPath: BASE_DOMAIN
   values:
     global:
       fallbackDefaults:
@@ -54,7 +59,7 @@ spec:
               lite:
                 enabled: true
                 routes:
-                  - host: britannia.${BASE_DOMAIN}
+                  - host: britannia.{{ .Values.BASE_DOMAIN }}
                     backend: minecraft-britannia-minecraft-java.games.svc.cluster.local:25565
-                  - host: venture.${BASE_DOMAIN}
+                  - host: venture.{{ .Values.BASE_DOMAIN }}
                     backend: minecraft-venture-minecraft-java.games.svc.cluster.local:25565
