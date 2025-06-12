@@ -9,4 +9,4 @@ resources:
   - radarr/ks.yaml
   - sonarr/ks.yaml
   - torrents.secret.yaml
-  - transmission/ks.yaml
+  # - transmission/ks.yaml

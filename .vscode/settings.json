@@ -20,5 +20,8 @@
         "truenas",
         "valheim",
         "webservice"
-    ]
+    ],
+    "sops.creationEnabled": true,
+    "sops.defaults.ageKeyFile": "./age.agekey",
+    "sops.configPath": "./.sops.yaml"
 }

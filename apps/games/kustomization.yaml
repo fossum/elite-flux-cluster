@@ -7,8 +7,8 @@ resources:
   - namespace.yaml
   - games.secret.yaml
   - minecraft-britannia/ks.yaml
-  - minecraft-venture/ks.yaml
+  # - minecraft-venture/ks.yaml
   # - minecraft-gate/ks.yaml
   - minecraft-router/ks.yaml
-  - palworld/ks.yaml
+  # - palworld/ks.yaml
   - valheim/ks.yaml
