@@ -17,11 +17,11 @@ spec:
   timeout: 15m0s
   valuesFrom:
     - kind: ConfigMap
-      name: web-secrets
+      name: web-config
       valuesKey: BASE_DOMAIN
       targetPath: BASE_DOMAIN
     - kind: ConfigMap
-      name: web-secrets
+      name: web-config
       valuesKey: TEMP_PASSWORD
       targetPath: TEMP_PASSWORD
   values:
