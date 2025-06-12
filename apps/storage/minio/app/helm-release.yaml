@@ -34,11 +34,11 @@ spec:
     keepHistory: false
   valuesFrom:
     - kind: ConfigMap
-      name: minio-secrets
+      name: minio-config
       valuesKey: MINIO_USER
       targetPath: MINIO_USER
     - kind: ConfigMap
-      name: minio-secrets
+      name: minio-config
       valuesKey: MINIO_PASSWORD
       targetPath: MINIO_PASSWORD
   values:
@@ -62,10 +62,10 @@ spec:
           containers:
             main:
               env:
-                MINIO_ROOT_USER: {{ .Values.MINIO_USER }}
+                MINIO_ROOT_USER: "{{ .Values.MINIO_USER }}"
                 # MINIO_BROWSER_REDIRECT_URL: ""
                 # MINIO_SERVER_URL: ""
-                MINIO_ROOT_PASSWORD: {{ .Values.MINIO_PASSWORD }}
+                MINIO_ROOT_PASSWORD: "{{ .Values.MINIO_PASSWORD }}"
 
     ingress:
       main:

@@ -25,7 +25,7 @@ spec:
       retries: 3
   valuesFrom:
     - kind: ConfigMap
-      name: game-secrets
+      name: game-config
       valuesKey: BASE_DOMAIN
       targetPath: BASE_DOMAIN
   values:

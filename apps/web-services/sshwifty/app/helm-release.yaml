@@ -52,7 +52,7 @@ spec:
                 # empty to accept request from all hosts
                 SSHWIFTY_HOSTNAME: ""
                 # web access password
-                SSHWIFTY_SHAREDKEY: {{ .Values.TEMP_PASSWORD }}
+                SSHWIFTY_SHAREDKEY: "{{ .Values.TEMP_PASSWORD }}"
                 DialTimeout: 10
                 # SSHWIFTY_SOCKS5: "" When set, Sshwifty backend will try to connect remote through the given proxy
                 # SSHWIFTY_SOCKS5_USER

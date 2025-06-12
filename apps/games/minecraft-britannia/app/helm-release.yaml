@@ -25,11 +25,11 @@ spec:
       retries: 3
   valuesFrom:
     - kind: Secret
-      name: game-secrets
+      name: game-config
       valuesKey: britannia_lb_ip
       targetPath: "spec.values.service.main.loadBalancerIP"
     - kind: Secret
-      name: game-secrets
+      name: game-config
       valuesKey: britannia_fqdn
       targetPath: "spec.values.service.main.annotations.mc-router\\.itzg\\.me\\/externalServerName"
   values:

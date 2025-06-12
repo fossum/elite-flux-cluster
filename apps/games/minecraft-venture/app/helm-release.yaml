@@ -25,11 +25,11 @@ spec:
       retries: 3
   valuesFrom:
     - kind: ConfigMap
-      name: game-secrets
+      name: game-config
       valuesKey: BASE_DOMAIN
       targetPath: BASE_DOMAIN
     - kind: ConfigMap
-      name: game-secrets
+      name: game-config
       valuesKey: RCON_PASSWORD
       targetPath: RCON_PASSWORD
   values:
@@ -74,7 +74,7 @@ spec:
                 # ONLINE_MODE: true
                 # INIT_MEMORY: 4G
                 # MAX_MEMORY: 16G
-                RCON_PASSWORD: {{ .Values.RCON_PASSWORD }}
+                RCON_PASSWORD: "{{ .Values.RCON_PASSWORD }}"
                 # PACKWIZ_URL: ""
                 # CUSTOM_SERVER: ""
                 # QUILT_LOADER_VERSION: ""

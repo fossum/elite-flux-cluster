@@ -25,15 +25,15 @@ spec:
       retries: 3
   valuesFrom:
     - kind: ConfigMap
-      name: game-secrets
+      name: game-config
       valuesKey: BASE_DOMAIN
       targetPath: BASE_DOMAIN
     - kind: ConfigMap
-      name: game-secrets
+      name: game-config
       valuesKey: GAME_PASSWORD
       targetPath: GAME_PASSWORD
     - kind: ConfigMap
-      name: game-secrets
+      name: game-config
       valuesKey: RCON_PASSWORD
       targetPath: RCON_PASSWORD
   values:
@@ -47,10 +47,10 @@ spec:
       game:
         ServerName: "Venture Pals"
         ServerDescription: "Venture Brothers Dedicated Palworld Server"
-        ServerPassword: {{ .Values.GAME_PASSWORD }}
-        AdminPassword: {{ .Values.RCON_PASSWORD }}
+        ServerPassword: "{{ .Values.GAME_PASSWORD }}"
+        AdminPassword: "{{ .Values.RCON_PASSWORD }}"
         bUseAuth: true
-        PublicIP: {{ .Values.BASE_DOMAIN }}
+        PublicIP: "{{ .Values.BASE_DOMAIN }}"
         # AllowConnectPlatform: "Steam|Xbox"
       params:
         - -players=32

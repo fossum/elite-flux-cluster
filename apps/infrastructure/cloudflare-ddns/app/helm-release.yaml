@@ -17,18 +17,18 @@ spec:
   timeout: 10m0s
   valuesFrom:
     - kind: ConfigMap
-      name: game-secrets
+      name: infrastructure-config
       valuesKey: BASE_DOMAIN
       targetPath: BASE_DOMAIN
     - kind: ConfigMap
-      name: game-secrets
+      name: infrastructure-config
       valuesKey: DOMAIN_0_CLOUDFLARE_TOKEN
       targetPath: DOMAIN_0_CLOUDFLARE_TOKEN
   values:
     # https://truecharts.org/charts/stable/cloudflareddns
     cloudflareddns:
-      api_token: {{ .Values.DOMAIN_0_CLOUDFLARE_TOKEN }}
+      api_token: "{{ .Values.DOMAIN_0_CLOUDFLARE_TOKEN }}"
       host_zone_record:
-        - domain: {{ .Values.BASE_DOMAIN }}
+        - domain: "{{ .Values.BASE_DOMAIN }}"
           record: A
-          zone: {{ .Values.BASE_DOMAIN }}
+          zone: "{{ .Values.BASE_DOMAIN }}"

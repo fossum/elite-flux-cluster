@@ -27,7 +27,7 @@ spec:
           containers:
             main:
               env:
-                HOMEPAGE_ALLOWED_HOSTS: {{ .Values.BASE_DOMAIN }}
+                HOMEPAGE_ALLOWED_HOSTS: "{{ .Values.BASE_DOMAIN }}"
     ingress:
       main:
         enabled: true

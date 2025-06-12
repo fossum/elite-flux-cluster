@@ -25,11 +25,11 @@ spec:
       retries: 3
   valuesFrom:
     - kind: ConfigMap
-      name: game-secrets
+      name: game-config
       valuesKey: TEMP_PASSWORD
       targetPath: TEMP_PASSWORD
     - kind: ConfigMap
-      name: game-secrets
+      name: game-config
       valuesKey: GAME_PASSWORD
       targetPath: GAME_PASSWORD
   values:

@@ -88,16 +88,16 @@ spec:
         type: gluetun
         killSwitch: true
         excludedNetworks_IPv4:
-          - {{ .Values.DEFAULT_SUBNET }}
-          - {{ .Values.SERVER_SUBNET }}
+          - "{{ .Values.DEFAULT_SUBNET }}"
+          - "{{ .Values.SERVER_SUBNET }}"
         excludedNetworks_IPv6: []
         env:
           VPN_SERVICE_PROVIDER: private internet access
-          VPN_TYPE: {{ .Values.VPN_TYPE }}
-          OPENVPN_USER: {{ .Values.VPN_USER }}
-          OPENVPN_PASSWORD: {{ .Values.VPN_PASSWORD }}
+          VPN_TYPE: "{{ .Values.VPN_TYPE }}"
+          OPENVPN_USER: "{{ .Values.VPN_USER }}"
+          OPENVPN_PASSWORD: "{{ .Values.VPN_PASSWORD }}"
           # SERVER_REGIONS: Comma separated list of regions
-          SERVER_REGIONS: {{ .Values.VPN_REGIONS }}
+          SERVER_REGIONS: "{{ .Values.VPN_REGIONS }}"
           # SERVER_NAMES: Comma separated list of server names
           # SERVER_HOSTNAMES: Comma separated list of server hostnames
           # PORT_FORWARD_ONLY: Set to true to select servers with port forwarding only

@@ -25,11 +25,11 @@ spec:
       retries: 3
   valuesFrom:
     - kind: ConfigMap
-      name: infrastructure-secrets
+      name: infrastructure-config
       valuesKey: DOMAIN_0_EMAIL
       targetPath: DOMAIN_0_EMAIL
     - kind: ConfigMap
-      name: infrastructure-secrets
+      name: infrastructure-config
       valuesKey: DOMAIN_0_CLOUDFLARE_TOKEN
       targetPath: DOMAIN_0_CLOUDFLARE_TOKEN
   values:

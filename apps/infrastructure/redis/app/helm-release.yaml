@@ -25,8 +25,8 @@ spec:
       retries: 3
   valuesFrom:
     - kind: ConfigMap
-      name: infrastructure-secrets
+      name: infrastructure-config
       valuesKey: REDIS_PASSWORD
       targetPath: REDIS_PASSWORD
   values:
-    password: {{ .Values.REDIS_PASSWORD }}
+    password: "{{ .Values.REDIS_PASSWORD }}"

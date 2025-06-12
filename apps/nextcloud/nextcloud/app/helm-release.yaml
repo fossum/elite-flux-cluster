@@ -122,7 +122,7 @@ spec:
       #     failureThreshold: 3
       general:
         default_phone_region: US
-        accessIP: {{ .Values.NGINX_EXTERNAL_IP }}
+        accessIP: "{{ .Values.NGINX_EXTERNAL_IP }}"
       # previews:
       #   # Casings are important
       #   # https://github.com/nextcloud/server/blob/master/config/config.sample.php#L1269
@@ -163,7 +163,7 @@ spec:
       #   # default|compact|tabbed
       #   interface_mode: default
       #   username: admin
-      #   password: {{ .Values.TEMP_PASSWORD }}
+      #   password: "{{ .Values.TEMP_PASSWORD }}"
       #   dictionaries:
       #     - de_DE
       #     - en_GB
@@ -193,7 +193,7 @@ spec:
       #         array (
       #           'host' => 'redis.infrastructure.svc.cluster.local',
       #           'port' => 6379,
-      #           'password' => {{ .Values.REDIS_PASSWORD }},
+      #           'password' => "{{ .Values.REDIS_PASSWORD }}",
       #         ),
       #         'memcache.local' => '\\OC\\Memcache\\APCu',
       #         'memcache.distributed' => '\\OC\\Memcache\\Redis',
