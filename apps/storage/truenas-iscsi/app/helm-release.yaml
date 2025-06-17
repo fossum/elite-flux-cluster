@@ -48,6 +48,7 @@ spec:
     csiDriver:
       # should be globally unique for a given cluster
       name: "org.democratic-csi.api.iscsi"
+      enabled: true
 
     storageClasses:
     - name: truenas-iscsi-api-csi

@@ -46,7 +46,7 @@ spec:
           tag: next
 
     csiDriver:
-      name: org.democratic-csi.freenas-api-nfs
+      name: "org.democratic-csi.api.nfs"
       enabled: true
 
     storageClasses:
