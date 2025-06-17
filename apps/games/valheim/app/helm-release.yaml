@@ -59,15 +59,18 @@ spec:
               env:
                 SERVER_NAME: VentureBro's Valheim
                 WORLD_NAME: VentureHeim
-                SERVER_PUBLIC: false
                 UPDATE_IF_IDLE: true
                 BACKUPS: true
                 BACKUPS_MAX_AGE: 30 # days
                 BACKUPS_CRON: "0 */4 * * *" # every 4 hours
                 SUPERVISOR_HTTP: false
-                # SERVER_PASS: "{{ .Values.GAME_PASSWORD }}"
-                VALHEIM_PLUS: false
-                BEPINEX: true
+                SERVER_PASS: ""
+                SERVER_PUBLIC: false
+                VALHEIM_PLUS: true
+                VPCFG_Server_enabled: true
+                VPCFG_Server_enforceMod: false
+                VPCFG_Server_disableServerPassword: true
+                BEPINEX: false
 
     service:
       main:
