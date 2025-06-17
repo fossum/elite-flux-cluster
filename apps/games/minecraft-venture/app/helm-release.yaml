@@ -26,19 +26,14 @@ spec:
   valuesFrom:
     - kind: ConfigMap
       name: game-config
-      valuesKey: BASE_DOMAIN
-      targetPath: BASE_DOMAIN
+      valuesKey: venture_fqdn
+      targetPath: "service.main.annotations.mc-router\\.itzg\\.me\\/externalServerName"
     - kind: ConfigMap
       name: game-config
       valuesKey: RCON_PASSWORD
-      targetPath: RCON_PASSWORD
+      targetPath: workload.main.podSpec.containers.main.env.RCON_PASSWORD
   values:
     TZ: "America/Los_Angeles"
-
-    service:
-      main:
-        annotations:
-          mc-router.itzg.me/externalServerName: "venture-mc.{{ .Values.BASE_DOMAIN }}"
 
     workload:
       main:
@@ -74,7 +69,6 @@ spec:
                 # ONLINE_MODE: true
                 # INIT_MEMORY: 4G
                 # MAX_MEMORY: 16G
-                RCON_PASSWORD: "{{ .Values.RCON_PASSWORD }}"
                 # PACKWIZ_URL: ""
                 # CUSTOM_SERVER: ""
                 # QUILT_LOADER_VERSION: ""
