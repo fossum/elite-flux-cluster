@@ -24,7 +24,7 @@ spec:
     remediation:
       retries: 3
   valuesFrom:
-    - kind: Secret
+    - kind: ConfigMap
       name: game-config
       valuesKey: mc_router_lb_ip
       targetPath: "spec.values.service.main.loadBalancerIP"
