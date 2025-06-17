@@ -10,3 +10,4 @@ resources:
   - sonarr/ks.yaml
   - torrents.secret.yaml
   - transmission/ks.yaml
+  - vpn-config.secret.yaml

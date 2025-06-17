@@ -37,26 +37,38 @@ spec:
       name: torrents-config
       valuesKey: BASE_DOMAIN
       targetPath: BASE_DOMAIN
+      optional: false
+    # - kind: ConfigMap
+    #   name: torrents-config
+    #   valuesKey: VPN_TYPE
+    #   targetPath: spec.values.addons.vpn.env.VPN_TYPE
+    # - kind: ConfigMap
+    #   name: torrents-config
+    #   valuesKey: VPN_USER
+    #   targetPath: spec.values.addons.vpn.env.VPN_USER
+    # - kind: ConfigMap
+    #   name: torrents-config
+    #   valuesKey: VPN_PASSWORD
+    #   targetPath: spec.values.addons.vpn.env.VPN_PASSWORD
+    # - kind: ConfigMap
+    #   name: torrents-config
+    #   valuesKey: VPN_REGIONS
+    #   targetPath: spec.values.addons.vpn.env.VPN_REGIONS
+    # - kind: ConfigMap
+    #   name: torrents-config
+    #   valuesKey: DEFAULT_SUBNET
+    #   targetPath: DEFAULT_SUBNET
+    # - kind: ConfigMap
+    #   name: torrents-config
+    #   valuesKey: SERVER_SUBNET
+    #   targetPath: SERVER
+    # - kind: ConfigMap
+    #   name: torrents-config
+    #   valuesKey: KUBE_SVC_SUBNET
+    #   targetPath: KUBE_SVC_SUBNET
     - kind: ConfigMap
-      name: torrents-config
-      valuesKey: VPN_TYPE
-      targetPath: VPN_TYPE
-    - kind: ConfigMap
-      name: torrents-config
-      valuesKey: VPN_USER
-      targetPath: VPN_USER
-    - kind: ConfigMap
-      name: torrents-config
-      valuesKey: VPN_PASSWORD
-      targetPath: VPN_PASSWORD
-    - kind: ConfigMap
-      name: torrents-config
-      valuesKey: VPN_REGIONS
-      targetPath: VPN_REGIONS
-    - kind: ConfigMap
-      name: torrents-config
-      valuesKey: DEFAULT_SUBNET
-      targetPath: DEFAULT_SUBNET
+      name: vpn-addon-config
+      valuesKey: addons.yaml
   values:
     persistence:
       config:
@@ -83,27 +95,28 @@ spec:
             enabled: true
             certificateIssuer: selfsigned
 
-    addons:
-      vpn:
-        type: gluetun
-        killSwitch: true
-        excludedNetworks_IPv4:
-          - "{{ .Values.DEFAULT_SUBNET }}"
-          - "{{ .Values.SERVER_SUBNET }}"
-        excludedNetworks_IPv6: []
-        env:
-          VPN_SERVICE_PROVIDER: private internet access
-          VPN_TYPE: "{{ .Values.VPN_TYPE }}"
-          OPENVPN_USER: "{{ .Values.VPN_USER }}"
-          OPENVPN_PASSWORD: "{{ .Values.VPN_PASSWORD }}"
-          # SERVER_REGIONS: Comma separated list of regions
-          SERVER_REGIONS: "{{ .Values.VPN_REGIONS }}"
-          # SERVER_NAMES: Comma separated list of server names
-          # SERVER_HOSTNAMES: Comma separated list of server hostnames
-          # PORT_FORWARD_ONLY: Set to true to select servers with port forwarding only
-          # PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET: Encryption preset, defaulting to strong, which can be set to normal, strong or none. ⚠️ none disables the cipher and auth OpenVPN options.
-          # OPENVPN_ENDPOINT_PORT: Custom OpenVPN server endpoint port
-          # VPN_PORT_FORWARDING: defaults to off and can be set to onto enable port forwarding on the VPN server
-          # VPN_PORT_FORWARDING_STATUS_FILE: File path to write the forwarded port number to. It defaults to /tmp/gluetun/forwarded_port.
-          DNS_KEEP_NAMESERVER: false
-          DNS_ADDRESS: 8.8.8.8
+    # addons:
+    #   vpn:
+    #     type: gluetun
+    #     killSwitch: true
+    #     excludedNetworks_IPv4:
+    #       - "{{ .Values.DEFAULT_SUBNET }}"
+    #       - "{{ .Values.SERVER_SUBNET }}"
+    #     excludedNetworks_IPv6: []
+    #     env:
+    #       VPN_SERVICE_PROVIDER: private internet access
+    #       VPN_TYPE: "{{ .Values.VPN_TYPE }}"
+    #       OPENVPN_USER: "{{ .Values.VPN_USER }}"
+    #       OPENVPN_PASSWORD: "{{ .Values.VPN_PASSWORD }}"
+    #       FIREWALL_OUTBOUND_SUBNETS: "172.16.0.0/16,172.17.0.0/16,$(DEFAULT_SUBNET),$(KUBE_SVC_SUBNET),$(SERVER_SUBNET)"
+    #       # SERVER_REGIONS: Comma separated list of regions
+    #       SERVER_REGIONS: "{{ .Values.VPN_REGIONS }}"
+    #       # SERVER_NAMES: Comma separated list of server names
+    #       # SERVER_HOSTNAMES: Comma separated list of server hostnames
+    #       # PORT_FORWARD_ONLY: Set to true to select servers with port forwarding only
+    #       # PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET: Encryption preset, defaulting to strong, which can be set to normal, strong or none. ⚠️ none disables the cipher and auth OpenVPN options.
+    #       # OPENVPN_ENDPOINT_PORT: Custom OpenVPN server endpoint port
+    #       # VPN_PORT_FORWARDING: defaults to off and can be set to onto enable port forwarding on the VPN server
+    #       # VPN_PORT_FORWARDING_STATUS_FILE: File path to write the forwarded port number to. It defaults to /tmp/gluetun/forwarded_port.
+    #       DNS_KEEP_NAMESERVER: false
+    #       DNS_ADDRESS: 8.8.8.8
