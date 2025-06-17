@@ -39,7 +39,7 @@ spec:
   values:
     global:
       fallbackDefaults:
-        storageClass: "truenas-iscsi-api-csi"
+        storageClass: "truenas-nfs-api-csi"
 
     TZ: "America/Los_Angeles"
 

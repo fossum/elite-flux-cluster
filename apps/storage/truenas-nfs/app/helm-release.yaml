@@ -47,6 +47,7 @@ spec:
 
     csiDriver:
       name: org.democratic-csi.freenas-api-nfs
+      enabled: true
 
     storageClasses:
       - name: truenas-nfs-api-csi
