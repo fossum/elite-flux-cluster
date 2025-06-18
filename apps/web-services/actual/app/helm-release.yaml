@@ -14,7 +14,7 @@ spec:
         namespace: flux-system
       version: 13.5.0
   interval: 1m0s
-  timeout: 10m0s
+  timeout: 20m
   valuesFrom:
     - kind: ConfigMap
       name: web-config
@@ -36,7 +36,7 @@ spec:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.{{ .Values.BASE_DOMAIN }}"
+          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
         integrations:
           traefik:
             enabled: false

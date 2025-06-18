@@ -23,12 +23,11 @@ spec:
     - kind: ConfigMap
       name: infrastructure-config
       valuesKey: DOMAIN_0_CLOUDFLARE_TOKEN
-      targetPath: DOMAIN_0_CLOUDFLARE_TOKEN
+      targetPath: cloudflareddns.api_token
   values:
     # https://truecharts.org/charts/stable/cloudflareddns
     cloudflareddns:
-      api_token: "{{ .Values.DOMAIN_0_CLOUDFLARE_TOKEN }}"
       host_zone_record:
-        - domain: "{{ .Values.BASE_DOMAIN }}"
+        - domain: ${BASE_DOMAIN}
           record: A
-          zone: "{{ .Values.BASE_DOMAIN }}"
+          zone: ${BASE_DOMAIN}

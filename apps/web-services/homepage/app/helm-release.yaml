@@ -27,13 +27,13 @@ spec:
           containers:
             main:
               env:
-                HOMEPAGE_ALLOWED_HOSTS: "{{ .Values.BASE_DOMAIN }}"
+                HOMEPAGE_ALLOWED_HOSTS: ${BASE_DOMAIN}
     ingress:
       main:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "{{ .Values.BASE_DOMAIN }}"
+          - host: ${BASE_DOMAIN}
         integrations:
           traefik:
             enabled: false

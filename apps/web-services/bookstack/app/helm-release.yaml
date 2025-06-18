@@ -26,7 +26,7 @@ spec:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.{{ .Values.BASE_DOMAIN }}"
+          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
         integrations:
           traefik:
             enabled: false
@@ -42,4 +42,4 @@ spec:
           containers:
             main:
               env:
-                APP_URL: "https://{{ .Release.Name }}.{{ .Values.BASE_DOMAIN }}/"
+                APP_URL: "https://{{ .Release.Name }}.${BASE_DOMAIN}/"

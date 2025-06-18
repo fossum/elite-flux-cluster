@@ -14,12 +14,16 @@ spec:
         namespace: flux-system
       version: 18.0.0
   interval: 1m0s
-  timeout: 10m0s
+  timeout: 20m0s
   valuesFrom:
     - kind: ConfigMap
       name: web-config
       valuesKey: BASE_DOMAIN
       targetPath: BASE_DOMAIN
+    - kind: Secret
+      name: grafana-secret
+      valuesKey: password
+      targetPath: workload.main.podSpec.containers.main.env.GF_SECURITY_ADMIN_PASSWORD
   values:
     # https://truecharts.org/charts/premium/grafana/
     workload:
@@ -29,10 +33,6 @@ spec:
             main:
               env:
                 GF_SECURITY_ADMIN_USER: "admin"
-                GF_SECURITY_ADMIN_PASSWORD:
-                  secretKeyRef:
-                    name: grafana-secret
-                    key: password
     persistence:
       data:
         enabled: true
@@ -46,7 +46,7 @@ spec:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.{{ .Values.BASE_DOMAIN }}"
+          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
         integrations:
           traefik:
             enabled: false

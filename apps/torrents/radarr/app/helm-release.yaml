@@ -25,6 +25,7 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
+    timeout: 15m
   upgrade:
     crds: CreateReplace
     cleanupOnFail: true
@@ -37,10 +38,12 @@ spec:
       name: torrents-config
       valuesKey: BASE_DOMAIN
       targetPath: BASE_DOMAIN
+      optional: false
     - kind: ConfigMap
       name: torrents-config
       valuesKey: HP_API_RADARR
-      targetPath: HP_API_RADARR
+      targetPath: ingress.main.integrations.homepage.widget.custom.key
+      optional: true
   values:
     TZ: America/Los_Angeles
     ingress:
@@ -48,7 +51,7 @@ spec:
         enabled: true
         ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.{{ .Values.BASE_DOMAIN }}"
+          - host: "{{ .Release.Name }}.${BASE_DOMAIN}"
         integrations:
           traefik:
             enabled: false
@@ -58,9 +61,6 @@ spec:
           homepage:
             enabled: true
             group: "Torrents"
-            widget:
-              custom:
-                key: "{{ .Values.HP_API_RADARR }}"
     persistence:
       config:
         enabled: true
@@ -71,4 +71,4 @@ spec:
         type: nfs
         path: /mnt/local-raid/no-backup/dvr
         mountPath: /media
-        server: truenas.{{ .Values.baseDomain }}
+        server: truenas.${BASE_DOMAIN}
