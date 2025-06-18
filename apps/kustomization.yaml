@@ -8,6 +8,7 @@ resources:
   - gitlab
   - infrastructure
   - media
+  - mirrors
   - nextcloud
   - storage
   - torrents
