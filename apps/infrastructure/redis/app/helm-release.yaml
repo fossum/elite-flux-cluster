@@ -27,6 +27,4 @@ spec:
     - kind: ConfigMap
       name: infrastructure-config
       valuesKey: REDIS_PASSWORD
-      targetPath: REDIS_PASSWORD
-  values:
-    password: "{{ .Values.REDIS_PASSWORD }}"
+      targetPath: password
