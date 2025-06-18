@@ -37,10 +37,12 @@ spec:
       name: torrents-config
       valuesKey: BASE_DOMAIN
       targetPath: BASE_DOMAIN
+      optional: false
     - kind: ConfigMap
       name: torrents-config
       valuesKey: HP_API_READARR
-      targetPath: HP_API_READARR
+      targetPath: ingress.main.integrations.homepage.widget.custom.key
+      optional: true
   values:
     TZ: America/Los_Angeles
     ingress:
@@ -58,9 +60,6 @@ spec:
           homepage:
             enabled: true
             group: "Torrents"
-            widget:
-              custom:
-                key: "{{ .Values.HP_API_READARR }}"
     persistence:
       config:
         enabled: true
