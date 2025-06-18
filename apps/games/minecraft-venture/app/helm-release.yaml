@@ -26,12 +26,14 @@ spec:
   valuesFrom:
     - kind: ConfigMap
       name: game-config
-      valuesKey: venture_fqdn
+      valuesKey: venture_mc_fqdn
       targetPath: "service.main.annotations.mc-router\\.itzg\\.me\\/externalServerName"
+      optional: false
     - kind: ConfigMap
       name: game-config
       valuesKey: RCON_PASSWORD
       targetPath: workload.main.podSpec.containers.main.env.RCON_PASSWORD
+      optional: false
   values:
     TZ: "America/Los_Angeles"
 
