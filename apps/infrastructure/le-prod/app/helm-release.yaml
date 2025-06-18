@@ -37,8 +37,8 @@ spec:
       ACME:
         - name: thefoss-le-prod
           # Used for both logging in to the DNS provider AND ACME registration
-          email: "{{ .Values.DOMAIN_0_EMAIL }}"
+          email: ${DOMAIN_0_EMAIL}
           server: 'https://acme-v02.api.letsencrypt.org/directory'
           type: "cloudflare"
           # Obtained using instructions above
-          cfapitoken: "{{ .Values.DOMAIN_0_CLOUDFLARE_TOKEN }}"
+          cfapitoken: ${DOMAIN_0_CLOUDFLARE_TOKEN}

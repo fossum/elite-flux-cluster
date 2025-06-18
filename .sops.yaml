@@ -11,6 +11,6 @@ creation_rules:
   - path_regex: talsecret.yaml
     age: age1r0y2hakc227f26hlnuhsk6pfuy7qauqy2ak2ntwwjdpr4q6fuvuqdk8kpq
 ## DO NOT REMOVE: Personal setting go under this line
-  - path_regex: \.secret\.ya?ml$
+  - path_regex: \.secrets?\.ya?ml$
     age: age1r0y2hakc227f26hlnuhsk6pfuy7qauqy2ak2ntwwjdpr4q6fuvuqdk8kpq
     encrypted_regex: "((?i)(displayname|email|pass|ca|id|bootstraptoken|secretboxencryptionsecret|secrets|secrets|password|cert|secret($|[^N])|key|token|^data$|^stringData))"
