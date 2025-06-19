@@ -1,0 +1,37 @@
+# If in use.
+# kubectl patch pv minecraft-venture-backups-static-pv -p '{"spec":{"claimRef": null}}'
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minecraft-venture-backups
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: minecraft-venture-backups-static-pv
+  storageClassName: "truenas-nfs-api-csi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minecraft-venture-backups-static-pv
+  labels:
+    app.kubernetes.io/instance: minecraft-venture
+    app.kubernetes.io/name: minecraft-java
+    volume-purpose: backups
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: truenas-nfs-api-csi
+  mountOptions: # Recommended NFS mount options, adjust if necessary
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /mnt/local-raid/kubeset/nfs/data/pvc-e7288782-3b7a-412e-a8a5-1eb8b389ee74
+    server: truenas.thefoss.org
