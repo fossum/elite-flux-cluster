@@ -36,7 +36,7 @@ spec:
     persistence:
       data:
         enabled: true
-        storageClass: truenas-iscsi-api-csi
+        storageClass: truenas-nfs-api-csi
         size: 10Gi
         accessModes:
           - ReadWriteOnce
