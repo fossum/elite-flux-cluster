@@ -38,6 +38,7 @@ spec:
             group: "Services"
     workload:
       main:
+        strategy: Recreate
         podSpec:
           containers:
             main:
