@@ -28,10 +28,12 @@ spec:
       name: game-config
       valuesKey: ADMIN_LIST_IDS
       targetPath: workload.main.podSpec.containers.main.env.ADMINLIST_IDS
+      optional: false
     - kind: ConfigMap
       name: game-config
       valuesKey: PERMITTED_IDS
       targetPath: workload.main.podSpec.containers.main.env.PERMITTEDLIST_IDS
+      optional: false
     # - kind: ConfigMap
     #   name: game-config
     #   valuesKey: GAME_PASSWORD
@@ -41,17 +43,13 @@ spec:
 
     persistence:
       config:
-        enabled: true
         storageClass: "longhorn"
-        # storageClass: "truenas-iscsi-api-csi"
-        mountPath: /config
         size: 1Gi
-        existingClaim: "pvc-096b4880-38fc-4cf3-b7e2-b78233a6c758"
       backups:
         enabled: true
-        storageClass: "truenas-nfs-api-csi"
-        mountPath: /backups
-        existingClaim: "pvc-011b2dae-d14f-43cd-a528-6a2c7ed1cc31"
+        existingClaim: "valheim-backups"
+        retain: true
+        storageClass: ""
 
     workload:
       main:

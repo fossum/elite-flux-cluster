@@ -1,0 +1,15 @@
+# If in use.
+# kubectl patch pv pvc-011b2dae-d14f-43cd-a528-6a2c7ed1cc31 -p '{"spec":{"claimRef": null}}'
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: valheim-backups
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: pvc-011b2dae-d14f-43cd-a528-6a2c7ed1cc31
+  storageClassName: "truenas-nfs-api-csi"
