@@ -4,7 +4,8 @@ metadata:
   name: valheim
   namespace: games
 spec:
-  interval: 1h
+  interval: 10m
+  timeout: 20m
   chart:
     spec:
       chart: valheim
@@ -14,15 +15,6 @@ spec:
         name: truecharts
         namespace: flux-system
       interval: 1h
-  install:
-    createNamespace: false
-    crds: CreateReplace
-    remediation:
-      retries: 3
-  upgrade:
-    crds: CreateReplace
-    remediation:
-      retries: 3
   valuesFrom:
     - kind: ConfigMap
       name: game-config
@@ -48,11 +40,10 @@ spec:
       backups:
         enabled: true
         existingClaim: "valheim-backups"
-        retain: true
-        storageClass: ""
 
     workload:
       main:
+        strategy: Recreate
         podSpec:
           containers:
             main:

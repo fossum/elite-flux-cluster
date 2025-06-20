@@ -1,5 +1,5 @@
 # If in use.
-# kubectl patch pv pvc-011b2dae-d14f-43cd-a528-6a2c7ed1cc31 -p '{"spec":{"claimRef": null}}'
+# kubectl patch pv valheim-backups-static-pv -p '{"spec":{"claimRef": null}}'
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -7,9 +7,31 @@ metadata:
   namespace: games
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 100Gi
-  volumeName: pvc-011b2dae-d14f-43cd-a528-6a2c7ed1cc31
+  volumeName: valheim-backups-static-pv
   storageClassName: "truenas-nfs-api-csi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: valheim-backups-static-pv
+  labels:
+    app.kubernetes.io/instance: valheim
+    app.kubernetes.io/name: valheim
+    volume-purpose: backups
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: truenas-nfs-api-csi
+  mountOptions: # Recommended NFS mount options, adjust if necessary
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /mnt/local-raid/kubeset/nfs/data/pvc-011b2dae-d14f-43cd-a528-6a2c7ed1cc31
+    server: truenas.thefoss.org
