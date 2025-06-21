@@ -21,6 +21,12 @@ spec:
       valuesKey: BASE_DOMAIN
       targetPath: BASE_DOMAIN
   values:
+    global:
+      fallbackDefaults:
+        # -- Define a storageClassName that will be used for all PVCs
+        # Can be overruled per PVC
+        storageClass: "longhorn"
+        pvcSize: 2Gi
     ingress:
       main:
         enabled: true
