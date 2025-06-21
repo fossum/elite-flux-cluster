@@ -15,21 +15,21 @@ spec:
         name: truecharts
         namespace: flux-system
       interval: 1h
-  valuesFrom:
-    - kind: ConfigMap
-      name: game-config
-      valuesKey: ADMIN_LIST_IDS
-      targetPath: workload.main.podSpec.containers.main.env.ADMINLIST_IDS
-      optional: false
-    - kind: ConfigMap
-      name: game-config
-      valuesKey: PERMITTED_IDS
-      targetPath: workload.main.podSpec.containers.main.env.PERMITTEDLIST_IDS
-      optional: false
-    # - kind: ConfigMap
-    #   name: game-config
-    #   valuesKey: GAME_PASSWORD
-    #   targetPath: workload.main.podSpec.containers.main.env.GAME_PASSWORD
+  # valuesFrom:
+  #   - kind: ConfigMap
+  #     name: game-config
+  #     valuesKey: ADMIN_LIST_IDS
+  #     targetPath: workload.main.podSpec.containers.main.env.ADMINLIST_IDS
+  #     optional: false
+  #   - kind: ConfigMap
+  #     name: game-config
+  #     valuesKey: PERMITTED_IDS
+  #     targetPath: workload.main.podSpec.containers.main.env.PERMITTEDLIST_IDS
+  #     optional: false
+  #   - kind: ConfigMap
+  #     name: game-config
+  #     valuesKey: GAME_PASSWORD
+  #     targetPath: workload.main.podSpec.containers.main.env.GAME_PASSWORD
   values:
     TZ: "America/Los_Angeles"
 
