@@ -1,0 +1,37 @@
+# If in use.
+# kubectl patch pv nextcloud-persistent-data-static-pv -p '{"spec":{"claimRef": null}}'
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-persistent-data
+  namespace: nextcloud
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Ti
+  volumeName: nextcloud-persistent-data-static-pv
+  storageClassName: "truenas-nfs-api-csi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nextcloud-persistent-data-static-pv
+  labels:
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/name: nextcloud
+    volume-purpose: data
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: truenas-nfs-api-csi
+  mountOptions: # Recommended NFS mount options, adjust if necessary
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /mnt/local-raid/kubeset/nfs/data/pvc-06402906-9329-4fdd-a61e-d8796b817e99
+    server: truenas.thefoss.org

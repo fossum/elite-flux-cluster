@@ -64,9 +64,12 @@ spec:
       fallbackDefaults:
         # -- Define a storageClassName that will be used for all PVCs
         # Can be overruled per PVC
-        storageClass: "truenas-iscsi-api-csi"
-        pvcSize: 20Gi
+        storageClass: "longhorn"
+        pvcSize: 10Gi
         pvcRetain: false
+        accessModes:
+        - ReadWriteMany
+
 
     image:
       repository: docker.io/library/nextcloud
@@ -202,20 +205,18 @@ spec:
 
     persistence:
       data:
-        size: 2T
-        storageClass: truenas-nfs-api-csi
-        retain: true
-        accessModes:
-          - ReadWriteMany
-        # existingClaim: pvc-4bf0acbd-f255-425e-9ab7-a422dec76d16
+        enabled: true
+        existingClaim: nextcloud-persistent-data
       html:
         storageClass: longhorn
         accessModes:
           - ReadWriteMany
+        size: 2Gi
       config:
         storageClass: longhorn
         accessModes:
           - ReadWriteMany
+        size: 1Gi
 
     ingress:
       main:

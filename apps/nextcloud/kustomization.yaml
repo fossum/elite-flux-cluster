@@ -4,3 +4,4 @@ resources:
   - namespace.yaml
   - nextcloud-configs.secret.yaml
   - nextcloud/ks.yaml
+  - persistent-pvc.yaml
