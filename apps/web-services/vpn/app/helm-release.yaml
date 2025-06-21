@@ -26,7 +26,8 @@ spec:
       fallbackDefaults:
         # -- Define a storageClassName that will be used for all PVCs
         # Can be overruled per PVC
-        storageClass: "truenas-iscsi-api-csi"
+        storageClass: "longhorn"
+        pvcSize: 1Gi
     workload:
       main:
         podSpec:
@@ -35,7 +36,7 @@ spec:
               env:
                 HOST_ADDR: "{{ .Release.Name }}.{{ .Values.BASE_DOMAIN }}"
     service:
-      main:
+      vpn:
         type: LoadBalancer
         loadBalancerIP: "192.168.1.159"
     ingress:
