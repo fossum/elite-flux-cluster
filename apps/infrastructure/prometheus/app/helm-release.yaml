@@ -14,20 +14,11 @@ spec:
         name: prometheus-community
         namespace: flux-system
       interval: 5m
-  install:
-    createNamespace: false
-    crds: CreateReplace
-    remediation:
-      retries: 3
-  upgrade:
-    crds: CreateReplace
-    remediation:
-      retries: 3
   values:
     global:
       fallbackDefaults:
-        storageClass: "truenas-iscsi-api-csi"
-        pvcSize: 100Gi
+        storageClass: "longhorn"
+        pvcSize: 10Gi
     grafana:
       enabled: false
       forceDeployDashboards: true
