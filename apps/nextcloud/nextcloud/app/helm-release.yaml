@@ -1,10 +1,11 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: nextcloud2
+  name: nextcloud
   namespace: nextcloud
 spec:
   interval: 30m
+  timeout: 20m
   chart:
     spec:
       chart: nextcloud
@@ -16,50 +17,16 @@ spec:
       interval: 60m
   install:
     createNamespace: false
-    crds: CreateReplace
-    remediation:
-      retries: 3
-    timeout: 20m0s
+    timeout: 45m
   upgrade:
     timeout: 45m
-    crds: CreateReplace
-    remediation:
-      retries: 3
   valuesFrom:
-    - kind: Secret
-      name: nextcloud-configs
-      valuesKey: instance-config
-      targetPath: "nextcloud.configs.instance\\.config\\.php"
-    - kind: Secret
-      name: nextcloud-configs
-      valuesKey: mail-config
-      targetPath: "nextcloud.configs.mail\\.config\\.php"
     - kind: ConfigMap
-      name: nextcloud-secrets
-      valuesKey: BASE_DOMAIN
-      targetPath: BASE_DOMAIN
-    - kind: ConfigMap
-      name: nextcloud-secrets
-      valuesKey: NGINX_EXTERNAL_IP
-      targetPath: NGINX_EXTERNAL_IP
+      name: nextcloud-configs
+      valuesKey: values.yaml
+      optional: false
   values:
-    # startupProbe:
-    #   initialDelaySeconds: 601
-    # workload:
-    #   main:
-    #     podSpec:
-    #       containers:
-    #         main:
-    #           probes:
-    #             liveness:
-    #               spec:
-    #                 initialDelaySeconds: 600
-    #             readiness:
-    #               spec:
-    #                 initialDelaySeconds: 600
-    #             startup:
-    #               spec:
-    #                 initialDelaySeconds: 600
+    # https://truecharts.org/charts/premium/nextcloud/
     global:
       fallbackDefaults:
         # -- Define a storageClassName that will be used for all PVCs
@@ -71,10 +38,10 @@ spec:
         - ReadWriteMany
 
 
-    image:
-      repository: docker.io/library/nextcloud
-      pullPolicy: Always
-      tag: 31.0.4-fpm@sha256:21468f5acb6d66b5abb0b78192e94a03ba1aef2ca0303f3800226363c0ee7cda
+    # image:
+    #   repository: docker.io/library/nextcloud
+    #   pullPolicy: Always
+    #   tag: 31.0.4-fpm@sha256:21468f5acb6d66b5abb0b78192e94a03ba1aef2ca0303f3800226363c0ee7cda
 
     # credentials:
     #   mys3:
@@ -87,45 +54,8 @@ spec:
 
 
     nextcloud:
-      # probes:
-      #   startup: # Startup probes are ideal for long-starting applications
-      #     enabled: true
-      #     # type: http # Usually defaults to httpGet if not specified, or what the chart sets
-      #     # spec: # You might need to provide the full spec if custom: true, or just override fields
-      #     #   httpGet:
-      #     #     path: /status.php # Or the chart's default startup probe path
-      #     #     port: http # Or the chart's default http port
-      #     initialDelaySeconds: 600    # Start probing relatively early after container starts
-      #     periodSeconds: 15        # Probe every 15 seconds
-      #     failureThreshold: 120    # Allow 120 failures (120 * 15s = 1800s = 30 minutes for startup)
-      #     timeoutSeconds: 10       # Give each probe attempt 10 seconds to respond
-
-      #   liveness:
-      #     enabled: true
-      #     # type: http
-      #     # spec:
-      #     #   httpGet:
-      #     #     path: /status.php # Or the chart's default liveness probe path
-      #     #     port: http
-      #     initialDelaySeconds: 1800 # Start liveness probe only after a long delay (e.g., 30 minutes, after startup probe should have passed)
-      #     periodSeconds: 30
-      #     timeoutSeconds: 15
-      #     failureThreshold: 6      # More aggressive after startup
-
-      #   readiness:
-      #     enabled: true
-      #     # type: http
-      #     # spec:
-      #     #   httpGet:
-      #     #     path: /status.php # Or the chart's default readiness probe path
-      #     #     port: http
-      #     initialDelaySeconds: 1700 # Start readiness probe only after a long delay (e.g., 30 minutes)
-      #     periodSeconds: 30
-      #     timeoutSeconds: 15
-      #     failureThreshold: 3
       general:
         default_phone_region: US
-        accessIP: "{{ .Values.NGINX_EXTERNAL_IP }}"
       # previews:
       #   # Casings are important
       #   # https://github.com/nextcloud/server/blob/master/config/config.sample.php#L1269
@@ -222,8 +152,6 @@ spec:
       main:
         enabled: true
         ingressClassName: external
-        hosts:
-          - host: "nextcloud.{{ .Values.BASE_DOMAIN }}"
         integrations:
           traefik:
             enabled: false
