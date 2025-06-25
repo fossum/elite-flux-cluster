@@ -1,0 +1,138 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nextcloud-stage
+  namespace: nextcloud
+spec:
+  interval: 30m
+  timeout: 20m
+  chart:
+    spec:
+      chart: nextcloud
+      version: 6.6.10
+      sourceRef:
+        kind: HelmRepository
+        name: nextcxloud
+        namespace: flux-system
+      interval: 60m
+  values:
+    # https://artifacthub.io/packages/helm/nextcloud/nextcloud
+    # https://github.com/nextcloud/helm/blob/main/charts/nextcloud/README.md
+    nextcloud:
+      host: nextcloud.elite.internal
+      existingSecret:
+        enabled: false
+        secretName: nextcloud-staging
+        usernameKey: initialAdminUser
+        passwordKey: initialAdminPassword
+        tokenKey: ""
+        smtpUsernameKey: smtp-username
+        smtpPasswordKey: smtp-password
+
+      general:
+        default_phone_region: US
+      # clamav:
+      #   enabled: true
+      #   stream_max_length: 26214400
+      #   file_max_size: -1
+      #   infected_action: only_log
+      # collabora:
+      #   enabled: true
+      #   # default|compact|tabbed
+      #   interface_mode: default
+      #   username: admin
+      #   password: "{{ .Values.TEMP_PASSWORD }}"
+      #   dictionaries:
+      #     - de_DE
+      #     - en_GB
+      #     - en_US
+      #     - el_GR
+      #     - es_ES
+      #     - fr_FR
+      #     - pt_BR
+      #     - pt_PT
+      #     - it
+      #     - nl
+      #     - ru
+      # onlyoffice:
+      #   # It will not deploy the container
+      #   # Only add the OnlyOffice settings
+      #   enabled: false
+      #   url: ""
+      #   internal_url: ""
+      #   verify_ssl: true
+      #   jwt: ""
+      #   jwt_header: Authorization
+      # configs:
+      #   redis.config.php: |-
+      #     <?php
+      #     $CONFIG = array (
+      #         'redis' =>
+      #         array (
+      #           'host' => 'redis.infrastructure.svc.cluster.local',
+      #           'port' => 6379,
+      #           'password' => "{{ .Values.REDIS_PASSWORD }}",
+      #         ),
+      #         'memcache.local' => '\\OC\\Memcache\\APCu',
+      #         'memcache.distributed' => '\\OC\\Memcache\\Redis',
+      #         'memcache.locking' => '\\OC\\Memcache\\Redis',
+      #     );
+      configs:
+        instance.config.php: |-
+            <?php
+            $CONFIG = array (
+              'instanceid' => 'oc1eseu12utd',
+            );
+        mail.config.php: |-
+            <?php
+            $CONFIG = array (
+              'mail_smtpmode' => 'smtp',
+              'mail_smtpsecure' => 'ssl',
+              'mail_sendmailmode' => 'smtp',
+              'mail_from_address' => 'username',
+              'mail_domain' => 'gmail.com',
+              'mail_smtpauthtype' => 'LOGIN',
+              'mail_smtpauth' => 1,
+              'mail_smtphost' => 'smtp.gmail.com',
+              'mail_smtpport' => '465',
+              'mail_smtpname' => 'username@gmail.com',
+              'mail_smtppassword' => 'placeholder_password'
+            );
+      credentials:
+          initialAdminUser: "administrator"
+          initialAdminPassword: "PLACEHOLDER_PASSWORD"
+
+    ingress:
+      enabled: true
+      className: internal
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: selfsigned
+      Keep this in sync with the README.md:
+      nginx.ingress.kubernetes.io/server-snippet: |-
+        server_tokens off;
+        proxy_hide_header X-Powered-By;
+        rewrite ^/.well-known/webfinger /index.php/.well-known/webfinger last;
+        rewrite ^/.well-known/nodeinfo /index.php/.well-known/nodeinfo last;
+        rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
+        rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json;
+        location = /.well-known/carddav {
+          return 301 $scheme://$host/remote.php/dav;
+        }
+        location = /.well-known/caldav {
+          return 301 $scheme://$host/remote.php/dav;
+        }
+        location = /robots.txt {
+          allow all;
+          log_not_found off;
+          access_log off;
+        }
+        location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {
+          deny all;
+        }
+        location ~ ^/(?:autotest|occ|issue|indie|db_|console) {
+          deny all;
+        }
+      tls:
+        - secretName: nextcloud-tls
+          hosts:
+            - nextcloud.elite.internal
