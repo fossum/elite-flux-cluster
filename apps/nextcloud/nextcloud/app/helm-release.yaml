@@ -37,55 +37,39 @@ spec:
         accessModes:
         - ReadWriteMany
 
-
-    # image:
-    #   repository: docker.io/library/nextcloud
-    #   pullPolicy: Always
-    #   tag: 31.0.4-fpm@sha256:21468f5acb6d66b5abb0b78192e94a03ba1aef2ca0303f3800226363c0ee7cda
-
-    # credentials:
-    #   mys3:
-    #     type: s3
-    #     url: "{{ .Values.S3_URL }}"
-    #     bucket: "nextcloud_pgsql"
-    #     accessKey: "{{ .Values.S3_ACCESKEY }}"
-    #     secretKey: "{{ .Values.S3_SECRETKEY }}"
-    #     # encrKey: "myencryptionkey"
-
-
     nextcloud:
       general:
         default_phone_region: US
-      # previews:
-      #   # Casings are important
-      #   # https://github.com/nextcloud/server/blob/master/config/config.sample.php#L1269
-      #   # Only the last part of the provider is needed
-      #   providers:
-      #     - BMP
-      #     - EMF
-      #     - Font
-      #     - GIF
-      #     - HEIC
-      #     - Illustrator
-      #     - ImaginaryPDF
-      #     - JPEG
-      #     - MarkDown
-      #     - Movie
-      #     - MP3
-      #     - MP4
-      #     - MSOffice2003
-      #     - MSOffice2007
-      #     - MSOfficeDoc
-      #     - OpenDocument
-      #     - PDF
-      #     - Photoshop
-      #     - PNG
-      #     - Postscript
-      #     - StarOffice
-      #     - SVG
-      #     - TIFF
-      #     - TXT
-      #     - XBitmap
+      previews:
+        # Casings are important
+        # https://github.com/nextcloud/server/blob/master/config/config.sample.php#L1269
+        # Only the last part of the provider is needed
+        providers:
+          - BMP
+          - EMF
+          - Font
+          - GIF
+          - HEIC
+          - Illustrator
+          - ImaginaryPDF
+          - JPEG
+          - MarkDown
+          - Movie
+          - MP3
+          - MP4
+          - MSOffice2003
+          - MSOffice2007
+          - MSOfficeDoc
+          - OpenDocument
+          - PDF
+          - Photoshop
+          - PNG
+          - Postscript
+          - StarOffice
+          - SVG
+          - TIFF
+          - TXT
+          - XBitmap
       # clamav:
       #   enabled: true
       #   stream_max_length: 26214400
