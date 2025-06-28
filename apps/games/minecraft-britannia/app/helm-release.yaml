@@ -148,5 +148,5 @@ spec:
         storageClass: "longhorn"
         size: 10Gi
       backups:
-        storageClass: "truenas-nfs-api-csi"
-        size: 100Gi
+        enabled: true
+        existingClaim: "minecraft-britannia-backups"

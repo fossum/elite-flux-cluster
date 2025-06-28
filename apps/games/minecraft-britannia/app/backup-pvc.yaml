@@ -1,0 +1,37 @@
+# If in use.
+# kubectl patch pv minecraft-britannia-backups-static-pv -p '{"spec":{"claimRef": null}}'
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minecraft-britannia-backups
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: minecraft-britannia-backups-static-pv
+  storageClassName: "truenas-nfs-api-csi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minecraft-britannia-backups-static-pv
+  labels:
+    app.kubernetes.io/instance: minecraft-britannia
+    app.kubernetes.io/name: minecraft-java
+    volume-purpose: backups
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: truenas-nfs-api-csi
+  mountOptions: # Recommended NFS mount options, adjust if necessary
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /mnt/local-raid/kubeset/nfs/data/pvc-c417e671-fe30-4a24-b80e-766cd7fe57df
+    server: truenas.thefoss.org
