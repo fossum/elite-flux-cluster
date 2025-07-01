@@ -69,7 +69,7 @@ spec:
         class: external
         provider: external
         annotations:
-          cert-manager.io/cluster-issuer: thefoss-le-stage
+          cert-manager.io/cluster-issuer: thefoss-le-prod
         tls:
           secretName: thefoss-org-cf-origin-cert
 
