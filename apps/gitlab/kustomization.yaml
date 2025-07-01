@@ -4,6 +4,7 @@ resources:
   - namespace.yaml
   - cnpg-cluster.yaml
   # - gitlab-rails.secret.yaml
+  - gitlab.config.yaml
   - minio.secret.yaml
   - oauth.secret.yaml
   - postgres.secret.yaml

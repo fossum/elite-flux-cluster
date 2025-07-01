@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: gitlab-config
+    namespace: gitlab
+type: Opaque
+data:
+    values.yaml: ENC[AES256_GCM,data:422mOjOIYgKi3NgGWoqbxR8NoTkQcCvonIv7gD4aOpOHkesSlh7eRTHNrVI6hPAtdT26ATkhFcfHBR75Q8V0AX0AX/E78IIUE5ybvKzIaTsH9ce7ypta05sSbfe/EsDji+6/sVWzkPmlf3BxLJ+kOnKyV6aI44IGI8z2hXVRzy0hbte3+T/XO557w9MrVwpquEgdY4uLW41isyn5x640EZJ7IIr3vDtlfOaNFi/i6RIIsupXfw6k5TGfQsE79iheSEiHgspw8/L7KeNcUIiIwadV3iNH93sgiZNHsOYczA==,iv:iOoCtz5tRUe0HrKLleCjyuil1ayEwmFtfsLwxloeAfk=,tag:siwpFi4trzard6msNodehA==,type:str]
+sops:
+    age:
+        - recipient: age1r0y2hakc227f26hlnuhsk6pfuy7qauqy2ak2ntwwjdpr4q6fuvuqdk8kpq
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB4cmNTVEJCM2tKaEpEcTJZ
+            TFc0UzZJWFIrUjFRN2hWSWV0QnJEZytaQkU4ClZORFlub2V4N2hyelQvZU01Tm5J
+            VnFMbUVGRWpoUTdqZzVrTDgwNmZHVW8KLS0tIFQ1M2lXQ2Fkc3ZLWVFQVmJxUnhw
+            bU4wckhCYWdFM1pKN3RXUzUyeXBOQTQKn7fO8CFaIpg/EzYshI7jrOpxa+Lu6JuS
+            W874zEyOZLIySPGOOZhJKf8CC5BIyeBk8IUzzX+CnPHsydmMvT7v/g==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2025-07-01T23:05:03Z"
+    mac: ENC[AES256_GCM,data:S2X6AYjiEh3ceBK1hclwU05nfqd6UvsQ2UETYFz2In0kqfD9JKybG3d7R5rWoZ5lj09ZzsrLlN4O5BOA2zZU1kaGr6/PAGk2mhcXxkn2ghdP5DIiBpf4Mx8+Zr2RKhI4hd3UDzKsnEpFaDTT+ilHAPVS7LmLOJVGP1cUa+QeaXA=,iv:YWcTMjGdCO10KKxMYUlGiTEtj2Sx3/ztjqGCF85elnU=,tag:U5+puzEYakZ2WczRTcSxgA==,type:str]
+    encrypted_regex: ((?i)(displayname|email|pass|ca|id|bootstraptoken|secretboxencryptionsecret|secrets|secrets|password|cert|secret($|[^N])|key|token|^data$|^stringData))
+    version: 3.10.2

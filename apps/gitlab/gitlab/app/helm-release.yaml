@@ -23,6 +23,10 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: gitlab-config
+      optional: false
   values:
     # Gitlab.rb is likely completely defined in this file.
     global:
@@ -36,10 +40,8 @@ spec:
         port: 587
         starttls_auto: true
         tls: false
-        user_name: 'fossum.eric@gmail.com'
         openssl_verify_mode: 'peer'
       email:
-        from: 'fossum.eric@gmail.com'
         display_name: 'GitLab'
       certificates:
         # Ensure no secrets are listed here if you don't need custom CAs
@@ -47,8 +49,6 @@ spec:
         # - secret: gitlab-wildcard-tls-ca
         # Or look for a boolean toggle:
         installCustomCAs: false
-      hosts:
-        domain: '***REMOVED***'
         https: true
       edition: ce
       redis:
@@ -69,7 +69,7 @@ spec:
         class: external
         provider: external
         annotations:
-          cert-manager.io/cluster-issuer: thefoss-le-prod
+          cert-manager.io/cluster-issuer: thefoss-le-stage
         tls:
           secretName: thefoss-org-cf-origin-cert
 
@@ -130,7 +130,6 @@ spec:
       gitlab-shell:
         service:
           type: LoadBalancer
-          loadBalancerIP: "192.168.1.156"
 
       toolbox:
         backups:
