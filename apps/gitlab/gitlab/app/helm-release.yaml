@@ -19,10 +19,12 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
+    timeout: 40m
   upgrade:
     crds: CreateReplace
     remediation:
       retries: 3
+    timeout: 40m
   valuesFrom:
     - kind: ConfigMap
       name: gitlab-config
