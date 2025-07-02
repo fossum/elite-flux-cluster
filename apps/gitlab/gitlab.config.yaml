@@ -5,7 +5,7 @@ metadata:
     namespace: gitlab
 type: Opaque
 data:
-    values.yaml: ENC[AES256_GCM,data:422mOjOIYgKi3NgGWoqbxR8NoTkQcCvonIv7gD4aOpOHkesSlh7eRTHNrVI6hPAtdT26ATkhFcfHBR75Q8V0AX0AX/E78IIUE5ybvKzIaTsH9ce7ypta05sSbfe/EsDji+6/sVWzkPmlf3BxLJ+kOnKyV6aI44IGI8z2hXVRzy0hbte3+T/XO557w9MrVwpquEgdY4uLW41isyn5x640EZJ7IIr3vDtlfOaNFi/i6RIIsupXfw6k5TGfQsE79iheSEiHgspw8/L7KeNcUIiIwadV3iNH93sgiZNHsOYczA==,iv:iOoCtz5tRUe0HrKLleCjyuil1ayEwmFtfsLwxloeAfk=,tag:siwpFi4trzard6msNodehA==,type:str]
+    values.yaml: ENC[AES256_GCM,data:b3CU3Pnb/CzrJCNiDHMVeyKTu/AEs728aETcCFL03HPs21eWLGgNcltncEyRaMWWb9YUyQL1IOEoZRELMaC3RbBuZh84MfDZ2cxkdcTT8HWltp6N2OyY6gzGCniyfqXIzcHgFvjSqX2FUsAKFgrw2MpuFumYzZNmCwIIAUpj45PZJLu/BefZyTCpnLvZxbskMMguI1XizwWNKIVtBeViyurHZinD/e0vH126M8VjM3NtdqMu8tQp1g5o/pXdtTnMkf8qt6CEaiB1iBY5OP8i0jX/KtqOJlP6,iv:DtQw70k/kORVrpnGc+cbAxIKA0r/kutc1t3v5cRYXog=,tag:3VLv0jEB0RXyexTcxjPw0w==,type:str]
 sops:
     age:
         - recipient: age1r0y2hakc227f26hlnuhsk6pfuy7qauqy2ak2ntwwjdpr4q6fuvuqdk8kpq
@@ -17,7 +17,7 @@ sops:
             bU4wckhCYWdFM1pKN3RXUzUyeXBOQTQKn7fO8CFaIpg/EzYshI7jrOpxa+Lu6JuS
             W874zEyOZLIySPGOOZhJKf8CC5BIyeBk8IUzzX+CnPHsydmMvT7v/g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2025-07-01T23:05:03Z"
-    mac: ENC[AES256_GCM,data:S2X6AYjiEh3ceBK1hclwU05nfqd6UvsQ2UETYFz2In0kqfD9JKybG3d7R5rWoZ5lj09ZzsrLlN4O5BOA2zZU1kaGr6/PAGk2mhcXxkn2ghdP5DIiBpf4Mx8+Zr2RKhI4hd3UDzKsnEpFaDTT+ilHAPVS7LmLOJVGP1cUa+QeaXA=,iv:YWcTMjGdCO10KKxMYUlGiTEtj2Sx3/ztjqGCF85elnU=,tag:U5+puzEYakZ2WczRTcSxgA==,type:str]
+    lastmodified: "2025-07-02T00:15:59Z"
+    mac: ENC[AES256_GCM,data:HIlAqvZLEVHXS+5TFExVxALd8azjNkH+8ozFc7iTWw63lxNL5JxVJH03anehGvMdnDYaDx959429/h8PJvWbccjhPs7sQgS1nQdjGP03yUlXZdIUQN0vYYMVGSn7LAD8QILtTPlQhjO6aYYhsSO+4iwKnI30OXRbEfDRFEFvPts=,iv:qyj35QavlG0iANkN/ZCU7CGloAux4sa0QGbe37CZFWc=,tag:VOeWmb9emDAqOTqQB2HkPQ==,type:str]
     encrypted_regex: ((?i)(displayname|email|pass|ca|id|bootstraptoken|secretboxencryptionsecret|secrets|secrets|password|cert|secret($|[^N])|key|token|^data$|^stringData))
     version: 3.10.2
