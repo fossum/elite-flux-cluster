@@ -1,0 +1,8 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: bad-employee-bot-chart
+  namespace: flux-system # You might want to change this namespace
+spec:
+  interval: 60m
+  url: https://fossum.github.io/bad-employee-bot/

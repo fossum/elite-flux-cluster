@@ -1,0 +1,22 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: bad-employee
+  namespace: default
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: bad-employee-bot
+      version: "0.1.3"
+      sourceRef:
+        kind: HelmRepository
+        name: bad-employee-bot-chart
+        namespace: flux-system
+      interval: 1m
+  install:
+    createNamespace: false
+  values:
+    # https://github.com/fossum/bad-employee-bot/blob/main/chart/values.yaml
+    existingSecret: "bad-employee-bot-secrets"
+
