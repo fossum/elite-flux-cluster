@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - dns-chal.secret.yaml
   - helm-release.yaml
+  - self-signed.yaml
