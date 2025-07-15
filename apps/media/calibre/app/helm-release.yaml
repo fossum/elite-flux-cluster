@@ -47,7 +47,7 @@ spec:
             enabled: false
           certManager:
             enabled: true
-            certificateIssuer: thefoss-le-stage
+            certificateIssuer: thefoss-le-prod
           homepage:
             enabled: true
             group: "Media"
