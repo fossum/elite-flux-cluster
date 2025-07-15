@@ -31,7 +31,7 @@ spec:
   values:
     fallbackDefaults:
       storageClass: "truenas-nfs-api-csi"
-      pvcSize: 10Gi
+      pvcSize: 100Gi
 
     TZ: "America/Los_Angeles"
 
