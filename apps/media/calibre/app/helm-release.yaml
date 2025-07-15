@@ -1,0 +1,53 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: calibre
+  namespace: media
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: calibre-web
+      version: 21.1.1
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 25m
+  install:
+    createNamespace: false
+  valuesFrom:
+    - kind: ConfigMap
+      name: media-config
+      valuesKey: BASE_DOMAIN
+      targetPath: baseDomain
+  values:
+    TZ: "America/Los_Angeles"
+
+    persistence:
+      config:
+        enabled: true
+        size: 5Gi
+        storageClass: "longhorn"
+      media:
+        enabled: true
+        type: nfs
+        path: /mnt/local-raid/no-backup/dvr
+        mountPath: /media
+        server: "truenas.{{ .Values.baseDomain }}"
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        hosts:
+          - host: "{{ .Release.Name }}.{{ .Values.baseDomain }}"
+        integrations:
+          traefik:
+            enabled: false
+          certManager:
+            enabled: true
+            certificateIssuer: thefoss-le-stage
+          homepage:
+            enabled: true
+            group: "Media"

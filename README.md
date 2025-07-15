@@ -6,6 +6,7 @@
 * Git Repository: An empty or new Git repository (e.g., on GitHub, GitLab, Bitbucket).
 * Flux CLI: Install Flux CLI.
 * SOPS CLI: Install SOPS CLI.
+  * https://github.com/getsops/sops/releases
 
 ## Steps
 
