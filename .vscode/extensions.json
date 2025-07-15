@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "signageos.signageos-vscode-sops"
+        "signageos.signageos-vscode-sops",
+        "google.geminicodeassist"
     ]
 }
