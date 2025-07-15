@@ -35,6 +35,10 @@ spec:
 
     TZ: "America/Los_Angeles"
 
+    service:
+      main:
+        type: LoadBalancer
+
     ingress:
       main:
         enabled: true
