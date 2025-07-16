@@ -36,6 +36,16 @@ spec:
         mountPath: /media
         server: "truenas.{{ .Values.baseDomain }}"
 
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                DOCKER_MODS: lscr.io/linuxserver/mods:universal-tshoot
+                PUID: 568
+                PGID: 568
+
     ingress:
       main:
         enabled: true
