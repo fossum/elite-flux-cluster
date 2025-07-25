@@ -31,3 +31,11 @@ spec:
         - domain: ${BASE_DOMAIN}
           record: A
           zone: ${BASE_DOMAIN}
+    workload:
+      main:
+        strategy: Recreate
+    persistence:
+      config:
+        type: emptyDir
+        medium: Memory
+        size: 2Gi
