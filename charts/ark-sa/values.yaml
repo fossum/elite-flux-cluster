@@ -1,0 +1,13 @@
+server:
+  name: YourServerName
+  password: ChangeMe1
+  adminPassword: ChangeMe2
+  map: TheIsland_WP
+  image: mschnitzer/asa-linux-server:latest
+
+storage:
+  size: 30Gi
+  storageClassName: ""  # optionally override with your cluster's class
+
+service:
+  type: NodePort  # or LoadBalancer
