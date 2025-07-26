@@ -6,6 +6,7 @@ metadata:
 resources:
   - namespace.yaml
   - games.secret.yaml
+  - ark-shared-pvcs.yaml
   - ark-scorched/ks.yaml
   - minecraft-britannia/ks.yaml
   - minecraft-venture/ks.yaml

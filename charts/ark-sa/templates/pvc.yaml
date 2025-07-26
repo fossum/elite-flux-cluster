@@ -1,13 +1,18 @@
+{{- range $name, $pvc := .Values.persistence }}
+{{- if not $pvc.existingClaim }}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "ark-server.fullname" . }}-data
+  name: {{ include "ark-server.fullname" $ }}-{{ $name }}
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.storage.size }}
-  {{- if .Values.storage.storageClassName }}
-  storageClassName: {{ .Values.storage.storageClassName }}
+      storage: {{ $pvc.size }}
+  {{- if $pvc.storageClassName }}
+  storageClassName: {{ $pvc.storageClassName }}
   {{- end }}
+{{- end }}
+{{- end }}

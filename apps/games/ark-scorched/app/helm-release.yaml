@@ -21,5 +21,8 @@ spec:
       map: TheIsland_WP
     service:
       type: LoadBalancer
-    storage:
-      size: 30Gi
+    persistence:
+      ark:
+        existingClaim: ark-cluster-shared
+      steamcmd:
+        existingClaim: ark-steamcmd-shared
