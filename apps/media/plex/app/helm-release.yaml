@@ -28,6 +28,10 @@ spec:
       name: media-config
       valuesKey: BASE_DOMAIN
       targetPath: baseDomain
+    - kind: ConfigMap
+      name: media-config
+      valuesKey: LOCAL_IP
+      targetPath: localIP
   values:
     persistence:
       config:
@@ -53,9 +57,10 @@ spec:
     service:
       main:
         type: LoadBalancer
+        loadBalancerIP: "{{ .Values.localIP }}"
 
     plex:
-      additionalAdvertiseURL: "https://{{ .Release.Name }}.{{ .Values.baseDomain }}/"
+      additionalAdvertiseURL: "https://{{ .Release.Name }}.{{ .Values.baseDomain }}/,http://{{ .Values.localIP }}:32400/"
       # requireHTTPS: true
       # disableGDM: false
 
