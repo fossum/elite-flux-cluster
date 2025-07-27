@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: dvr-nfs-pv
+spec:
+  capacity:
+    storage: 2Ti
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: truenas.thefoss.org
+    path: /mnt/local-raid/no-backup/dvr
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: "dvr-nfs-pv"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dvr-nfs-pvc
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Ti
+  volumeName: dvr-nfs-pv
+  storageClassName: "dvr-nfs-pv"
