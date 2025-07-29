@@ -32,8 +32,12 @@ spec:
     server:
       name: "Venture Bros (Scorched Earth)"
       map: ScorchedEarth_WP
+      clusterID: venturecluster
     service:
       type: LoadBalancer
+      gamePort: 7777
+      peerPort: 7778
+      queryPort: 27015
     persistence:
       cluster:
         existingClaim: ark-cluster-shared

@@ -4,6 +4,18 @@ server:
   adminPassword: ChangeMe2
   map: TheIsland_WP
   image: mschnitzer/asa-linux-server:latest
+  clusterID: default
+  debug: false
+  maxPlayers: 50
+  startParams: ""  # Optional, overrides entire start command.
+
+service:
+  type: LoadBalancer  # or LoadBalancer, ClusterIP, etc.
+  loadBalancerIP: ""  # Only for LoadBalancer type
+  gamePort: 7777
+  peerPort: 7778
+  queryPort: 27015
+  rconPort: 0
 
 persistence:
   ark:
@@ -22,6 +34,3 @@ persistence:
     size: 5Gi
     storageClassName: ""
     existingClaim: ""
-
-service:
-  type: NodePort  # or LoadBalancer

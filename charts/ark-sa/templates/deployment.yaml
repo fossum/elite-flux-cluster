@@ -53,13 +53,28 @@ spec:
             - name: SERVER_ADMIN_PASSWORD
               value: "{{ .Values.server.adminPassword }}"
             - name: ASA_START_PARAMS
-              value: '{{ .Values.server.startParams | default "TheIsland_WP?listen?Port=7777?RCONPort=27020?RCONEnabled=True -WinLiveMaxPlayers=50 -clusterid=default -ClusterDirOverride=/home/gameserver/cluster-shared" }}'
+              value: |
+                {{- if .Values.server.startParams -}}
+                {{ .Values.server.startParams }}
+                {{- else -}}
+                {{ printf "%s?listen" .Values.server.mapname }}
+                ?Port={{ .Values.service.gamePort }}
+                ?RCONPort={{ .Values.service.rconPort }}
+                ?RCONEnabled={{ ternary "True" "False" (gt .Values.service.rconPort 0) }}
+                -WinLiveMaxPlayers={{ .Values.server.maxPlayers }}
+                -clusterid={{ .Values.server.clusterID }}
+                -ClusterDirOverride=/home/gameserver/cluster-shared
+                {{- end }}
             - name: ENABLE_DEBUG
-              value: '{{ .Values.server.debug | default "0" }}'
+              value: '{{ ternary "1" "0" .Values.server.debug }}'
           ports:
-            - containerPort: 7777
+            - containerPort: {{ .Values.service.gamePort }}
               protocol: UDP
-            - containerPort: 27020
+            - containerPort: {{ .Values.service.peerPort }}
+              protocol: UDP
+            - containerPort: {{ .Values.service.queryPort }}
+              protocol: UDP
+            - containerPort: {{ .Values.service.rconPort }}
               protocol: TCP
           volumeMounts:
             - name: steam
