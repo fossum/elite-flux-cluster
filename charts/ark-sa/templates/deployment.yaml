@@ -54,16 +54,16 @@ spec:
               value: "{{ .Values.server.adminPassword }}"
             - name: ASA_START_PARAMS
               value: |
-                {{- if .Values.server.startParams -}}
-                {{ .Values.server.startParams }}
-                {{- else -}}
-                {{ printf "%s?listen" .Values.server.mapname }}
-                ?Port={{ .Values.service.gamePort }}
-                ?RCONPort={{ .Values.service.rconPort }}
-                ?RCONEnabled={{ ternary "True" "False" (gt .Values.service.rconPort 0) }}
-                -WinLiveMaxPlayers={{ .Values.server.maxPlayers }}
-                -clusterid={{ .Values.server.clusterID }}
-                -ClusterDirOverride=/home/gameserver/cluster-shared
+                {{- if .Values.server.startParams }}
+                  {{ .Values.server.startParams }}
+                {{- else }}
+                  {{ printf "%s?listen" .Values.server.mapname }}
+                  ?Port={{ .Values.service.gamePort }}
+                  ?RCONPort={{ .Values.service.rconPort }}
+                  ?RCONEnabled={{ ternary "True" "False" (gt (int .Values.service.rconPort) 0) }}
+                  -WinLiveMaxPlayers={{ .Values.server.maxPlayers }}
+                  -clusterid={{ .Values.server.clusterID }}
+                  -ClusterDirOverride=/home/gameserver/cluster-shared
                 {{- end }}
             - name: ENABLE_DEBUG
               value: '{{ ternary "1" "0" .Values.server.debug }}'
@@ -74,8 +74,10 @@ spec:
               protocol: UDP
             - containerPort: {{ .Values.service.queryPort }}
               protocol: UDP
+            {{- if and .Values.service.rconPort (gt (int .Values.service.rconPort) 0) }}
             - containerPort: {{ .Values.service.rconPort }}
               protocol: TCP
+            {{- end }}
           volumeMounts:
             - name: steam
               mountPath: /home/gameserver/Steam
@@ -85,6 +87,33 @@ spec:
               mountPath: /home/gameserver/cluster-shared
             - name: steamcmd
               mountPath: /home/gameserver/steamcmd
+          startupProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - 'grep -q ":{{ printf "%X" .Values.service.gamePort }}" /proc/net/udp'
+            initialDelaySeconds: 60
+            # Allows up to 30 minutes (60 * 30s) for the server to start.
+            # Long enough for the files to download and extract.
+            failureThreshold: 60
+            periodSeconds: 30
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - 'grep -q ":{{ printf "%X" .Values.service.gamePort }}" /proc/net/udp'
+            failureThreshold: 3
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - 'grep -q ":{{ printf "%X" .Values.service.gamePort }}" /proc/net/udp'
+            failureThreshold: 3
+            periodSeconds: 10
       volumes:
         - name: ark
           persistentVolumeClaim:
