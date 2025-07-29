@@ -19,10 +19,10 @@ spec:
             - /bin/bash
             - -c
             - >
-              chown -R 25000:25000 /steam &&
-              chown -R 25000:25000 /steamcmd &&
-              chown -R 25000:25000 /server-files &&
-              chown -R 25000:25000 /cluster-shared
+              chown -Rv 25000:25000 /steam &&
+              chown -Rv 25000:25000 /steamcmd &&
+              chown -Rv 25000:25000 /server-files &&
+              chown -Rv 25000:25000 /cluster-shared
           securityContext:
             runAsUser: 0
           volumeMounts:
