@@ -4,14 +4,17 @@ metadata:
   name: {{ include "ark-server.fullname" . }}
 spec:
   type: {{ .Values.service.type }}
+  {{- if .Values.service.type | eq "LoadBalancer" }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP | default "" }}
+  {{- end }}
   selector:
     app: {{ include "ark-server.name" . }}
   ports:
-    - name: game1
+    - name: game
       port: 7777
       protocol: UDP
       targetPort: 7777
-    - name: game2
+    - name: peer
       port: 7778
       protocol: UDP
       targetPort: 7778
@@ -19,3 +22,7 @@ spec:
       port: 27015
       protocol: UDP
       targetPort: 27015
+    - name: rcon
+      port: 27020
+      protocol: TCP
+      targetPort: 27020

@@ -1,11 +1,10 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: ark-island
+  name: ark-scorched
   namespace: games
 spec:
   interval: 5m
-  releaseName: ark-island
   chart:
     spec:
       chart: ./charts/ark-sa
@@ -13,16 +12,30 @@ spec:
         kind: GitRepository
         name: flux-system
         namespace: flux-system
+  valuesFrom:
+    - kind: ConfigMap
+      name: game-config
+      valuesKey: ark_scorched_lb_ip
+      targetPath: spec.values.service.loadBalancerIP
+      optional: false
+    - kind: ConfigMap
+      name: game-config
+      valuesKey: RCON_PASSWORD
+      targetPath: spec.values.server.adminPassword
+      optional: false
+    - kind: ConfigMap
+      name: game-config
+      valuesKey: GAME_PASSWORD
+      targetPath: spec.values.server.password
+      optional: false
   values:
     server:
-      name: IslandServer
-      password: pass123
-      adminPassword: adminpass
-      map: TheIsland_WP
+      name: "Venture Bros (Scorched Earth)"
+      map: ScorchedEarth_WP
     service:
       type: LoadBalancer
     persistence:
-      ark:
+      cluster:
         existingClaim: ark-cluster-shared
       steamcmd:
         existingClaim: ark-steamcmd-shared
