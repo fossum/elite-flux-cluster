@@ -4,6 +4,8 @@ metadata:
   name: {{ include "ark-server.fullname" . }}
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: {{ include "ark-server.name" . }}
@@ -39,7 +41,8 @@ spec:
           image: {{ .Values.server.image }}
           command: ["/usr/bin/start_server"]
           securityContext:
-            runAsUser: 1000 # Game server user ID
+            runAsUser: 25000  # Game server user ID
+            runAsGroup: 25000 # Game server group ID
           env:
             - name: SERVER_MAP
               value: "{{ .Values.server.map }}"
