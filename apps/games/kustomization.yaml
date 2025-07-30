@@ -8,6 +8,7 @@ resources:
   - games.secret.yaml
   - ark-shared-pvcs.yaml
   - ark-scorched/ks.yaml
+  - ark-fjordur/ks.yaml
   - minecraft-britannia/ks.yaml
   - minecraft-venture/ks.yaml
   # - minecraft-gate/ks.yaml

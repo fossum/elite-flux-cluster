@@ -1,0 +1,48 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ark-fjordur
+  namespace: games
+spec:
+  interval: 5m
+  timeout: 30m
+  chart:
+    spec:
+      chart: ./charts/ark-sa
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  valuesFrom:
+    - kind: ConfigMap
+      name: game-config
+      valuesKey: ark_fjordur_lb_ip
+      targetPath: spec.values.service.loadBalancerIP
+      optional: false
+    - kind: ConfigMap
+      name: game-config
+      valuesKey: RCON_PASSWORD
+      targetPath: spec.values.server.adminPassword
+      optional: false
+    - kind: ConfigMap
+      name: game-config
+      valuesKey: GAME_PASSWORD
+      targetPath: spec.values.server.password
+      optional: false
+  values:
+    server:
+      name: "Venture Bros (Fjordur Earth)"
+      map: Fjordur
+      clusterID: venturecluster
+    service:
+      type: LoadBalancer
+      gamePort: 7779
+      peerPort: 7780
+      queryPort: 27016
+    persistence:
+      ark:
+        existingClaim: ark-fjordur-game
+      cluster:
+        existingClaim: ark-cluster-shared
+      steamcmd:
+        existingClaim: ark-steamcmd-shared
