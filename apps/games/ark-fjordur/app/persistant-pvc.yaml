@@ -11,27 +11,27 @@ spec:
   resources:
     requests:
       storage: 50Gi
-  # volumeName: ark-fjordur-games-static-pv
+  volumeName: ark-fjordur-games-static-pv
   storageClassName: "truenas-nfs-api-csi"
 ---
-# apiVersion: v1
-# kind: PersistentVolume
-# metadata:
-#   name: ark-fjordur-games-static-pv
-#   labels:
-#     app.kubernetes.io/instance: ark-fjordur
-#     app.kubernetes.io/name: ark-sa
-#     volume-purpose: backups
-# spec:
-#   capacity:
-#     storage: 50Gi
-#   accessModes:
-#     - ReadWriteOnce
-#   persistentVolumeReclaimPolicy: Retain
-#   storageClassName: truenas-nfs-api-csi
-#   mountOptions: # Recommended NFS mount options, adjust if necessary
-#     - hard
-#     - nfsvers=4.1
-#   nfs:
-#     path: /mnt/local-raid/kubeset/nfs/data/pvc-45181877-eaa0-4195-bca8-4cbcb3aded8f
-#     server: truenas.thefoss.org
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ark-fjordur-games-static-pv
+  labels:
+    app.kubernetes.io/instance: ark-fjordur
+    app.kubernetes.io/name: ark-sa
+    volume-purpose: backups
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: truenas-nfs-api-csi
+  mountOptions: # Recommended NFS mount options, adjust if necessary
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /mnt/local-raid/kubeset/nfs/data/pvc-eb4f7a7c-f88e-484e-97f6-af80681d0c4e
+    server: truenas.thefoss.org

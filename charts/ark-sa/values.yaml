@@ -8,6 +8,7 @@ server:
   debug: false
   maxPlayers: 50
   startParams: ""  # Optional, overrides entire start command.
+  mods: []  # List of mod IDs to load, e.g., [123456789, 987654321]
 
 service:
   type: LoadBalancer  # or LoadBalancer, ClusterIP, etc.

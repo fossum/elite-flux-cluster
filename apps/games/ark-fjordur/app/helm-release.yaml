@@ -34,6 +34,7 @@ spec:
       name: "Venture Bros (Fjordur Earth)"
       map: Fjordur
       clusterID: venturecluster
+      mods: [950914, 935408]  # Awesome Teleporters!, Der Dino Finder
     service:
       type: LoadBalancer
       gamePort: 7779

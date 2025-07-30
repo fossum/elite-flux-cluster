@@ -57,14 +57,20 @@ spec:
                 {{- if .Values.server.startParams }}
                   {{ .Values.server.startParams | replace "\n" "" }}
                 {{- else }}
-                  {{ (printf "%s?listen?Port=%d?RCONPort=%d?RCONEnabled=%s -WinLiveMaxPlayers=%d -clusterid=%s -ClusterDirOverride=/home/gameserver/cluster-shared"
+                  {{- $mods := .Values.server.mods | default list }}
+                  {{- $modstr := "" }}
+                  {{- if $mods }}
+                    {{- $modstr = printf " -mod=%s" (join "," $mods) }}
+                  {{- end }}
+                  {{ printf "%s?listen?Port=%d?RCONPort=%d?RCONEnabled=%s -WinLiveMaxPlayers=%d -clusterid=%s -ClusterDirOverride=/home/gameserver/cluster-shared%s"
                     (.Values.server.map | default "TheIsland_WP")
                     (int .Values.service.gamePort)
                     (int .Values.service.rconPort)
                     (ternary "True" "False" (gt (int .Values.service.rconPort) 0))
-                    (int .Values.server.maxPlayers)
+                    (int (.Values.server.maxPlayers | default 32))
                     .Values.server.clusterID
-                  ) }}
+                    $modstr
+                  }}
                 {{- end }}
             - name: ENABLE_DEBUG
               value: '{{ ternary "1" "0" .Values.server.debug }}'

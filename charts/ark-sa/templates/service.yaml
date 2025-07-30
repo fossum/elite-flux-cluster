@@ -11,18 +11,20 @@ spec:
     app: {{ include "ark-server.name" . }}
   ports:
     - name: game
-      port: 7777
+      port: {{ .Values.service.gamePort | default 7777 }}
       protocol: UDP
-      targetPort: 7777
+      targetPort: {{ .Values.service.gamePort | default 7777 }}
     - name: peer
-      port: 7778
+      port: {{ .Values.service.peerPort | default 7778 }}
       protocol: UDP
-      targetPort: 7778
+      targetPort: {{ .Values.service.peerPort | default 7778 }}
     - name: query
-      port: 27015
+      port: {{ .Values.service.queryPort | default 27015 }}
       protocol: UDP
-      targetPort: 27015
+      targetPort: {{ .Values.service.queryPort | default 27015 }}
+    {{- if gt (int .Values.service.rconPort) 0 }}
     - name: rcon
-      port: 27020
+      port: {{ .Values.service.rconPort | default 27020 }}
       protocol: TCP
-      targetPort: 27020
+      targetPort: {{ .Values.service.rconPort | default 27020 }}
+    {{- end }}
