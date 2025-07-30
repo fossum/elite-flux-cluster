@@ -1,7 +1,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: ark-fjordur
+  name: ark-aberration
   namespace: games
 spec:
   interval: 5m
@@ -16,7 +16,7 @@ spec:
   valuesFrom:
     - kind: ConfigMap
       name: game-config
-      valuesKey: ark_fjordur_lb_ip
+      valuesKey: ark_aberration_lb_ip
       targetPath: spec.values.service.loadBalancerIP
       optional: false
     - kind: ConfigMap
@@ -31,18 +31,18 @@ spec:
       optional: false
   values:
     server:
-      name: "Venture Bros (Fjordur)"
-      map: Fjordur
+      name: "Venture Bros (Aberration)"
+      map: Aberration_WP
       clusterID: venturecluster
       mods: [950914, 935408]  # Awesome Teleporters!, Der Dino Finder
     service:
       type: LoadBalancer
-      gamePort: 7779
-      peerPort: 7780
-      queryPort: 27016
+      gamePort: 7781
+      peerPort: 7782
+      queryPort: 27017
     persistence:
       ark:
-        existingClaim: ark-fjordur-game
+        existingClaim: ark-aberration-game
       cluster:
         existingClaim: ark-cluster-shared
       steamcmd:

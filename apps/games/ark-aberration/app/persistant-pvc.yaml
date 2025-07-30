@@ -1,0 +1,37 @@
+# If in use.
+# kubectl patch pv ark-aberration-games-static-pv -p '{"spec":{"claimRef": null}}'
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ark-aberration-game
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  # volumeName: ark-aberration-games-static-pv
+  storageClassName: "truenas-nfs-api-csi"
+---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: ark-aberration-games-static-pv
+#   labels:
+#     app.kubernetes.io/instance: ark-aberration
+#     app.kubernetes.io/name: ark-sa
+#     volume-purpose: backups
+# spec:
+#   capacity:
+#     storage: 50Gi
+#   accessModes:
+#     - ReadWriteOnce
+#   persistentVolumeReclaimPolicy: Retain
+#   storageClassName: truenas-nfs-api-csi
+#   mountOptions: # Recommended NFS mount options, adjust if necessary
+#     - hard
+#     - nfsvers=4.1
+#   nfs:
+#     path: /mnt/local-raid/kubeset/nfs/data/pvc-eb4f7a7c-xxx
+#     server: truenas.thefoss.org
