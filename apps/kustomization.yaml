@@ -6,7 +6,7 @@ resources:
   - default
   - flux-entry.yaml
   - games
-  - gitlab
+  # - gitlab
   - infrastructure
   - media
   - mirrors
