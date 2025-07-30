@@ -5,7 +5,7 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   {{- if eq .Values.service.type "LoadBalancer" }}
-  loadBalancerIP: {{ .Values.service.loadBalancerIP | default "" }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP | default "\"\"" }}
   {{- end }}
   selector:
     app: {{ include "ark-server.name" . }}
