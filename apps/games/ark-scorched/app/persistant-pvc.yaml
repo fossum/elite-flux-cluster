@@ -1,0 +1,37 @@
+# If in use.
+# kubectl patch pv ark-scorched-games-static-pv -p '{"spec":{"claimRef": null}}'
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ark-scorched-game
+  namespace: games
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  volumeName: ark-scorched-games-static-pv
+  storageClassName: "truenas-nfs-api-csi"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ark-scorched-games-static-pv
+  labels:
+    app.kubernetes.io/instance: ark-scorched
+    app.kubernetes.io/name: ark-sa
+    volume-purpose: backups
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: truenas-nfs-api-csi
+  mountOptions: # Recommended NFS mount options, adjust if necessary
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /mnt/local-raid/kubeset/nfs/data/pvc-45181877-eaa0-4195-bca8-4cbcb3aded8f
+    server: truenas.thefoss.org

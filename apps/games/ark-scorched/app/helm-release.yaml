@@ -40,6 +40,8 @@ spec:
       peerPort: 7778
       queryPort: 27015
     persistence:
+      ark:
+        existingClaim: ark-scorched-game
       cluster:
         existingClaim: ark-cluster-shared
       steamcmd:
