@@ -55,15 +55,16 @@ spec:
             - name: ASA_START_PARAMS
               value: |
                 {{- if .Values.server.startParams }}
-                  {{ .Values.server.startParams }}
+                  {{ .Values.server.startParams | replace "\n" "" }}
                 {{- else }}
-                  {{ printf "%s?listen" .Values.server.mapname }}
-                  ?Port={{ .Values.service.gamePort }}
-                  ?RCONPort={{ .Values.service.rconPort }}
-                  ?RCONEnabled={{ ternary "True" "False" (gt (int .Values.service.rconPort) 0) }}
-                  -WinLiveMaxPlayers={{ .Values.server.maxPlayers }}
-                  -clusterid={{ .Values.server.clusterID }}
-                  -ClusterDirOverride=/home/gameserver/cluster-shared
+                  {{ (printf "%s?listen?Port=%d?RCONPort=%d?RCONEnabled=%s -WinLiveMaxPlayers=%d -clusterid=%s -ClusterDirOverride=/home/gameserver/cluster-shared"
+                    (.Values.server.map | default "TheIsland_WP")
+                    (int .Values.service.gamePort)
+                    (int .Values.service.rconPort)
+                    (ternary "True" "False" (gt (int .Values.service.rconPort) 0))
+                    (int .Values.server.maxPlayers)
+                    .Values.server.clusterID
+                  ) }}
                 {{- end }}
             - name: ENABLE_DEBUG
               value: '{{ ternary "1" "0" .Values.server.debug }}'
@@ -127,4 +128,3 @@ spec:
         - name: steam
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.steam.existingClaim | default (printf "%s-steam" (include "ark-server.fullname" .)) }}
-
