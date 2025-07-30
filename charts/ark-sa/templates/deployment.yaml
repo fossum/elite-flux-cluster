@@ -87,33 +87,33 @@ spec:
               mountPath: /home/gameserver/cluster-shared
             - name: steamcmd
               mountPath: /home/gameserver/steamcmd
-          startupProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - 'grep -q ":{{ printf "%X" .Values.service.gamePort }}" /proc/net/udp'
-            initialDelaySeconds: 60
-            # Allows up to 30 minutes (60 * 30s) for the server to start.
-            # Long enough for the files to download and extract.
-            failureThreshold: 60
-            periodSeconds: 30
-          livenessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - 'grep -q ":{{ printf "%X" .Values.service.gamePort }}" /proc/net/udp'
-            failureThreshold: 3
-            periodSeconds: 10
-          readinessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - 'grep -q ":{{ printf "%X" .Values.service.gamePort }}" /proc/net/udp'
-            failureThreshold: 3
-            periodSeconds: 10
+          # startupProbe:
+          #   exec:
+          #     command:
+          #       - /bin/sh
+          #       - -c
+          #       - 'grep -q ":{{ printf "%X" .Values.service.gamePort }}" /proc/net/udp'
+          #   initialDelaySeconds: 60
+          #   # Allows up to 30 minutes (threshold * period) for the server to start.
+          #   # Long enough for the files to download and extract.
+          #   failureThreshold: 60
+          #   periodSeconds: 30
+          # livenessProbe:
+          #   exec:
+          #     command:
+          #       - /bin/sh
+          #       - -c
+          #       - 'grep -q ":{{ printf "%X" .Values.service.gamePort }}" /proc/net/udp'
+          #   failureThreshold: 3
+          #   periodSeconds: 10
+          # readinessProbe:
+          #   exec:
+          #     command:
+          #       - /bin/sh
+          #       - -c
+          #       - 'grep -q ":{{ printf "%X" .Values.service.gamePort }}" /proc/net/udp'
+          #   failureThreshold: 3
+          #   periodSeconds: 10
       volumes:
         - name: ark
           persistentVolumeClaim:
