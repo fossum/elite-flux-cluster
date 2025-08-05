@@ -8,42 +8,15 @@ spec:
   timeout: 30m
   chart:
     spec:
-      chart: ./charts/ark-sa
+      chart: charts/stable/arksurvivalascended
+      version: 0.1.1
       sourceRef:
         kind: GitRepository
-        name: flux-system
+        name: fosscharts
         namespace: flux-system
-  valuesFrom:
-    - kind: ConfigMap
-      name: game-config
-      valuesKey: ark_fjordur_lb_ip
-      targetPath: spec.values.service.loadBalancerIP
-      optional: false
-    - kind: ConfigMap
-      name: game-config
-      valuesKey: RCON_PASSWORD
-      targetPath: spec.values.server.adminPassword
-      optional: false
-    - kind: ConfigMap
-      name: game-config
-      valuesKey: GAME_PASSWORD
-      targetPath: spec.values.server.password
-      optional: false
+      interval: 5m
   values:
-    server:
-      name: "Venture Bros (Fjordur)"
-      map: Fjordur
-      clusterID: venturecluster
-      mods: [950914, 935408]  # Awesome Teleporters!, Der Dino Finder
+    TZ: "America/Los_Angeles"
     service:
-      type: LoadBalancer
-      gamePort: 7779
-      peerPort: 7780
-      queryPort: 27016
-    persistence:
-      ark:
-        existingClaim: ark-fjordur-game
-      cluster:
-        existingClaim: ark-cluster-shared
-      steamcmd:
-        existingClaim: ark-steamcmd-shared
+      main:
+        type: LoadBalancer

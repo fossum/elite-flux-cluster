@@ -1,0 +1,10 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: fosscharts
+  namespace: flux-system
+spec:
+  interval: 60m0s
+  url: https://github.com/fossum/truecharts-public.git
+  ref:
+    branch: feature/ark-ascended-chart
