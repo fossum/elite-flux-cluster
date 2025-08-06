@@ -60,7 +60,7 @@ spec:
                   {{- $mods := .Values.server.mods | default list }}
                   {{- $modstr := "" }}
                   {{- if $mods }}
-                    {{- $modstr = printf " -mod=%s" (join "," $mods) }}
+                    {{- $modstr = printf " -mods=%s" (join "," $mods) }}
                   {{- end }}
                   {{ printf "%s?listen?Port=%d?RCONPort=%d?RCONEnabled=%s?SessionName=%s -WinLiveMaxPlayers=%d -clusterid=%s -ClusterDirOverride=/home/gameserver/cluster-shared%s"
                     (.Values.server.map | default "TheIsland_WP")

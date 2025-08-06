@@ -46,3 +46,8 @@ spec:
         existingClaim: ark-cluster-shared
       steamcmd:
         existingClaim: ark-steamcmd-shared
+    resources:
+      limits:
+        memory: 20Gi
+      requests:
+        memory: 10Gi
