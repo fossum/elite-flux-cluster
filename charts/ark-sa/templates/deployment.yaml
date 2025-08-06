@@ -9,10 +9,12 @@ spec:
   selector:
     matchLabels:
       app: {{ include "ark-server.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
         app: {{ include "ark-server.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       initContainers:
         - name: set-permissions

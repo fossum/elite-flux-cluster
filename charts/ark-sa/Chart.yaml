@@ -2,5 +2,5 @@ apiVersion: v2
 name: ark-server
 description: "A Helm chart for ARK: Survival Ascended."
 type: application
-version: 0.1.5
+version: 0.1.6
 appVersion: "latest"

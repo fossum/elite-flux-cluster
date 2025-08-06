@@ -16,7 +16,7 @@ spec:
         namespace: flux-system
       interval: 5m
   values:
-    TZ: "America/Los_Angeles"
+    # TZ: "America/Los_Angeles"
     service:
       main:
         type: LoadBalancer
