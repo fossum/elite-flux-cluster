@@ -52,3 +52,5 @@ spec:
         memory: 20Gi
       requests:
         memory: 10Gi
+    podOptions:
+      hostNetwork: true
