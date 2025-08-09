@@ -31,7 +31,7 @@ spec:
       optional: false
   values:
     server:
-      name: "Venture-Bros-Scorched"
+      name: "Venture-Bros (Scorched Earth)"
       map: ScorchedEarth_WP
       clusterID: venturecluster
       mods: [950914, 935408]  # Awesome Teleporters!, Der Dino Finder
