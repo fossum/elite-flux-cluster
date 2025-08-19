@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - bad.secret.yaml
   - helm-release.yaml
+  - database.yaml
