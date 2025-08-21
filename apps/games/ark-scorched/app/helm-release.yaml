@@ -49,8 +49,10 @@ spec:
         existingClaim: ark-steamcmd-shared
     resources:
       limits:
+        cpu: "4"
         memory: 20Gi
       requests:
+        cpu: "2"
         memory: 10Gi
     podOptions:
       hostNetwork: true
