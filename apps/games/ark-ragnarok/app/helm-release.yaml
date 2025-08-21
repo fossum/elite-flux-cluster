@@ -15,6 +15,9 @@ spec:
         name: fosscharts
         namespace: flux-system
       interval: 5m
+  upgrade:
+    remediation:
+      remediateLastFailure: false
   values:
     # TZ: "America/Los_Angeles"
     service:
