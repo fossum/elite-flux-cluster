@@ -35,6 +35,7 @@ spec:
                 MOTD: "Welcome to Venture Bros Scorched Earth!"
                 MAP_NAME: "ScorchedEarth_WP"
                 SESSION_NAME: "Venture-Bros (Scorched Earth)"
+                MOD_IDS: "950914,935408"
     # persistence:
     #   game:
     #     existingClaim: ark-scorched-game
