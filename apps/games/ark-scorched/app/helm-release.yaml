@@ -8,51 +8,39 @@ spec:
   timeout: 30m
   chart:
     spec:
-      chart: ./charts/ark-sa
+      chart: charts/stable/arksurvivalascended
       sourceRef:
         kind: GitRepository
-        name: flux-system
+        name: fosscharts
         namespace: flux-system
+      interval: 5m
   valuesFrom:
     - kind: ConfigMap
       name: game-config
       valuesKey: ark_scorched_lb_ip
-      targetPath: spec.values.service.loadBalancerIP
+      targetPath: spec.values.service.main.loadBalancerIP
       optional: false
     - kind: ConfigMap
-      name: game-config
-      valuesKey: RCON_PASSWORD
-      targetPath: spec.values.server.adminPassword
-      optional: false
-    - kind: ConfigMap
-      name: game-config
-      valuesKey: GAME_PASSWORD
-      targetPath: spec.values.server.password
+      name: ark-shared-config
+      valuesKey: cluster-env.yaml
+      targetPath: spec.values.workload.main.podSpec.containers.main.env
       optional: false
   values:
-    server:
-      name: "Venture-Bros (Scorched Earth)"
-      map: ScorchedEarth_WP
-      clusterID: venturecluster
-      mods: [950914, 935408]  # Awesome Teleporters!, Der Dino Finder
-    service:
-      type: LoadBalancer
-      gamePort: 7777
-      peerPort: 7778
-      queryPort: 27015
-    persistence:
-      ark:
-        existingClaim: ark-scorched-game
-      cluster:
-        existingClaim: ark-cluster-shared
-      steamcmd:
-        existingClaim: ark-steamcmd-shared
-    resources:
-      limits:
-        cpu: "4"
-        memory: 20Gi
-      requests:
-        cpu: "2"
-        memory: 10Gi
-    podOptions:
-      hostNetwork: true
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                MOTD: "Welcome to Venture Bros Scorched Earth!"
+                MAP_NAME: "ScorchedEarth_WP"
+                SESSION_NAME: "Venture-Bros (Scorched Earth)"
+    # persistence:
+    #   game:
+    #     existingClaim: ark-scorched-game
+    #   base:
+    #     existingClaim: ark-cluster-shared
+    #   cluster:
+    #     existingClaim: ark-steamcmd-shared
+    #   save:
+    #     existingClaim: ark-scorched-save
