@@ -42,11 +42,12 @@ spec:
                 UPDATE_SERVER: "TRUE"  # Enable or disable update checks
                 CHECK_FOR_UPDATE_INTERVAL: 1  # Check for Updates interval in hours
                 ENABLE_MOTD: "TRUE"
-                MOTD: "Welcome to Venture Bros Ragnarok!"
-                MAP_NAME: "Ragnarok_WP"
-                SESSION_NAME: "Venture-Bros (Ragnarok)"
-                SERVER_ADMIN_PASSWORD: "Venture123"
-                SERVER_PASSWORD: "hillside"
+                SERVER_ADMIN_PASSWORD: "VentureTemp123"
+                SERVER_PASSWORD: "password"
                 MAX_PLAYERS: 6
                 CLUSTER_ID: "venturecluster"
                 MOD_IDS: "950914,935408"
+
+                MOTD: "Welcome to Venture Bros Ragnarok!"
+                MAP_NAME: "Ragnarok_WP"
+                SESSION_NAME: "Venture-Bros (Ragnarok)"

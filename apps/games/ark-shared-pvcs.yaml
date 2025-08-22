@@ -23,3 +23,20 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: truenas-nfs-api-csi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ark-shared-config
+  namespace: games
+data:
+  # Single YAML block containing shared env vars
+  cluster-env.yaml: |
+    CLUSTER_ID: venturecluster
+    MAX_PLAYERS: 6
+    MOD_IDS: 950914,935408  # Awesome Teleporters!, Der Dino Finder
+    UPDATE_SERVER: "TRUE"  # Enable or disable update checks
+    CHECK_FOR_UPDATE_INTERVAL: 1  # Check for Updates interval (in hours)
+    ENABLE_MOTD: "TRUE"
+    SERVER_ADMIN_PASSWORD: "VentureTemp123"
+    SERVER_PASSWORD: "password"
