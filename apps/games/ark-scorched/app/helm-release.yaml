@@ -26,6 +26,9 @@ spec:
       targetPath: spec.values.workload.main.podSpec.containers.main.env
       optional: false
   values:
+    service:
+      main:
+        type: LoadBalancer
     workload:
       main:
         podSpec:
