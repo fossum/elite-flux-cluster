@@ -39,7 +39,7 @@ spec:
     image:
       repository: oci.trueforge.org/tccr/nextcloud-fpm
       pullPolicy: IfNotPresent
-      tag: v31.0.7@sha256:c8b2acfec4a62d3d87d43c508e5389a50b1861aaac643b0cc9ab815ab978aa80
+      tag: v31.0.8
     nextcloud:
       general:
         default_phone_region: US
