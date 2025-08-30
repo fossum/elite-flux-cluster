@@ -37,7 +37,7 @@ spec:
         accessModes:
         - ReadWriteMany
     image:
-      repository: oci.trueforge.org/tccr/nextcloud-fpm
+      repository: docker.io/fossum/nextcloud-fpm
       pullPolicy: IfNotPresent
       tag: v31.0.8
     nextcloud:
