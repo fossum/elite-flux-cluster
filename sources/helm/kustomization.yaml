@@ -6,6 +6,7 @@ resources:
   - cloudnative-pg.yaml
   - democratic-csi.yaml
   - gitlab.yaml
+  - home-ops.yaml
   - jetstack.yaml
   - nextcloud.yaml
   - prometheus.yaml

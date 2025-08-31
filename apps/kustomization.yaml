@@ -12,5 +12,6 @@ resources:
   - mirrors
   - nextcloud
   - storage
+  - system
   - torrents
   - web-services
