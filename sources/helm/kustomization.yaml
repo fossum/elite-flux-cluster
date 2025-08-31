@@ -9,5 +9,6 @@ resources:
   - home-ops.yaml
   - jetstack.yaml
   - nextcloud.yaml
+  - node-discovery.yaml
   - prometheus.yaml
   - truecharts-repo.yaml
