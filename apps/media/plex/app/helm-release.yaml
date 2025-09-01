@@ -45,6 +45,10 @@ spec:
         mountPath: /media
         server: "truenas.{{ .Values.baseDomain }}"
 
+    resources:
+      limits:
+        gpu.intel.com/i915: 1
+
     workload:
       main:
         podSpec:
