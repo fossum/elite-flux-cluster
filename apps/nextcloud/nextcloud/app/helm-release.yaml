@@ -40,6 +40,16 @@ spec:
       repository: docker.io/fossum/nextcloud-fpm
       pullPolicy: IfNotPresent
       tag: v31.0.8@sha256:0f97e5b9c9ab1a909cb43e57c6cfd15e0f1d3932c6101c42c7a466a3c2422422
+    workload:
+      # Nextcloud php-fpm
+      main:
+        podSpec:
+          containers:
+            main:
+              probes:
+                startup:
+                  spec:
+                    failureThreshold: 240
     nextcloud:
       general:
         default_phone_region: US
