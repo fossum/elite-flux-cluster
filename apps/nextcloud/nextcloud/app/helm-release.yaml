@@ -39,7 +39,7 @@ spec:
     image:
       repository: docker.io/fossum/nextcloud-fpm
       pullPolicy: IfNotPresent
-      tag: v31.0.8
+      tag: v31.0.8@sha256:0f97e5b9c9ab1a909cb43e57c6cfd15e0f1d3932c6101c42c7a466a3c2422422
     nextcloud:
       general:
         default_phone_region: US
@@ -73,11 +73,8 @@ spec:
           - TIFF
           - TXT
           - XBitmap
-      # clamav:
-      #   enabled: true
-      #   stream_max_length: 26214400
-      #   file_max_size: -1
-      #   infected_action: only_log
+      clamav:
+        enabled: true
       # collabora:
       #   enabled: true
       #   # default|compact|tabbed
