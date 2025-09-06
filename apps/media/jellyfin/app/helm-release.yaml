@@ -22,20 +22,28 @@ spec:
       valuesKey: BASE_DOMAIN
       targetPath: baseDomain
   values:
+    # https://truecharts.org/charts/stable/jellyfin/
+
     persistence:
       shared:
         enabled: true
+        type: pvc
         existingClaim: dvr-nfs-pvc
         mountPath: /shared
+
+    service:
+      main:
+        type: LoadBalancer
+
     ingress:
       main:
         enabled: true
-        ingressClassName: external
+        ingressClassName: internal
         hosts:
-          - host: "{{ .Release.Name }}.{{ .Values.baseDomain }}"
+          - host: "{{ .Release.Name }}.elite.internal"
         integrations:
           traefik:
             enabled: false
           certManager:
             enabled: true
-            certificateIssuer: thefoss-le-prod
+            certificateIssuer: selfsigned
