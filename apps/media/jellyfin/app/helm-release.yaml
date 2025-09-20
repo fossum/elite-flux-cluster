@@ -38,12 +38,15 @@ spec:
     ingress:
       main:
         enabled: true
-        ingressClassName: internal
+        ingressClassName: external
         hosts:
-          - host: "{{ .Release.Name }}.elite.internal"
+          - host: "{{ .Release.Name }}.{{ .Values.baseDomain }}"
         integrations:
           traefik:
             enabled: false
           certManager:
             enabled: true
-            certificateIssuer: selfsigned
+            certificateIssuer: thefoss-le-prod
+          homepage:
+            enabled: true
+            group: "Media"
