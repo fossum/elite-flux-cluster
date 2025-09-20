@@ -64,7 +64,7 @@ spec:
         loadBalancerIP: "{{ .Values.localIP }}"
 
     plex:
-      additionalAdvertiseURL: "https://{{ .Release.Name }}.{{ .Values.baseDomain }}/,http://{{ .Values.localIP }}:32400/"
+      additionalAdvertiseURL: "http://{{ .Values.localIP }}:32400/"
       # requireHTTPS: true
       # disableGDM: false
 
