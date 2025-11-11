@@ -1,0 +1,19 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: stock-trader-cnpg
+  namespace: home
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:18
+  storage:
+    size: 10Gi
+    # storageClass: standard
+  # superuserSecret:
+  #   name: stock-trader-cnpg-superuser
+  # bootstrap:
+  #   initdb:
+  #     database: stocktraderdb
+  #     owner: stocktraderuser
+  #     secret:
+  #       name: stock-trader-cnpg-app
