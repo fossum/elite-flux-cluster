@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "signageos.signageos-vscode-sops",
-        "google.geminicodeassist"
+        "google.geminicodeassist",
+        "bierner.markdown-preview-github-styles"
     ]
 }
