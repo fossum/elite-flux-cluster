@@ -16,7 +16,16 @@ spec:
       interval: 1m
   install:
     createNamespace: false
+  valuesFrom:
+    - kind: ConfigMap
+      name: bad-employee-bot-secrets
+      valuesKey: GEMINI_API_KEY
+      targetPath: "spec.values.workload.main.podSpec.containers.main.env.GEMINI_API_KEY"
+    - kind: ConfigMap
+      name: bad-employee-bot-secrets
+      valuesKey: DISCORD_APP_TOKEN
+      targetPath: "spec.values.workload.main.podSpec.containers.main.env.DISCORD_APP_TOKEN"
   values:
     # https://github.com/fossum/bad-employee-bot/blob/main/chart/values.yaml
-    existingSecret: "bad-employee-bot-secrets"
-
+    image:
+      pullPolicy: Always
