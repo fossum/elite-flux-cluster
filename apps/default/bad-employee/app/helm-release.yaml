@@ -16,25 +16,20 @@ spec:
       interval: 1m
   install:
     createNamespace: false
-  # valuesFrom:
-  #   - kind: ConfigMap
-  #     name: bad-employee-bot-secrets
-  #     valuesKey: GEMINI_API_KEY
-  #     targetPath: "spec.values.workload.main.podSpec.containers.main.env.GEMINI_API_KEY"
-  #   - kind: ConfigMap
-  #     name: bad-employee-bot-secrets
-  #     valuesKey: DISCORD_APP_TOKEN
-  #     targetPath: "spec.values.workload.main.podSpec.containers.main.env.DISCORD_APP_TOKEN"
+  valuesFrom:
+    - kind: ConfigMap
+      name: bad-employee-bot-secrets
+      valuesKey: GEMINI_API_KEY
+      targetPath: workload.main.podSpec.containers.main.env.GEMINI_API_KEY
+    - kind: ConfigMap
+      name: bad-employee-bot-secrets
+      valuesKey: DISCORD_APP_TOKEN
+      targetPath: workload.main.podSpec.containers.main.env.DISCORD_APP_TOKEN
   values:
     # https://github.com/fossum/bad-employee-bot/blob/main/chart/values.yaml
     image:
       pullPolicy: Always
-    
-    secrets:
-      bad-employee-bot-secrets:
-        enabled: true
-        type: external
-    
+
     workload:
       main:
         podSpec:
@@ -42,11 +37,4 @@ spec:
             main:
               env:
                 BASE_DOMAIN: "bad-employee.fossum.io"
-                GEMINI_API_KEY:
-                  secretKeyRef:
-                    name: bad-employee-bot-secrets
-                    key: GEMINI_API_KEY
-                DISCORD_APP_TOKEN:
-                  secretKeyRef:
-                    name: bad-employee-bot-secrets
-                    key: DISCORD_APP_TOKEN
+                # GEMINI_API_KEY and DISCORD_APP_TOKEN injected via valuesFrom above
