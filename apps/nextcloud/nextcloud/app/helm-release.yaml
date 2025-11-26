@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: nextcloud
-      version: ^36.0.0
+      version: ^40.0.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -36,10 +36,6 @@ spec:
         pvcRetain: false
         accessModes:
         - ReadWriteMany
-    image:
-      repository: docker.io/fossum/nextcloud-fpm
-      pullPolicy: IfNotPresent
-      tag: v31.0.8@sha256:0f97e5b9c9ab1a909cb43e57c6cfd15e0f1d3932c6101c42c7a466a3c2422422
     workload:
       # Nextcloud php-fpm
       main:
