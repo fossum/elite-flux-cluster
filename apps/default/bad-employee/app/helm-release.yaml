@@ -17,11 +17,11 @@ spec:
   install:
     createNamespace: false
   valuesFrom:
-    - kind: ConfigMap
+    - kind: Secret
       name: bad-employee-bot-secrets
       valuesKey: GEMINI_API_KEY
       targetPath: workload.main.podSpec.containers.main.env.GEMINI_API_KEY
-    - kind: ConfigMap
+    - kind: Secret
       name: bad-employee-bot-secrets
       valuesKey: DISCORD_APP_TOKEN
       targetPath: workload.main.podSpec.containers.main.env.DISCORD_APP_TOKEN
