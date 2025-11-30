@@ -11,4 +11,4 @@ resources:
   - redis.secret.yaml
   - s3-config.secret.yaml
   - smtp.secret.yaml
-  - gitlab/ks.yaml
+  # - gitlab/ks.yaml

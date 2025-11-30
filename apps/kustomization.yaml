@@ -7,7 +7,7 @@ resources:
   - flux-entry.yaml
   - development
   - games
-  # - gitlab
+  - gitlab
   - home
   - infrastructure
   - kube-system
