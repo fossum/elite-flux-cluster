@@ -4870,6 +4870,8 @@ spec:
         - --enable-leader-election
         - --storage-path=/data
         - --storage-adv-addr=source-controller.$(RUNTIME_NAMESPACE).svc.cluster.local.
+        - --kube-api-qps=100.0
+        - --kube-api-burst=200
         env:
         - name: RUNTIME_NAMESPACE
           valueFrom:
@@ -6761,6 +6763,9 @@ spec:
         - --log-level=info
         - --log-encoding=json
         - --enable-leader-election
+        - --kube-api-qps=100.0
+        - --kube-api-burst=200
+        - --concurrent=10
         env:
         - name: RUNTIME_NAMESPACE
           valueFrom:
