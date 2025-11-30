@@ -6,6 +6,16 @@ metadata:
 spec:
   instances: 1 # Number of PostgreSQL instances (1 for single instance, 3 for HA)
 
+  managed:
+    services:
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: garage-fridge-lb
+            spec:
+              type: LoadBalancer
+
   # PostgreSQL major version is usually determined by the operator's default
   # or can be specified with `imageName` or `imageTag` if you need a specific version.
   # Refer to the CNPG documentation for how to specify PostgreSQL versions if needed.

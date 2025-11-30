@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dev-box.fullname" . }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ include "dev-box.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "dev-box.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      securityContext:
+        runAsUser: 25000
+        runAsGroup: 25000
+        fsGroup: 25000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: main
+          image: {{ .Values.server.image }}
+          command: ["/usr/bin/start_server"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+          ports:
+            - containerPort: {{ .Values.service.sshPort }}
+              protocol: TCP
+          volumeMounts:
+            - name: main
+              mountPath: /home/user/
+      volumes:
+        - name: main
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.main.existingClaim | default (printf "%s-main" (include "dev-box.fullname" .)) }}

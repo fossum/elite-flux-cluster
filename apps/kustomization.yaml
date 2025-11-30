@@ -5,6 +5,7 @@ resources:
   - clustersettings.secret.yaml
   - default
   - flux-entry.yaml
+  - development
   - games
   # - gitlab
   - home

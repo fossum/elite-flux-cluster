@@ -1,0 +1,6 @@
+apiVersion: v2
+name: dev-box
+description: "A Helm chart for development."
+type: application
+version: 0.0.1
+appVersion: "latest"

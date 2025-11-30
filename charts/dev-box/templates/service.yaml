@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dev-box.fullname" . }}
+spec:
+  type: {{ .Values.service.type }}
+  {{- if eq .Values.service.type "LoadBalancer" }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP | default "\"\"" }}
+  {{- end }}
+  selector:
+    app: {{ include "dev-box.name" . }}
+  ports:
+    - name: ssh
+      port: {{ .Values.service.sshPort | default 22 }}
+      protocol: TCP
+      targetPort: {{ .Values.service.sshPort | default 22 }}

@@ -1,0 +1,17 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: dev-box
+  namespace: development
+spec:
+  chart:
+    spec:
+      # Use the local chart from this repository instead of a remote Helm repo.
+      chart: ./charts/dev-box
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: cluster
+        namespace: flux-system
+  interval: 1m0s
+  timeout: 15m0s

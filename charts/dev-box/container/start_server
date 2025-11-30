@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+USERNAME=${USERNAME:-dev}
+HOME_DIR=${HOME_DIR:-/home/${USERNAME}}
+
+# Decide port based on privileges: 2222 for non-root by default
+if [ "${EUID}" -ne 0 ]; then
+  SSH_PORT=${SSH_PORT:-2222}
+else
+  SSH_PORT=${SSH_PORT:-22}
+fi
+
+# Ensure SSH host keys exist (generated at build, but keep for safety)
+if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
+  echo "[init] Generating SSH host keys" >&2
+  ssh-keygen -A
+fi
+
+# For root, allow password setup via DEV_PASSWORD
+if [ "${EUID}" -eq 0 ] && [ -n "${DEV_PASSWORD:-}" ]; then
+  echo "${USERNAME}:${DEV_PASSWORD}" | chpasswd || true
+fi
+
+# Authorized keys via env (newline-separated)
+if [ -n "${AUTHORIZED_KEYS:-}" ]; then
+  mkdir -p "${HOME_DIR}/.ssh"
+  printf "%s\n" ${AUTHORIZED_KEYS} > "${HOME_DIR}/.ssh/authorized_keys"
+fi
+
+# Permissions sanity for user SSH dir
+mkdir -p "${HOME_DIR}/.ssh"
+chmod 700 "${HOME_DIR}/.ssh" || true
+chmod 600 "${HOME_DIR}/.ssh/authorized_keys" 2>/dev/null || true
+chown -R "${USERNAME}:${USERNAME}" "${HOME_DIR}/.ssh" || true
+
+# Build sshd args. Non-root uses an ad-hoc config to bind high port.
+SSHD_ARGS=(-D -e)
+if [ "${EUID}" -ne 0 ]; then
+  TMP_CFG=$(mktemp)
+  cat >"${TMP_CFG}" <<EOF
+Port ${SSH_PORT}
+PasswordAuthentication yes
+PermitRootLogin no
+PubkeyAuthentication yes
+UsePAM no
+PidFile /tmp/sshd.pid
+EOF
+  SSHD_ARGS+=(-f "${TMP_CFG}")
+else
+  # Root can adjust main config port
+  if [ "${SSH_PORT}" != "22" ]; then
+    sed -i "s/^#\?Port .*/Port ${SSH_PORT}/" /etc/ssh/sshd_config
+  fi
+fi
+
+# Print connection info
+IP_ADDR=$(hostname -I | awk '{print $1}') || true
+echo "[info] SSH listening on ${IP_ADDR:-<unknown>}:${SSH_PORT} (user ${USERNAME}, euid=${EUID})" >&2
+
+exec /usr/sbin/sshd "${SSHD_ARGS[@]}"

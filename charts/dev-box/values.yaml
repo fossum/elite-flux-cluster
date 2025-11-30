@@ -1,0 +1,13 @@
+service:
+  type: ClusterIP     # or LoadBalancer, ClusterIP, etc.
+  loadBalancerIP: ""  # Only for LoadBalancer type
+  sshPort: 2222
+
+persistence:
+  main:
+    size: 20Gi
+    storageClassName: ""
+    existingClaim: ""
+
+server:
+  image: "dev-box:latest"
