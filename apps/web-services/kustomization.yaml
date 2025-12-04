@@ -8,6 +8,7 @@ resources:
   # - firefox/ks.yaml
   - grafana.secret.yaml
   - grafana/ks.yaml
+  - hashtopolis/ks.yaml
   # - home-assistant/ks.yaml
   - homepage/ks.yaml
   - portainer/ks.yaml
