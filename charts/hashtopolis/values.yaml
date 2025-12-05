@@ -1,0 +1,142 @@
+# Hashtopolis Helm Chart Values
+# This chart uses TrueCharts common library
+# Hashtopolis consists of backend (API) and frontend (Angular UI)
+
+# Container images
+image:
+  repository: hashtopolis/backend
+  tag: v0.14.3
+  pullPolicy: IfNotPresent
+
+frontendImage:
+  repository: hashtopolis/frontend
+  tag: v0.14.3
+  pullPolicy: IfNotPresent
+
+# Backend API URL for frontend connection
+backendUrl: "http://localhost:8080"
+
+# Workload configuration
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate
+    podSpec:
+      containers:
+        main:
+          enabled: true
+          primary: true
+          imageSelector: image
+          env:
+            # MySQL connection settings - use TrueCharts CNPG or MariaDB
+            HASHTOPOLIS_DB_HOST: '{{ printf "%s-mariadb" .Release.Name }}'
+            HASHTOPOLIS_DB_PORT: "3306"
+            HASHTOPOLIS_DB_NAME: "hashtopolis"
+            HASHTOPOLIS_DB_USER: "hashtopolis"
+            # Database password should be injected via secrets
+            # HASHTOPOLIS_DB_PASS: ""
+            # Admin user settings (used only on first setup)
+            # HASHTOPOLIS_ADMIN_USER: "admin"
+            # HASHTOPOLIS_ADMIN_PASSWORD: ""
+            # HASHTOPOLIS_ADMIN_EMAIL: ""
+          probes:
+            liveness:
+              enabled: true
+              type: http
+              path: /api/v2/ui/config
+              port: 8080
+            readiness:
+              enabled: true
+              type: http
+              path: /api/v2/ui/config
+              port: 8080
+            startup:
+              enabled: true
+              type: http
+              path: /api/v2/ui/config
+              port: 8080
+        # Frontend container (Angular UI)
+        frontend:
+          enabled: true
+          imageSelector: frontendImage
+          env:
+            # Backend API URL - configurable, defaults to localhost for same-pod deployment
+            HASHTOPOLIS_BACKEND_URL: "{{ .Values.backendUrl }}"
+          probes:
+            liveness:
+              enabled: true
+              type: http
+              path: /
+              port: 80
+            readiness:
+              enabled: true
+              type: http
+              path: /
+              port: 80
+            startup:
+              enabled: true
+              type: http
+              path: /
+              port: 80
+
+# Service configuration
+service:
+  main:
+    enabled: true
+    primary: true
+    type: ClusterIP
+    ports:
+      main:
+        enabled: true
+        primary: true
+        port: 80
+        protocol: http
+        targetPort: 80
+      api:
+        enabled: true
+        port: 8080
+        protocol: http
+        targetPort: 8080
+
+# Persistence configuration
+persistence:
+  # Hashtopolis files storage (wordlists, rules, etc.)
+  files:
+    enabled: true
+    type: pvc
+    mountPath: /hashtopolis/files
+    size: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    retain: true
+  # Import/Export storage
+  import:
+    enabled: true
+    type: pvc
+    mountPath: /hashtopolis/import
+    size: 5Gi
+    accessModes:
+      - ReadWriteOnce
+    retain: true
+
+# Ingress configuration
+ingress:
+  main:
+    enabled: false
+    # Configure your ingress settings below when enabled
+    # ingressClassName: external
+    # hosts:
+    #   - host: "hashtopolis.example.com"
+    # integrations:
+    #   traefik:
+    #     enabled: false
+    #   certManager:
+    #     enabled: true
+    #     certificateIssuer: thefoss-le-prod
+
+# MariaDB dependency (via TrueCharts common)
+mariadb:
+  enabled: true
+  mariadbUsername: hashtopolis
+  mariadbDatabase: hashtopolis
+  # mariadbPassword should be set via valuesFrom secrets
