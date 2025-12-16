@@ -4,6 +4,6 @@ resources:
   - namespace.yaml
   - dvr-pvc.yaml
   - jellyfin/ks.yaml
-  - calibre/ks.yaml
+  # - calibre/ks.yaml
   - media.secret.yaml
   - plex/ks.yaml
