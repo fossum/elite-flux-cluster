@@ -34,6 +34,13 @@ spec:
         storageClass: "longhorn"
         pvcSize: 10Gi
 
+    mariadb:
+      enabled: true
+      mariadbDatabase: hashtopolis
+      mariadbUsername: hashtopolis
+      # If you use SOPS, you should reference your encrypted secret here
+      existingSecret: "hashtopolis-mariadbcreds"
+
     persistence:
       files:
         enabled: true
