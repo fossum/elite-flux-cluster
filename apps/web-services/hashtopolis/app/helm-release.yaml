@@ -34,6 +34,24 @@ spec:
         storageClass: "longhorn"
         pvcSize: 10Gi
 
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                # MySQL connection settings - use TrueCharts CNPG or MariaDB
+                HASHTOPOLIS_DB_HOST: "mariadb.web-services.svc.cluster.local"
+                HASHTOPOLIS_DB_PORT: "3306"
+                HASHTOPOLIS_DB_NAME: "hash_db"
+                HASHTOPOLIS_DB_USER: "hash_user"
+                
+                HASHTOPOLIS_DB_PASS: "hash_pass"
+                HASHTOPOLIS_DB_DATABASE: "hash_db"
+                HASHTOPOLIS_ADMIN_USER: "my_user"
+                HASHTOPOLIS_ADMIN_PASSWORD: "my_pass"
+                # HASHTOPOLIS_APIV2_ENABLE: $HASHTOPOLIS_APIV2_ENABLE
+
     mariadb:
       enabled: true
       mariadbDatabase: hashtopolis
