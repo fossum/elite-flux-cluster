@@ -74,6 +74,12 @@ spec:
         accessModes:
           - ReadWriteOnce
         retain: true
+      locks:
+        enabled: true
+        type: emptyDir
+        mountPath: /hashtopolis/inc/utils/locks
+        # If the path in the container is different,
+        # check where the app is actually installed (usually /hashtopolis or /var/www/html)
 
     ingress:
       main:
