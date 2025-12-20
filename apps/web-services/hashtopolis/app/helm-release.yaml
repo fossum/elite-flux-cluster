@@ -52,7 +52,7 @@ spec:
                 HASHTOPOLIS_DB_PORT: "3306"
                 HASHTOPOLIS_DB_NAME: "hash_db"
                 HASHTOPOLIS_DB_USER: "hash_user"
-
+                S6_READ_ONLY_ROOT: "0"
                 HASHTOPOLIS_DB_PASS: "hash_pass"
                 HASHTOPOLIS_DB_DATABASE: "hash_db"
                 HASHTOPOLIS_ADMIN_USER: "my_user"
