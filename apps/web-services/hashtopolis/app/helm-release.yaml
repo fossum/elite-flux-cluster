@@ -52,13 +52,6 @@ spec:
                 HASHTOPOLIS_ADMIN_PASSWORD: "my_pass"
                 # HASHTOPOLIS_APIV2_ENABLE: $HASHTOPOLIS_APIV2_ENABLE
 
-    mariadb:
-      enabled: true
-      mariadbDatabase: hashtopolis
-      mariadbUsername: hashtopolis
-      # If you use SOPS, you should reference your encrypted secret here
-      existingSecret: "hashtopolis-mariadbcreds"
-
     persistence:
       files:
         enabled: true
