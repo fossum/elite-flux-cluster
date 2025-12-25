@@ -45,7 +45,7 @@ spec:
               probes:
                 startup:
                   spec:
-                    failureThreshold: 240
+                    failureThreshold: 1200
     nextcloud:
       general:
         default_phone_region: US
