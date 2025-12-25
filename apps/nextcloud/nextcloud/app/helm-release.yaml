@@ -45,7 +45,7 @@ spec:
               probes:
                 startup:
                   spec:
-                    failureThreshold: 240
+                    failureThreshold: 1200
     nextcloud:
       general:
         default_phone_region: US
@@ -122,6 +122,17 @@ spec:
       #         'memcache.distributed' => '\\OC\\Memcache\\Redis',
       #         'memcache.locking' => '\\OC\\Memcache\\Redis',
       #     );
+      configs:
+        proxy.config.php: |-
+          <?php
+          $CONFIG = array (
+            'trusted_proxies' => array(
+              0 => '10.0.0.0/8',
+              1 => '172.16.0.0/12',
+              2 => '192.168.0.0/16',
+            ),
+            'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
+          );
 
     persistence:
       data:
