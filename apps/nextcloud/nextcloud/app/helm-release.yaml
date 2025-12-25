@@ -42,6 +42,8 @@ spec:
         podSpec:
           containers:
             main:
+              env:
+                TRUSTED_PROXIES: "10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
               probes:
                 startup:
                   spec:
@@ -122,18 +124,6 @@ spec:
       #         'memcache.distributed' => '\\OC\\Memcache\\Redis',
       #         'memcache.locking' => '\\OC\\Memcache\\Redis',
       #     );
-      configs:
-        proxy.config.php: |-
-          <?php
-          $CONFIG = array (
-            'trusted_proxies' => array(
-              0 => '10.0.0.0/8',
-              1 => '172.16.0.0/12',
-              2 => '192.168.0.0/16',
-            ),
-            'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
-          );
-
     persistence:
       data:
         enabled: true
