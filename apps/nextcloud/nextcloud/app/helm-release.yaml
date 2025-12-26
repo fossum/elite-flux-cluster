@@ -144,6 +144,10 @@ spec:
       main:
         storage:
           size: 20Gi
+          storageClass: truenas-nfs-api-csi
+        walStorage:
+          size: 5Gi
+          storageClass: longhorn
 
     ingress:
       main:
