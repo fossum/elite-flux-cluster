@@ -45,7 +45,6 @@ spec:
             main:
               env:
                 TRUSTED_PROXIES: "10.0.0.0/8"
-                FORWARDED_FOR_HEADERS: '["HTTP_X_FORWARDED_FOR"]'
               probes:
                 startup:
                   spec:

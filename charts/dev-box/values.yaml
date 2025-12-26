@@ -1,7 +1,7 @@
 service:
   type: ClusterIP     # or LoadBalancer, ClusterIP, etc.
   loadBalancerIP: ""  # Only for LoadBalancer type
-  sshPort: 2222
+  sshPort: 22
 
 persistence:
   main:
