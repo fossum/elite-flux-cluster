@@ -142,7 +142,9 @@ spec:
 
     cnpg:
       main:
-        enabled: true
+        enabled: false
+        # Storage configuration moved to manual Cluster resource in apps/nextcloud/cnpg-cluster.yaml
+        # due to TrueCharts chart not respecting storage values properly
         storage:
           size: 20Gi
           storageClass: truenas-nfs-api-csi
