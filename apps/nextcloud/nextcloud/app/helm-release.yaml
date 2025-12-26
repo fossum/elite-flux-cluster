@@ -50,7 +50,7 @@ spec:
                     failureThreshold: 1200
     nextcloud:
       configs:
-        proxy.config.php: |-
+        proxy.config.php: |
           <?php
           $CONFIG = array (
             'trusted_proxies' => array (
