@@ -20,12 +20,11 @@ spec:
     timeout: 45m
   upgrade:
     timeout: 45m
-  # Temporarily disabled to troubleshoot template error
-  # valuesFrom:
-  #   - kind: ConfigMap
-  #     name: nextcloud-configs
-  #     valuesKey: values.yaml
-  #     optional: false
+  valuesFrom:
+    - kind: ConfigMap
+      name: nextcloud-configs
+      valuesKey: values.yaml
+      optional: false
   values:
     # https://truecharts.org/truetech/truecharts/charts/stable/nextcloud/
     global:
