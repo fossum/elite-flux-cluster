@@ -26,7 +26,7 @@ spec:
       valuesKey: values.yaml
       optional: false
   values:
-    # https://truecharts.org/charts/premium/nextcloud/
+    # https://truecharts.org/truetech/truecharts/charts/stable/nextcloud/
     global:
       fallbackDefaults:
         # -- Define a storageClassName that will be used for all PVCs
@@ -139,6 +139,11 @@ spec:
         accessModes:
           - ReadWriteMany
         size: 1Gi
+
+    cnpg:
+      main:
+        storage:
+          size: 20Gi
 
     ingress:
       main:
