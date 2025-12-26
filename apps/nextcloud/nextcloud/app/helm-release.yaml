@@ -142,6 +142,7 @@ spec:
 
     cnpg:
       main:
+        enabled: true
         storage:
           size: 20Gi
           storageClass: truenas-nfs-api-csi
