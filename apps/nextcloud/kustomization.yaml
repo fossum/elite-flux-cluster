@@ -3,7 +3,6 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - nextcloud-configs.secret.yaml
-  - cnpg-cluster.yaml
   - nextcloud/ks.yaml
   # - nextcloud-stage/ks.yaml
   - persistent-pvc.yaml
