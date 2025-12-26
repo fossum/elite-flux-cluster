@@ -26,6 +26,12 @@ spec:
   values:
     crds:
       create: true
+    config:
+      # This creates a default configuration for the operator
+      data:
+        # These will be applied to any cluster that doesn't define its own
+        STORAGE_CLASS: "truenas-nfs-api-csi"
+        WAL_STORAGE_CLASS: "longhorn"
     # This is an example structure, the exact keys might vary slightly
     # with chart version 0.23.2 but are generally under 'admission' or 'webhook'
     admission:
