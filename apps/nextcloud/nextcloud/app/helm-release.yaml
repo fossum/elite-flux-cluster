@@ -20,11 +20,11 @@ spec:
     timeout: 45m
   upgrade:
     timeout: 45m
-  valuesFrom:
-    - kind: ConfigMap
-      name: nextcloud-configs
-      valuesKey: values.yaml
-      optional: false
+  # valuesFrom:
+  #   - kind: ConfigMap
+  #     name: nextcloud-configs
+  #     valuesKey: values.yaml
+  #     optional: false
   values:
     # https://truecharts.org/truetech/truecharts/charts/stable/nextcloud/
     global:
@@ -49,17 +49,17 @@ spec:
                   spec:
                     failureThreshold: 1200
     nextcloud:
-      configs:
-        proxy.config.php: |
-          <?php
-          $CONFIG = array (
-            'trusted_proxies' => array (
-              0 => '10.43.0.0/16',
-            ),
-            'forwarded_for_headers' => array (
-              0 => 'HTTP_X_FORWARDED_FOR',
-            ),
-          );
+      # configs:
+      #   proxy.config.php: |
+      #     <?php
+      #     $CONFIG = array (
+      #       'trusted_proxies' => array (
+      #         0 => '10.43.0.0/16',
+      #       ),
+      #       'forwarded_for_headers' => array (
+      #         0 => 'HTTP_X_FORWARDED_FOR',
+      #       ),
+      #     );
       general:
         default_phone_region: US
       previews:
@@ -92,8 +92,8 @@ spec:
           - TIFF
           - TXT
           - XBitmap
-      clamav:
-        enabled: true
+      # clamav:
+      #   enabled: true
       # collabora:
       #   enabled: true
       #   # default|compact|tabbed
