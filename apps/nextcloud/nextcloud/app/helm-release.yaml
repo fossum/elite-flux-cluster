@@ -42,8 +42,6 @@ spec:
         podSpec:
           containers:
             main:
-              env:
-                TRUSTED_PROXIES: "10.0.0.0/8"
               probes:
                 startup:
                   spec:
