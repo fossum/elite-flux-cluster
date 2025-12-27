@@ -48,29 +48,29 @@ spec:
         usernameKey: username
         passwordKey: password
 
-    # Increase startup time for initialization
+    # Increase startup time for initialization and migration
     livenessProbe:
       enabled: true
-      initialDelaySeconds: 600
+      initialDelaySeconds: 900
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 10
+      successThreshold: 1
+
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 300
       periodSeconds: 10
       timeoutSeconds: 5
       failureThreshold: 5
       successThreshold: 1
 
-    readinessProbe:
-      enabled: true
-      initialDelaySeconds: 120
-      periodSeconds: 10
-      timeoutSeconds: 5
-      failureThreshold: 3
-      successThreshold: 1
-
     startupProbe:
       enabled: true
-      initialDelaySeconds: 30
+      initialDelaySeconds: 60
       periodSeconds: 10
       timeoutSeconds: 5
-      failureThreshold: 120
+      failureThreshold: 180
       successThreshold: 1
 
     persistence:
