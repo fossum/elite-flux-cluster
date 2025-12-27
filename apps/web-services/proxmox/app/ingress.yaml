@@ -5,12 +5,9 @@ metadata:
   namespace: web-services
   annotations:
     cert-manager.io/cluster-issuer: thefoss-le-prod
-    # Backend is HTTPS
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    # Skip certificate verification for self-signed Proxmox cert
-    nginx.ingress.kubernetes.io/proxy-ssl-verify: "false"
-    # Pass the original host header to Proxmox
-    nginx.ingress.kubernetes.io/upstream-vhost: "192.168.1.7:8006"
+    # NGINX Inc specific annotations
+    nginx.org/websocket-services: "proxmox"
+    nginx.org/ssl-services: "proxmox"
 spec:
   ingressClassName: external
   tls:

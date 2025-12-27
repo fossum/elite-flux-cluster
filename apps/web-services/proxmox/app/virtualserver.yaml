@@ -1,0 +1,24 @@
+apiVersion: k8s.nginx.org/v1
+kind: VirtualServer
+metadata:
+  name: proxmox
+  namespace: web-services
+spec:
+  host: proxmox.thefoss.org
+  tls:
+    secret: proxmox-tls
+  upstreams:
+    - name: proxmox
+      service: proxmox
+      port: 8006
+      tls:
+        enable: true
+  routes:
+    - path: /
+      action:
+        proxy:
+          upstream: proxmox
+          requestHeaders:
+            set:
+              - name: Host
+                value: ${host}

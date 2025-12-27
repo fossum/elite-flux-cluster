@@ -3,4 +3,5 @@ kind: Kustomization
 namespace: web-services
 resources:
   - service.yaml
-  - ingress.yaml
+  - certificate.yaml
+  - virtualserver.yaml

@@ -49,6 +49,20 @@ Flux uses `Kustomization` resources to discover and apply manifests.
 - **Hierarchy**: There is a top-level `kustomization.yaml` in the `apps/` directory that recursively includes the `kustomization.yaml` files in each application's subdirectory.
 - **Adding New Apps**: To add a new application, you must create its directory structure and add a reference to its `kustomization.yaml` in a parent `kustomization.yaml`.
 
+### 5. Ingress Configuration
+
+This cluster uses **NGINX Inc's ingress controller** (`nginx/nginx-ingress`), not the community Kubernetes ingress controller.
+
+- **Standard Ingress**: For HTTP/HTTPS applications, use standard `Ingress` resources with `ingressClassName: external` (or `internal`).
+- **HTTPS Backends**: For applications that use HTTPS backends (like Proxmox), you **must** use the `VirtualServer` CRD instead of standard `Ingress` resources.
+  - NGINX Inc's ingress controller does not properly support HTTPS backends with standard Ingress resources.
+  - Use `VirtualServer` with `tls.enable: true` in the upstream configuration.
+  - Example: See `apps/web-services/proxmox/app/virtualserver.yaml`
+- **TLS Certificates**: Use cert-manager with `Certificate` resources to provision Let's Encrypt certificates.
+  - Production issuer: `thefoss-le-prod`
+  - Staging issuer: `thefoss-le-stage` (for testing to avoid rate limits)
+  - Let's Encrypt has a rate limit of 5 certificates per exact domain set per week.
+
 ## Developer Workflow
 
 1.  **Modify YAML**: Make changes to `HelmRelease` files, `ConfigMap`s, or other Kubernetes manifests.
