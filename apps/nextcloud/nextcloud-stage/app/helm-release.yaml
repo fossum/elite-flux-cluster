@@ -31,7 +31,7 @@ spec:
       enabled: true
       type: postgresql
       host: nextcloud-cnpg-main-rw.nextcloud.svc.cluster.local
-      database: app
+      database: nextcloud
       user: postgres
       existingSecret:
         enabled: true
