@@ -74,9 +74,15 @@ spec:
       successThreshold: 1
 
     persistence:
+      # Main persistence for /var/www/html (Nextcloud app files)
       enabled: true
-      existingClaim: nextcloud-persistent-data
-      accessMode: ReadWriteMany
+      accessMode: ReadWriteOnce
+      storageClass: longhorn
+
+      nextcloudData:
+        enabled: true
+        existingClaim: nextcloud-persistent-data
+        accessMode: ReadWriteMany
 
     ingress:
       enabled: true
