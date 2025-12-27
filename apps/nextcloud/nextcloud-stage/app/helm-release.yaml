@@ -48,6 +48,31 @@ spec:
         usernameKey: username
         passwordKey: password
 
+    # Increase startup time for initialization
+    livenessProbe:
+      enabled: true
+      initialDelaySeconds: 120
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 120
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 60
+      successThreshold: 1
+
     persistence:
       enabled: true
       storageClass: longhorn
