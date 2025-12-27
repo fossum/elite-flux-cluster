@@ -30,9 +30,9 @@ spec:
     externalDatabase:
       enabled: true
       type: postgresql
-      host: nextcloud2-cnpg-main-rw.nextcloud.svc.cluster.local
+      host: nextcloud-cnpg-main-rw.nextcloud.svc.cluster.local
       database: app
-      user: app
+      user: postgres
       existingSecret:
         enabled: true
         secretName: nextcloud-stage-db-credentials
@@ -75,9 +75,8 @@ spec:
 
     persistence:
       enabled: true
-      storageClass: longhorn
+      existingClaim: nextcloud-persistent-data
       accessMode: ReadWriteMany
-      size: 10Gi
 
     ingress:
       enabled: true
