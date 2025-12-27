@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: proxmox
+  namespace: web-services
+  annotations:
+    cert-manager.io/cluster-issuer: thefoss-le-prod
+    # Backend is HTTPS
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    # Skip certificate verification for self-signed Proxmox cert
+    nginx.ingress.kubernetes.io/proxy-ssl-verify: "false"
+    # Pass the original host header to Proxmox
+    nginx.ingress.kubernetes.io/upstream-vhost: "192.168.1.7:8006"
+spec:
+  ingressClassName: external
+  tls:
+    - hosts:
+        - proxmox.thefoss.org
+      secretName: proxmox-tls
+  rules:
+    - host: proxmox.thefoss.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: proxmox
+                port:
+                  number: 8006
