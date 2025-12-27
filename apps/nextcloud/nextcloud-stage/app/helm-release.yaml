@@ -51,10 +51,10 @@ spec:
     # Increase startup time for initialization
     livenessProbe:
       enabled: true
-      initialDelaySeconds: 120
+      initialDelaySeconds: 600
       periodSeconds: 10
       timeoutSeconds: 5
-      failureThreshold: 3
+      failureThreshold: 5
       successThreshold: 1
 
     readinessProbe:
@@ -70,7 +70,7 @@ spec:
       initialDelaySeconds: 30
       periodSeconds: 10
       timeoutSeconds: 5
-      failureThreshold: 60
+      failureThreshold: 120
       successThreshold: 1
 
     persistence:
