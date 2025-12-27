@@ -12,6 +12,7 @@ resources:
   # - home-assistant/ks.yaml
   - homepage/ks.yaml
   - portainer/ks.yaml
+  - portainer-external/ks.yaml
   - proxmox/ks.yaml
   # - sshwifty/ks.yaml
   - web-services.secret.yaml

@@ -1,0 +1,24 @@
+apiVersion: k8s.nginx.org/v1
+kind: VirtualServer
+metadata:
+  name: portainer-external
+  namespace: web-services
+spec:
+  host: dockers.thefoss.org
+  tls:
+    secret: dockers-tls
+  upstreams:
+    - name: portainer-external
+      service: portainer-external
+      port: 9443
+      tls:
+        enable: true
+  routes:
+    - path: /
+      action:
+        proxy:
+          upstream: portainer-external
+          requestHeaders:
+            set:
+              - name: Host
+                value: ${host}
