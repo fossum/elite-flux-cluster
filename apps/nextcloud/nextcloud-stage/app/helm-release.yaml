@@ -30,8 +30,8 @@ spec:
     externalDatabase:
       enabled: true
       type: postgresql
-      host: nextcloud-cnpg-main-rw.nextcloud.svc.cluster.local
-      database: nextcloud
+      host: nextcloud2-cnpg-main
+      database: app
       user: postgres
       existingSecret:
         enabled: true
