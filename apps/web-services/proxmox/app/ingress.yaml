@@ -1,21 +1,24 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
+
 metadata:
   name: proxmox
   namespace: web-services
   annotations:
     cert-manager.io/cluster-issuer: thefoss-le-prod
-    # NGINX Inc specific annotations
     nginx.org/websocket-services: "proxmox"
     nginx.org/ssl-services: "proxmox"
+    nginx.org/proxy-buffer-size: "128k"      # optional but recommended for PVE
+    nginx.org/proxy-buffers: "16"            # optional
+
 spec:
   ingressClassName: external
   tls:
     - hosts:
-        - prox.thefoss.org
+        - proxmox.thefoss.org
       secretName: proxmox-tls
   rules:
-    - host: prox.thefoss.org
+    - host: proxmox.thefoss.org
       http:
         paths:
           - path: /
