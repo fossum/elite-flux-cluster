@@ -12,10 +12,10 @@ spec:
   ingressClassName: external
   tls:
     - hosts:
-        - proxmox.thefoss.org
+        - prox.thefoss.org
       secretName: proxmox-tls
   rules:
-    - host: proxmox.thefoss.org
+    - host: prox.thefoss.org
       http:
         paths:
           - path: /
