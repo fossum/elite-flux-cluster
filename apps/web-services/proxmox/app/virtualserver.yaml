@@ -4,7 +4,7 @@ metadata:
   name: proxmox
   namespace: web-services
 spec:
-  host: proxmox.thefoss.org
+  host: prox.thefoss.org
   tls:
     secret: proxmox-tls
   upstreams:
