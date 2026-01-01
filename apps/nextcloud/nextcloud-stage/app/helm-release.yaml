@@ -29,6 +29,10 @@ spec:
       annotations:
         cert-manager.io/cluster-issuer: thefoss-le-prod
         nginx.ingress.kubernetes.io/proxy-body-size: "10G"
+        nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+        nginx.ingress.kubernetes.io/proxy-buffering: "off"
       tls:
         - secretName: nextcloud-stage-tls
           hosts:
