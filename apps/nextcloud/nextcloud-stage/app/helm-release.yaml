@@ -23,6 +23,50 @@ spec:
   values:
     # https://github.com/nextcloud/helm/tree/main/charts/nextcloud
 
+    ingress:
+      enabled: true
+      className: external
+      annotations:
+        cert-manager.io/cluster-issuer: thefoss-le-prod
+        nginx.ingress.kubernetes.io/proxy-body-size: "10G"
+      tls:
+        - secretName: nextcloud-stage-tls
+          hosts:
+            - cloud-stage.thefoss.org
+
+    nextcloud:
+      host: cloud-stage.thefoss.org
+      existingSecret:
+        enabled: true
+        secretName: nextcloud-staging
+        usernameKey: initialAdminUser
+        passwordKey: initialAdminPassword
+        smtpUsernameKey: smtp-username
+        smtpPasswordKey: smtp-password
+        smtpHostKey: smtp-host
+
+      mail:
+        enabled: true
+        fromAddress: fossum.eric
+        domain: gmail.com
+        smtp:
+          host: smtp.gmail.com
+          secure: ssl
+          port: 465
+          authtype: LOGIN
+
+    # Disable built-in Redis for now (can enable later)
+    redis:
+      enabled: false
+
+    externalRedis:
+      enabled: true
+      host: redis.infrastructure.svc.cluster.local
+      existingSecret:
+        enabled: true
+        secretName: infrastructure-redis-credentials
+        passwordKey: password
+
     # Use existing PostgreSQL database
     internalDatabase:
       enabled: false
@@ -35,16 +79,7 @@ spec:
       user: postgres
       existingSecret:
         enabled: true
-        secretName: nextcloud-stage-db-credentials
-        usernameKey: username
-        passwordKey: password
-
-    nextcloud:
-      host: cloud-stage.thefoss.org
-      username: admin
-      existingSecret:
-        enabled: true
-        secretName: nextcloud-stage-admin-credentials
+        secretName: nextcloud2-cnpg-main-app
         usernameKey: username
         passwordKey: password
 
@@ -84,17 +119,4 @@ spec:
         existingClaim: nextcloud-persistent-data
         accessMode: ReadWriteMany
 
-    ingress:
-      enabled: true
-      className: external
-      annotations:
-        cert-manager.io/cluster-issuer: thefoss-le-prod
-        nginx.ingress.kubernetes.io/proxy-body-size: "10G"
-      tls:
-        - secretName: nextcloud-stage-tls
-          hosts:
-            - cloud-stage.thefoss.org
 
-    # Disable built-in Redis for now (can enable later)
-    redis:
-      enabled: false
