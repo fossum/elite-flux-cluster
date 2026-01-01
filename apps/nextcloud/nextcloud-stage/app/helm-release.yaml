@@ -36,10 +36,10 @@ spec:
       tls:
         - secretName: nextcloud-stage-tls
           hosts:
-            - cloud-stage.thefoss.org
+            - nextcloud.thefoss.org
 
     nextcloud:
-      host: cloud-stage.thefoss.org
+      host: nextcloud.thefoss.org
       existingSecret:
         enabled: true
         secretName: nextcloud-staging
@@ -48,6 +48,13 @@ spec:
         smtpUsernameKey: smtp-username
         smtpPasswordKey: smtp-password
         smtpHostKey: smtp-host
+
+      phpConfigs:
+        uploadLimit.ini: |
+          upload_max_filesize = 16G
+          post_max_size = 16G
+          max_input_time = 3600
+          max_execution_time = 3600
 
       mail:
         enabled: true
