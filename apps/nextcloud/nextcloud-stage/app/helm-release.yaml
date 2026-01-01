@@ -33,6 +33,8 @@ spec:
         nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
         nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
         nginx.ingress.kubernetes.io/proxy-buffering: "off"
+
+        nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
       tls:
         - secretName: nextcloud-stage-tls
           hosts:
@@ -48,6 +50,15 @@ spec:
         smtpUsernameKey: smtp-username
         smtpPasswordKey: smtp-password
         smtpHostKey: smtp-host
+
+      configs:
+        proxy.config.php: |-
+          <?php
+          $CONFIG = array (
+            'trusted_proxies' => array('10.0.0.0/8'),
+            'overwriteprotocol' => 'https',
+            'overwrite.cli.url' => 'https://nextcloud.thefoss.org',
+          );
 
       phpConfigs:
         uploadLimit.ini: |
