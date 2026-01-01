@@ -4,9 +4,11 @@ kind: VirtualServer
 metadata:
   name: proxmox
   namespace: web-services
+  annotations:
+    nginx.org/proxy-ssl-verify: "false"
 
 spec:
-  host: proxmox.thefoss.org
+  host: prox.thefoss.org
   tls:
     secret: proxmox-tls
   upstreams:
@@ -15,7 +17,6 @@ spec:
       port: 8006
       tls:
         enable: true
-        sni: proxmox.thefoss.org
   routes:
     - path: /
       action:
@@ -24,4 +25,7 @@ spec:
           requestHeaders:
             set:
               - name: Host
-                value: $host
+                value: ${host}
+      location-snippets: |
+        proxy_ssl_verify off;
+        proxy_ssl_server_name on;
