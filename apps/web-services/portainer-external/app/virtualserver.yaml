@@ -18,7 +18,3 @@ spec:
       action:
         proxy:
           upstream: portainer-external
-          requestHeaders:
-            set:
-              - name: Host
-                value: ${host}
