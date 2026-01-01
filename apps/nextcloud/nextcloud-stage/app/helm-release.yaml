@@ -86,23 +86,23 @@ spec:
     # Increase startup time for initialization and migration
     livenessProbe:
       enabled: true
-      initialDelaySeconds: 1800
+      initialDelaySeconds: 300
       periodSeconds: 10
       timeoutSeconds: 5
-      failureThreshold: 10
+      failureThreshold: 30
       successThreshold: 1
 
     readinessProbe:
       enabled: true
-      initialDelaySeconds: 600
+      initialDelaySeconds: 30
       periodSeconds: 10
       timeoutSeconds: 5
-      failureThreshold: 5
+      failureThreshold: 60
       successThreshold: 1
 
     startupProbe:
       enabled: true
-      initialDelaySeconds: 60
+      initialDelaySeconds: 10
       periodSeconds: 10
       timeoutSeconds: 5
       failureThreshold: 360
