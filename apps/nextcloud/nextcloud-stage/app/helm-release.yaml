@@ -28,13 +28,12 @@ spec:
       className: external
       annotations:
         cert-manager.io/cluster-issuer: thefoss-le-prod
-        nginx.ingress.kubernetes.io/proxy-body-size: "10G"
-        nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
-        nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
-        nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-        nginx.ingress.kubernetes.io/proxy-buffering: "off"
-
-        nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+        # For "Request Entity Too Large" errors - use NGINX Inc annotations
+        nginx.org/client-max-body-size: "16G"
+        nginx.org/client-body-buffer-size: "400M"
+        nginx.org/proxy-connect-timeout: "600s"
+        nginx.org/proxy-send-timeout: "600s"
+        nginx.org/proxy-read-timeout: "600s"
       tls:
         - secretName: nextcloud-stage-tls
           hosts:
