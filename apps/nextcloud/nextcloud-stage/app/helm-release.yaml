@@ -34,6 +34,8 @@ spec:
         nginx.org/proxy-connect-timeout: "600s"
         nginx.org/proxy-send-timeout: "600s"
         nginx.org/proxy-read-timeout: "600s"
+        nginx.org/hsts: "true"
+        nginx.org/hsts-max-age: "15552000"
       tls:
         - secretName: nextcloud-stage-tls
           hosts:
@@ -63,6 +65,12 @@ spec:
           <?php
           $CONFIG = array (
             'maintenance_window_start' => 1,
+          );
+
+        phone.config.php: |-
+          <?php
+          $CONFIG = array (
+            'default_phone_region' => 'US',
           );
 
       phpConfigs:
