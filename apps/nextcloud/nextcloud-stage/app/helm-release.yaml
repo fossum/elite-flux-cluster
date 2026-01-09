@@ -59,6 +59,12 @@ spec:
             'overwrite.cli.url' => 'https://nextcloud.thefoss.org',
           );
 
+        maintenance.config.php: |-
+          <?php
+          $CONFIG = array (
+            'maintenance_window_start' => 1,
+          );
+
       phpConfigs:
         uploadLimit.ini: |
           upload_max_filesize = 16G
