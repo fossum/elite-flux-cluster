@@ -8,7 +8,7 @@ metadata:
     nginx.org/proxy-ssl-verify: "false"
 
 spec:
-  host: prox.thefoss.org
+  host: proxmox.thefoss.org
   tls:
     secret: proxmox-tls
   upstreams:
