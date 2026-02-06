@@ -9,4 +9,4 @@ spec:
     name: thefoss-le-prod
     kind: ClusterIssuer
   dnsNames:
-    - prox.thefoss.org
+    - proxmox.thefoss.org

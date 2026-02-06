@@ -11,6 +11,8 @@ spec:
   host: proxmox.thefoss.org
   tls:
     secret: proxmox-tls
+    redirect:
+      enable: true
   upstreams:
     - name: proxmox
       service: proxmox
