@@ -118,6 +118,26 @@ spec:
         usernameKey: username
         passwordKey: password
 
+    # Enable Collabora
+    collabora:
+      enabled: true
+      ingress:
+        enabled: true
+        className: external
+        annotations:
+          cert-manager.io/cluster-issuer: thefoss-le-prod
+          nginx.org/client-max-body-size: "100M"
+          nginx.org/proxy-connect-timeout: "600s"
+          nginx.org/proxy-send-timeout: "600s"
+          nginx.org/proxy-read-timeout: "600s"
+        tls:
+          - secretName: collabora-tls
+            hosts:
+              - collabora.thefoss.org
+      collabora:
+        aliasgroups:
+          - nextcloud.thefoss.org
+
     # Increase startup time for initialization and migration
     livenessProbe:
       enabled: true
