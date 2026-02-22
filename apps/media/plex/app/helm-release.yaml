@@ -65,7 +65,7 @@ spec:
 
     plex:
       additionalAdvertiseURL: "https://{{ .Release.Name }}.{{ .Values.baseDomain }}/,http://{{ .Values.localIP }}:32400/"
-      requireHTTPS: true
+      requireHTTPS: false
       disableGDM: true
 
     ingress:
