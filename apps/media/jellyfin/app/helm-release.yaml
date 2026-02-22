@@ -25,6 +25,9 @@ spec:
     # https://truecharts.org/charts/stable/jellyfin/
 
     persistence:
+      config:
+        storageClass: longhorn
+        size: 5Gi
       shared:
         enabled: true
         type: pvc
