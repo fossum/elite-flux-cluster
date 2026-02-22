@@ -28,6 +28,9 @@ spec:
       config:
         storageClass: longhorn
         size: 5Gi
+      data:
+        storageClass: longhorn
+        size: 10Gi
       shared:
         enabled: true
         type: pvc
