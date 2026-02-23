@@ -57,6 +57,7 @@ spec:
               env:
                 # User Defined
                 ALLOWED_NETWORKS: "192.168.0.0/16"
+                ADVERTISE_IP: "https://{{ .Release.Name }}.{{ .Values.baseDomain }}/,http://{{ .Values.localIP }}:32400/"
 
     service:
       main:
@@ -72,6 +73,8 @@ spec:
       main:
         enabled: true
         ingressClassName: external
+        annotations:
+          nginx.org/websocket-services: plex
         hosts:
           - host: "{{ .Release.Name }}.{{ .Values.baseDomain }}"
         integrations:
