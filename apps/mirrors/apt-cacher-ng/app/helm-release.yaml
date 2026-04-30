@@ -35,6 +35,11 @@ spec:
 
     TZ: "America/Los_Angeles"
 
+    probes:
+      startup:
+        spec:
+          failureThreshold: 600
+
     service:
       main:
         type: LoadBalancer
