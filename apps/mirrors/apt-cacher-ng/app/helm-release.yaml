@@ -23,6 +23,18 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              group: apps
+              version: v1
+              kind: Deployment
+              name: apt-cacher-ng
+            patch: |
+              - op: replace
+                path: /spec/template/spec/securityContext
+                value: {}
   valuesFrom:
     - kind: ConfigMap
       name: mirrors-config
@@ -34,6 +46,17 @@ spec:
       pvcSize: 100Gi
 
     TZ: "America/Los_Angeles"
+
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              command:
+                - /bin/sh
+                - -lc
+              args:
+                - exec su -s /bin/sh -c 'apt-cacher-ng -c /etc/apt-cacher-ng ForeGround=1' apt-cacher-ng
 
     probes:
       startup:
