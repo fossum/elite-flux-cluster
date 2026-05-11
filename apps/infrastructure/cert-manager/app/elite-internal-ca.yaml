@@ -1,0 +1,25 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: elite-internal-ca
+  namespace: infrastructure
+spec:
+  commonName: elite.internal Root CA
+  isCA: true
+  duration: 87600h # 10 years
+  renewBefore: 720h # 30 days
+  secretName: elite-internal-ca-secret
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  issuerRef:
+    kind: ClusterIssuer
+    name: selfsigned
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: elite-internal-ca
+spec:
+  ca:
+    secretName: elite-internal-ca-secret

@@ -65,4 +65,4 @@ spec:
             enabled: false
           certManager:
             enabled: true
-            certificateIssuer: selfsigned
+            certificateIssuer: elite-internal-ca
