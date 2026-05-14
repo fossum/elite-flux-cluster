@@ -3,41 +3,91 @@ kind: HelmRelease
 metadata:
   name: prometheus
   namespace: infrastructure
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: enabled
+    
 spec:
   interval: 5m
   chart:
     spec:
-      chart: prometheus
-      version: 27.16.0
+      chart: kube-prometheus-stack
+      version: ">=58.0.0"
       sourceRef:
         kind: HelmRepository
         name: prometheus-community
         namespace: flux-system
       interval: 5m
+
+  valuesFrom:
+    - kind: ConfigMap
+      name: cluster-config
+      valuesKey: SMTP_HOST
+      targetPath: SMTP_HOST
+    - kind: ConfigMap
+      name: cluster-config
+      valuesKey: DISCORD_FOSSTOPOLIS_WEBHOOK
+      targetPath: DISCORD_FOSSTOPOLIS_WEBHOOK
+    - kind: ConfigMap
+      name: cluster-config
+      valuesKey: SMTP_USER
+      targetPath: SMTP_USER
+    - kind: ConfigMap
+      name: cluster-config
+      valuesKey: SMTP_PASSWORD
+      targetPath: SMTP_PASSWORD
+
   values:
     global:
       fallbackDefaults:
         storageClass: "longhorn"
         pvcSize: 10Gi
+    
     grafana:
       enabled: false
       forceDeployDashboards: true
       defaultDashboardsEnabled: true
       forceDeployDatasources: true
+    
     crds:
       enabled: true
       upgradeJob:
         enabled: true
         forceConflicts: true
+    
     cleanPrometheusOperatorObjectNames: true
+
     alertmanager:
-      enabled: false
+      enabled: true
+      config:
+        global:
+          smtp_smarthost: '${SMTP_HOST}:587'
+          smtp_from: ${SMTP_USER}
+          smtp_auth_username: ${SMTP_USER}
+          smtp_auth_password: ${SMTP_PASSWORD}
+        route:
+          group_by: ['namespace', 'alertname']
+          group_wait: 30s
+          group_interval: 5m
+          repeat_interval: 12h
+          receiver: 'discord-and-email'
+        receivers:
+          - name: 'discord-and-email'
+            discord_configs:
+              - webhook_url: ${DISCORD_FOSSTOPOLIS_WEBHOOK}
+                title: '{{ template "discord.default.title" . }}'
+                message: '{{ template "discord.default.message" . }}'
+            email_configs:
+              - to: ${SMTP_USER}
+                send_resolved: true
+
     kubeProxy:
       enabled: false
+
     kubeEtcd:
       service:
         selector:
           component: kube-apiserver # etcd runs on control plane nodes
+
     prometheus:
       prometheusSpec:
         podMonitorSelectorNilUsesHelmValues: false
