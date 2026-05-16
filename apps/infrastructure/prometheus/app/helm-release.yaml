@@ -53,6 +53,7 @@ spec:
           repeat_interval: 12h
           receiver: 'discord-and-email'
         receivers:
+          - name: 'null'
           - name: 'discord-and-email'
             discord_configs:
               - webhook_url: ${DISCORD_FOSSTOPOLIS_WEBHOOK}
