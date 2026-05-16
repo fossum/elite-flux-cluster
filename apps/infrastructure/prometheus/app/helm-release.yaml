@@ -18,24 +18,6 @@ spec:
         namespace: flux-system
       interval: 5m
 
-  valuesFrom:
-    - kind: ConfigMap
-      name: cluster-config
-      valuesKey: SMTP_HOST
-      targetPath: SMTP_HOST
-    - kind: ConfigMap
-      name: cluster-config
-      valuesKey: DISCORD_FOSSTOPOLIS_WEBHOOK
-      targetPath: DISCORD_FOSSTOPOLIS_WEBHOOK
-    - kind: ConfigMap
-      name: cluster-config
-      valuesKey: SMTP_USER
-      targetPath: SMTP_USER
-    - kind: ConfigMap
-      name: cluster-config
-      valuesKey: SMTP_PASSWORD
-      targetPath: SMTP_PASSWORD
-
   values:
     global:
       fallbackDefaults:
