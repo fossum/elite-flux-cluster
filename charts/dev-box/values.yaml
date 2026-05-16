@@ -1,3 +1,6 @@
+deployment:
+  replicas: 1
+
 service:
   type: ClusterIP     # or LoadBalancer, ClusterIP, etc.
   loadBalancerIP: ""  # Only for LoadBalancer type

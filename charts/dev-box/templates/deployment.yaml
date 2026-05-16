@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "dev-box.fullname" . }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.deployment.replicas }}
   strategy:
     type: Recreate
   selector:
