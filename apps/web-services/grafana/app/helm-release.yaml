@@ -32,6 +32,8 @@ spec:
     workload:
       main:
         podSpec:
+          nodeSelector:
+            kubernetes.io/hostname: elite2
           containers:
             main:
               env:
