@@ -71,6 +71,26 @@ spec:
         selector:
           component: kube-apiserver # etcd runs on control plane nodes
 
+    defaultRules:
+      disabled:
+        KubeControllerManagerDown: true
+        KubeSchedulerDown: true
+        KubeVersionMismatch: true
+
+    additionalPrometheusRulesMap:
+      k3s-control-plane:
+        groups:
+          - name: k3s.control-plane
+            rules:
+              - alert: K3sControlPlaneVersionMismatch
+                expr: count(count by (git_version) (kubernetes_build_info{job="apiserver"})) > 1
+                for: 15m
+                labels:
+                  severity: warning
+                annotations:
+                  summary: Different Kubernetes versions detected across the K3s control plane.
+                  description: K3s runs the controller-manager and scheduler inside the server process, so version skew is most meaningful on the apiserver targets instead of across all kubelet metrics.
+
     prometheus:
       prometheusSpec:
         podMonitorSelectorNilUsesHelmValues: false
