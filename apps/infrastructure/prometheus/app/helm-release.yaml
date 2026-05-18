@@ -52,6 +52,10 @@ spec:
           group_interval: 5m
           repeat_interval: 12h
           receiver: 'discord-and-email'
+          routes:
+            - matchers:
+                - severity="none"
+              receiver: 'null'
         receivers:
           - name: 'null'
           - name: 'discord-and-email'
