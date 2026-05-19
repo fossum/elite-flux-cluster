@@ -1,12 +1,16 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: prometheus
+  name: observability
   namespace: flux-system
 spec:
   interval: 10m
-  path: apps/infrastructure/prometheus/app
+  path: apps/infrastructure/observability/app
   prune: true
   sourceRef:
     kind: GitRepository
     name: cluster
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age

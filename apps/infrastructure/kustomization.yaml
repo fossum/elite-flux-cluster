@@ -8,5 +8,5 @@ resources:
   - infrastructure.secret.yaml
   - le-prod/ks.yaml
   - le-stage/ks.yaml
-  - prometheus/ks.yaml
+  - observability/ks.yaml
   - redis/ks.yaml

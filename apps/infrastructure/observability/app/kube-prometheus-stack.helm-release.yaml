@@ -1,0 +1,118 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: observability
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: enabled
+spec:
+  interval: 10m
+  timeout: 15m
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: 85.1.3
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: flux-system
+      interval: 60m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    crds:
+      enabled: true
+      upgradeJob:
+        enabled: true
+        forceConflicts: true
+
+    cleanPrometheusOperatorObjectNames: true
+
+    kubeProxy:
+      enabled: false
+    kubeControllerManager:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+
+    defaultRules:
+      disabled:
+        KubeControllerManagerDown: true
+        KubeSchedulerDown: true
+
+    grafana:
+      enabled: false
+
+    alertmanager:
+      enabled: true
+      alertmanagerSpec:
+        replicas: 1
+        useExistingSecret: true
+        configSecret: alertmanager-config
+        retention: 120h
+        resources:
+          requests:
+            cpu: 50m # Alert routing is lightweight; keep the guaranteed footprint low.
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        storage:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: longhorn
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 2Gi # Alert history is small, so a compact PVC is enough.
+
+    prometheus:
+      additionalServiceMonitors:
+        - name: generic-ingress-controller
+          additionalLabels:
+            app.kubernetes.io/component: observability-template
+          namespaceSelector:
+            matchNames:
+              - nginx-ingress
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: nginx-ingress
+              app.kubernetes.io/component: controller
+          endpoints:
+            - port: metrics
+              interval: 30s
+              scrapeTimeout: 10s
+              path: /metrics
+      prometheusSpec:
+        podMonitorSelectorNilUsesHelmValues: false
+        probeSelectorNilUsesHelmValues: false
+        ruleSelectorNilUsesHelmValues: false
+        scrapeConfigSelectorNilUsesHelmValues: false
+        serviceMonitorSelectorNilUsesHelmValues: false
+        enableAdminAPI: false
+        walCompression: true
+        retention: 7d
+        retentionSize: 15GiB
+        resources:
+          requests:
+            cpu: 300m # Reserve enough CPU for rule evaluation without starving small k3s nodes.
+            memory: 1Gi # Prevent compaction spikes from evicting Prometheus on a constrained cluster.
+          limits:
+            cpu: 750m
+            memory: 2Gi
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: longhorn
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 15Gi # Seven days of home-lab metrics usually fits well in a modest PVC.
