@@ -6,6 +6,8 @@ metadata:
 spec:
   instances: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:18
+  monitoring:
+    enablePodMonitor: true
   storage:
     size: 10Gi
     # storageClass: standard

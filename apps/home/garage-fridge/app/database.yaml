@@ -48,9 +48,8 @@ spec:
   #     max_connections: "300"
   #     shared_buffers: "1GB"
 
-  # Optional: Monitoring (if you have Prometheus Operator installed)
-  # monitoring:
-  #   enablePodMonitor: true
+  monitoring:
+    enablePodMonitor: true
 
   # Optional but Highly Recommended: Backup Configuration
   # (This is a basic example; configure Barman object store for proper backups)
