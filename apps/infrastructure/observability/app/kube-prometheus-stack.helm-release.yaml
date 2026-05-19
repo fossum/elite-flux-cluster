@@ -48,44 +48,6 @@ spec:
 
     grafana:
       enabled: false
-      admin:
-        existingSecret: grafana-admin
-        userKey: admin-user
-        passwordKey: admin-password
-      resources:
-        requests:
-          cpu: 100m # Keep Grafana responsive without reserving much CPU on k3s nodes.
-          memory: 192Mi # Enough for dashboards/plugins in a small home-lab footprint.
-        limits:
-          cpu: 250m
-          memory: 512Mi
-      persistence:
-        enabled: true
-        type: sts
-        storageClassName: longhorn
-        accessModes:
-          - ReadWriteOnce
-        size: 5Gi # Persistent dashboards and plugins fit comfortably in a small PVC.
-      ingress:
-        enabled: true
-        ingressClassName: external
-        annotations: {}
-        hosts:
-          - grafana.${BASE_DOMAIN}
-        path: /
-        pathType: Prefix
-        tls:
-          - secretName: grafana-tls
-            hosts:
-              - grafana.${BASE_DOMAIN}
-      additionalDataSources:
-        - name: Loki
-          type: loki
-          access: proxy
-          url: http://loki:3100
-          isDefault: false
-          jsonData:
-            maxLines: 500
 
     alertmanager:
       enabled: true
