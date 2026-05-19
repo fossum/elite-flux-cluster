@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - grafana-admin.secret.yaml
+  - alertmanager-config.secret.yaml
+  - kube-prometheus-stack.helm-release.yaml
+  - loki.helm-release.yaml
+  - promtail.helm-release.yaml
+  - blackbox-exporter.helm-release.yaml
