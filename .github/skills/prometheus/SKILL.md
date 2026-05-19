@@ -6,35 +6,41 @@ description: Prometheus, Alertmanager, and kube-prometheus-stack troubleshooting
 # Prometheus Troubleshooting Skill — elite-flux-cluster
 
 ## Deployment Overview
-- **Chart**: `prometheus-community/kube-prometheus-stack`
-- **Namespace**: `infrastructure`
-- **HelmRelease**: `apps/infrastructure/prometheus/app/helm-release.yaml`
+- **Namespace**: `observability`
 - **Flux Kustomization**: `apps/infrastructure/observability/ks.yaml`
 - **Flux path**: `apps/infrastructure/observability/app`
+- **Prometheus stack HelmRelease**: `apps/infrastructure/observability/app/kube-prometheus-stack.helm-release.yaml`
 - **App Kustomization**: `apps/infrastructure/observability/app/kustomization.yaml`
-- **Prometheus manifests**: still live under `apps/infrastructure/prometheus/app`
+- **Alertmanager config**: `apps/infrastructure/observability/app/alertmanager-config.secret.yaml`
+- **Related releases**:
+  - `apps/infrastructure/observability/app/loki.helm-release.yaml`
+  - `apps/infrastructure/observability/app/promtail.helm-release.yaml`
+  - `apps/infrastructure/observability/app/blackbox-exporter.helm-release.yaml`
 - **Extra monitors**:
-  - `apps/infrastructure/prometheus/app/flux-podmonitor.yaml`
-  - `apps/infrastructure/prometheus/app/cert-manager-podmonitor.yaml`
+  - `apps/infrastructure/observability/app/flux-podmonitor.yaml`
+  - `apps/infrastructure/observability/app/cert-manager-podmonitor.yaml`
 - **Grafana**: disabled inside the Prometheus stack; this repo manages Grafana separately in `apps/web-services/grafana`
 
 ## Key Repo Conventions
-- The HelmRelease uses `kustomize.toolkit.fluxcd.io/substitute: enabled`, so `${VAR}` substitution is expected directly in `values`.
-- Do **not** reintroduce a `valuesFrom` reference to `cluster-config` in this HelmRelease. That ConfigMap lives in `flux-system`, not `infrastructure`, and it previously blocked reconciliation.
-- Keep Alertmanager's `null` receiver in the config. kube-prometheus-stack still routes `Watchdog` to `null` by default.
+- The `kube-prometheus-stack` HelmRelease uses `kustomize.toolkit.fluxcd.io/substitute: enabled`, so `${VAR}` substitution is expected directly in manifests and chart values.
+- Do **not** reintroduce a `valuesFrom` reference to `cluster-config` in the HelmRelease. Flux already injects substitution values via the parent `flux-entry` Kustomization.
+- Alertmanager configuration is no longer embedded in the HelmRelease. It lives in `alertmanager-config.secret.yaml`, and the HelmRelease references it with `useExistingSecret: true`.
+- Keep Alertmanager's `null` receiver in the config secret. kube-prometheus-stack still routes `Watchdog` to `null` by default.
 
 ## K3s-Specific Alerting
-- `KubeControllerManagerDown`, `KubeSchedulerDown`, and the default `KubeVersionMismatch` rules are disabled because K3s does not expose those components the same way as a standard control plane.
-- This repo replaces the generic version-skew rule with `K3sControlPlaneVersionMismatch`, based on `kubernetes_build_info{job="apiserver"}`.
+- `KubeControllerManagerDown` and `KubeSchedulerDown` are disabled because K3s does not expose those components the same way as a standard control plane.
+- `kubeControllerManager`, `kubeScheduler`, and `kubeEtcd` scraping are disabled in the stack because those targets do not exist as standalone control-plane components in this cluster.
 - The intent is to adapt alerts to K3s semantics, not to suppress real control-plane problems wholesale.
 
 ## Extra Monitoring Coverage
 - `kube-state-metrics` is extended with `customResourceState` for Flux resources and RBAC to read them.
 - Flux health alerts use `gotk_resource_info` and fire `FluxResourceNotReady` when Flux objects stay not-ready for 10 minutes.
-- cert-manager scraping is added through a PodMonitor, with alerts for:
+- cert-manager scraping is added through a PodMonitor in the `observability` namespace, with alerts for:
   - `CertManagerCertificateNotReady`
   - `CertManagerCertificateExpiringSoon`
+- Flux controllers are scraped through a PodMonitor in the `observability` namespace that targets pods in `flux-system`.
 - CloudNativePG alerting includes `CloudNativePGReplicationLagHigh`.
+- The observability stack also deploys Loki, Promtail, and blackbox-exporter alongside Prometheus.
 
 ## Expected Alert Behavior
 - `Watchdog` should always be firing. It is the normal heartbeat alert for the notification pipeline.
@@ -43,20 +49,20 @@ description: Prometheus, Alertmanager, and kube-prometheus-stack troubleshooting
 ## Common Failure Modes
 
 ### HelmRelease fails to reconcile
-- **Symptom**: `infrastructure/prometheus` stays `Ready=False`.
+- **Symptom**: `observability/kube-prometheus-stack` stays `Ready=False`.
 - **Likely cause**: an invalid `valuesFrom` lookup for `cluster-config`.
 - **Fix**: remove the broken `valuesFrom` usage and rely on Flux substitution already enabled on the HelmRelease.
 
 ### Flux `observability` Kustomization fails with `path not found`
 - **Symptom**: `flux-system/observability` stays `Ready=False` with `apps/infrastructure/observability/app: no such file or directory`.
-- **Cause**: the Flux Kustomization was renamed to `observability`, but the repo still only exposed `apps/infrastructure/prometheus/app`.
+- **Cause**: the repo layout under `apps/infrastructure/observability/app` is missing or partially reverted.
 - **Fix**:
   - keep `apps/infrastructure/observability/ks.yaml` pointing at `apps/infrastructure/observability/app`
-  - keep `apps/infrastructure/observability/app/kustomization.yaml` as the wrapper over `../../prometheus/app`
-  - do not point the live Flux Kustomization at `apps/infrastructure/prometheus/app`
+  - keep the concrete stack manifests in `apps/infrastructure/observability/app`
+  - do not point the live Flux Kustomization at the old `apps/infrastructure/prometheus/app` path
 
 ### Alertmanager fails with `undefined receiver "null"`
-- **Cause**: custom `alertmanager.config.receivers` removed the `null` receiver while the chart still referenced it from the default route tree.
+- **Cause**: the custom Alertmanager config in `alertmanager-config.secret.yaml` removed the `null` receiver while the default route tree still referenced it.
 - **Fix**: restore:
   ```yaml
   receivers:
@@ -78,26 +84,36 @@ description: Prometheus, Alertmanager, and kube-prometheus-stack troubleshooting
 - Some `KubeJobFailed` alerts can come from stale historical Jobs rather than active breakage.
 - Verify the Jobs are safe to remove before deleting them; K3s-managed bootstrap Jobs such as `helm-install-traefik*` may legitimately reappear.
 
+### PodMonitor-based alerts never fire
+- **Symptoms**:
+  - `FluxResourceNotReady`, `CertManagerCertificateNotReady`, or `CertManagerCertificateExpiringSoon` never appear
+  - the related metrics are missing from Prometheus
+- **Likely cause**: the PodMonitors were removed from `apps/infrastructure/observability/app/kustomization.yaml`, or recreated in the wrong namespace.
+- **Fix**:
+  - keep the PodMonitor resources in the `observability` namespace
+  - keep `flux-podmonitor.yaml` and `cert-manager-podmonitor.yaml` listed in the app kustomization
+
 ## Useful Commands
 ```bash
-# Reconcile the repo source and Prometheus release
+# Reconcile the repo source and observability stack
 flux reconcile source git cluster -n flux-system
 flux reconcile kustomization observability -n flux-system
-flux reconcile helmrelease prometheus -n infrastructure
+flux reconcile helmrelease kube-prometheus-stack -n observability
 
 # Check Flux and Helm state
 kubectl get kustomization -n flux-system observability
 kubectl describe kustomization -n flux-system observability
-kubectl get helmrelease -n infrastructure prometheus
-kubectl describe helmrelease -n infrastructure prometheus
+kubectl get helmrelease -n observability kube-prometheus-stack
+kubectl describe helmrelease -n observability kube-prometheus-stack
 
 # Inspect monitoring resources managed in-repo
-kubectl get podmonitor,prometheusrule -n infrastructure
+kubectl get podmonitor,prometheusrule,probe -n observability
+kubectl get secret -n observability alertmanager-config
 
 # Check K3s ServiceLB state during ingress alert investigations
 kubectl get daemonset,pods -n kube-system | grep svclb
 
 # Port-forward Prometheus and inspect current alerts
-kubectl port-forward -n infrastructure svc/prometheus-operated 9090
+kubectl port-forward -n observability svc/kube-prometheus-stack-prometheus 9090
 curl -s http://127.0.0.1:9090/api/v1/alerts
 ```
