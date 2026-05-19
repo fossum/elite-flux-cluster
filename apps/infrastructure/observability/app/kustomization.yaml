@@ -4,6 +4,8 @@ resources:
   - namespace.yaml
   - alertmanager-config.secret.yaml
   - kube-prometheus-stack.helm-release.yaml
+  - cert-manager-podmonitor.yaml
+  - flux-podmonitor.yaml
   - loki.helm-release.yaml
   - promtail.helm-release.yaml
   - blackbox-exporter.helm-release.yaml
