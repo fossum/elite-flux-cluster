@@ -1,6 +1,5 @@
 {
     "recommendations": [
-        "signageos.signageos-vscode-sops",
-        "bierner.markdown-preview-github-styles"
+        "signageos.signageos-vscode-sops"
     ]
 }
