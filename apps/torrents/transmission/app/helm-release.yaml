@@ -42,11 +42,31 @@ spec:
       name: vpn-addon-config
       valuesKey: addons.yaml
   values:
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                TRANSMISSION_BIND_ADDRESS_IPV4: 0.0.0.0
+                TRANSMISSION_BIND_ADDRESS_IPV6: "::"
+                TRANSMISSION_DOWNLOAD_DIR: /media/complete
+                TRANSMISSION_INCOMPLETE_DIR: /downloads/incomplete
+                TRANSMISSION_INCOMPLETE_DIR_ENABLED: "true"
+                TRANSMISSION_LPD_ENABLED: "false"
+                TRANSMISSION_PREFETCH_ENABLED: "true"
+                TRANSMISSION_RATIO_LIMIT_ENABLED: "true"
+
     persistence:
       config:
         enabled: true
         storageClass: longhorn
         size: 1Gi
+      incomplete:
+        enabled: true
+        storageClass: longhorn-single-nojobs
+        size: 200Gi
+        mountPath: /downloads/incomplete
       media:
         enabled: true
         type: nfs
