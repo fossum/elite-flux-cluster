@@ -17,9 +17,9 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsUser: {{ .Values.user.uid }}
+        runAsGroup: {{ .Values.user.gid }}
+        fsGroup: {{ .Values.user.gid }}
         fsGroupChangePolicy: OnRootMismatch
       initContainers:
         - name: prepare-workspace
@@ -31,36 +31,11 @@ spec:
             capabilities:
               drop: ["ALL"]
           command:
-            - /bin/sh
-            - -ec
-          args:
-            - |
-              mkdir -p /workspace /tmp
-              workspace_root="{{ .Values.workspace.root }}"
-              case "$workspace_root" in
-                /workspace/*)
-                  ;;
-                *)
-                  echo "workspace.root must be under /workspace/: $workspace_root" >&2
-                  exit 1
-                  ;;
-              esac
-
-              mkdir -p "$workspace_root"
-
-              {{- range .Values.git.repositories }}
-              repo_path="$workspace_root/{{ .name }}"
-              if [ -d "$repo_path/.git" ]; then
-                git -C "$repo_path" rev-parse --is-inside-work-tree >/dev/null
-              elif [ -e "$repo_path" ] && [ -n "$(ls -A "$repo_path" 2>/dev/null)" ]; then
-                echo "Repository path exists but is not a git repo: $repo_path" >&2
-                exit 1
-              else
-                rm -rf "$repo_path"
-                git clone --branch "{{ .ref }}" --depth {{ .depth }} "{{ .url }}" "$repo_path"
-              fi
-              {{- end }}
+            - /bin/bash
+            - /bootstrap-scripts/prepare-workspace.sh
           volumeMounts:
+            - name: bootstrap-scripts
+              mountPath: /bootstrap-scripts
             - name: repositories
               mountPath: /workspace
             - name: tmp
@@ -78,9 +53,12 @@ spec:
               drop: ["ALL"]
           env:
             - name: HOME
-              value: /home/vscode
-          command: {{ toYaml .Values.workspace.startupCommand | nindent 12 }}
-          args: {{ toYaml .Values.workspace.startupArgs | nindent 12 }}
+              value: {{ .Values.workspace.home }}
+            - name: TZ
+              value: {{ .Values.timezone | quote }}
+          command:
+            - /bin/bash
+            - /bootstrap-scripts/start-workspace.sh
           resources:
             limits:
               cpu: {{ .Values.resources.limits.cpu }}
@@ -89,6 +67,11 @@ spec:
               cpu: {{ .Values.resources.requests.cpu }}
               memory: {{ .Values.resources.requests.memory }}
           volumeMounts:
+            - name: bootstrap-scripts
+              mountPath: /bootstrap-scripts
+            - name: ssh-bootstrap
+              mountPath: {{ .Values.ssh.mountPath }}
+              readOnly: true
             - name: repositories
               mountPath: /workspace
             - name: tmp
@@ -136,6 +119,14 @@ spec:
             - name: tmp
               mountPath: /tmp
       volumes:
+        - name: bootstrap-scripts
+          configMap:
+            name: {{ include "development-workspace.fullname" . }}-scripts
+            defaultMode: 0555
+        - name: ssh-bootstrap
+          secret:
+            secretName: {{ .Values.ssh.secretName }}
+            defaultMode: 0400
         - name: repositories
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.repositories.existingClaim | default (printf "%s-repositories" (include "development-workspace.fullname" .)) }}

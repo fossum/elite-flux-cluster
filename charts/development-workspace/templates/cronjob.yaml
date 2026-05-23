@@ -1,0 +1,27 @@
+{{- if .Values.updates.restartJob.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "development-workspace.fullname" . }}-restarter
+spec:
+  schedule: {{ .Values.updates.restartJob.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ .Values.updates.restartJob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.updates.restartJob.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: {{ include "development-workspace.fullname" . }}-restarter
+          containers:
+            - name: kubectl
+              image: {{ .Values.updates.restartJob.image.repository }}:{{ .Values.updates.restartJob.image.tag }}
+              imagePullPolicy: {{ .Values.updates.restartJob.image.pullPolicy }}
+              command:
+                - /bin/sh
+                - -ec
+              args:
+                - |
+                  kubectl rollout restart deployment/{{ include "development-workspace.fullname" . }} -n {{ .Release.Namespace }}
+{{- end }}

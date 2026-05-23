@@ -6,7 +6,17 @@ image:
   tag: ubuntu-24.04
   pullPolicy: IfNotPresent
 
+user:
+  name: vscode
+  uid: 1000
+  gid: 1000
+
+timezone: UTC
+
 git:
+  user:
+    name: ""
+    email: ""
   repositories:
     - name: elite-flux-cluster
       url: https://github.com/fossum/elite-flux-cluster.git
@@ -15,13 +25,34 @@ git:
 
 workspace:
   root: /workspace/repos
-  startupCommand:
-    - /bin/sh
-    - -ec
-  startupArgs:
-    - |
-      trap : TERM INT
-      sleep infinity & wait
+  home: /workspace/home/vscode
+  startupScript: |
+    trap : TERM INT
+    sleep infinity & wait
+
+ssh:
+  secretName: development-workspace-bootstrap
+  mountPath: /bootstrap-secrets/ssh
+
+apt:
+  proxy: ""
+
+packages:
+  additional: []
+
+shell:
+  ohMyZsh:
+    enabled: false
+    theme: robbyrussell
+    plugins:
+      - git
+    extraConfig: ""
+
+python:
+  pyenv:
+    enabled: false
+    versions: []
+    globalVersion: ""
 
 persistence:
   repositories:
@@ -37,6 +68,18 @@ tailscale:
   authKeySecretName: development-workspace-secrets
   authKeySecretKey: TAILSCALE_AUTH_KEY
   hostname: development-workspace
+
+updates:
+  upgradeOnStart: true
+  restartJob:
+    enabled: true
+    schedule: "0 4 * * 0"
+    successfulJobsHistoryLimit: 1
+    failedJobsHistoryLimit: 1
+    image:
+      repository: docker.io/bitnami/kubectl
+      tag: 1.32.4
+      pullPolicy: IfNotPresent
 
 resources:
   limits:
