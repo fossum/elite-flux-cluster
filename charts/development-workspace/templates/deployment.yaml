@@ -1,0 +1,147 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "development-workspace.fullname" . }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "development-workspace.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "development-workspace.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        - name: prepare-workspace
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              mkdir -p /workspace /tmp
+              workspace_root="{{ .Values.workspace.root }}"
+              case "$workspace_root" in
+                /workspace/*)
+                  ;;
+                *)
+                  echo "workspace.root must be under /workspace/: $workspace_root" >&2
+                  exit 1
+                  ;;
+              esac
+
+              mkdir -p "$workspace_root"
+
+              {{- range .Values.git.repositories }}
+              repo_path="$workspace_root/{{ .name }}"
+              if [ -d "$repo_path/.git" ]; then
+                git -C "$repo_path" rev-parse --is-inside-work-tree >/dev/null
+              elif [ -e "$repo_path" ] && [ -n "$(ls -A "$repo_path" 2>/dev/null)" ]; then
+                echo "Repository path exists but is not a git repo: $repo_path" >&2
+                exit 1
+              else
+                rm -rf "$repo_path"
+                git clone --branch "{{ .ref }}" --depth {{ .depth }} "{{ .url }}" "$repo_path"
+              fi
+              {{- end }}
+          volumeMounts:
+            - name: repositories
+              mountPath: /workspace
+            - name: tmp
+              mountPath: /tmp
+      containers:
+        - name: main
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          stdin: true
+          tty: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - name: HOME
+              value: /home/vscode
+          command: {{ toYaml .Values.workspace.startupCommand | nindent 12 }}
+          args: {{ toYaml .Values.workspace.startupArgs | nindent 12 }}
+          resources:
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+          volumeMounts:
+            - name: repositories
+              mountPath: /workspace
+            - name: tmp
+              mountPath: /tmp
+        - name: tailscale
+          image: {{ .Values.tailscale.image.repository }}:{{ .Values.tailscale.image.tag }}
+          imagePullPolicy: {{ .Values.tailscale.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          env:
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.tailscale.authKeySecretName }}
+                  key: {{ .Values.tailscale.authKeySecretKey }}
+            - name: TS_ACCEPT_DNS
+              value: "false"
+            - name: TS_AUTH_ONCE
+              value: "true"
+            - name: TS_EXTRA_ARGS
+              value: "--hostname={{ .Values.tailscale.hostname }}"
+            - name: TS_KUBE_SECRET
+              value: ""
+            - name: TS_SOCKET
+              value: /var/run/tailscale/tailscaled.sock
+            - name: TS_STATE_DIR
+              value: /var/lib/tailscale/state
+            - name: TS_USERSPACE
+              value: "true"
+          command:
+            - /usr/local/bin/containerboot
+          volumeMounts:
+            - name: tailscale-run
+              mountPath: /var/run/tailscale
+            - name: tailscale-state
+              mountPath: /var/lib/tailscale
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: repositories
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.repositories.existingClaim | default (printf "%s-repositories" (include "development-workspace.fullname" .)) }}
+        - name: tailscale-run
+          emptyDir: {}
+        - name: tailscale-state
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}

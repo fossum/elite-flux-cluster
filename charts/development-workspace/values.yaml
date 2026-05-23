@@ -1,0 +1,47 @@
+deployment:
+  replicas: 1
+
+image:
+  repository: mcr.microsoft.com/devcontainers/base
+  tag: ubuntu-24.04
+  pullPolicy: IfNotPresent
+
+git:
+  repositories:
+    - name: elite-flux-cluster
+      url: https://github.com/fossum/elite-flux-cluster.git
+      ref: main
+      depth: 1
+
+workspace:
+  root: /workspace/repos
+  startupCommand:
+    - /bin/sh
+    - -ec
+  startupArgs:
+    - |
+      trap : TERM INT
+      sleep infinity & wait
+
+persistence:
+  repositories:
+    size: 20Gi
+    storageClassName: ""
+    existingClaim: ""
+
+tailscale:
+  image:
+    repository: ghcr.io/tailscale/tailscale
+    tag: v1.86.2
+    pullPolicy: IfNotPresent
+  authKeySecretName: development-workspace-secrets
+  authKeySecretKey: TAILSCALE_AUTH_KEY
+  hostname: development-workspace
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2048Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi

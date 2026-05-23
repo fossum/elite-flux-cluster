@@ -44,19 +44,55 @@ additionalAdvertiseURL: "https://plex.thefoss.org/"   # Uncommented
 - **Early startup errors** like `Unable to find or create media provider for agent 'tv.plex.agents.series'` are **normal** — they occur during the initial library scan before the async registration completes. After ~9 seconds you should see: `[MediaProviderManager] Found media provider for agent provider 'tv.plex.agents.series'`
 - `providers.plex.tv` has **no public DNS A record** — this is normal and not the cause of any issues.
 
-## Playback Failure Investigation (unresolved as of 2026-02-22)
-- User can log in and see library but **cannot play media**.
-- `POST /playQueues` was returning 500 with `std::exception` in C++ code.
-- This may be:
-  1. A timing issue (playQueue called in first 9 seconds before agents register) — retry after pod has been up >15 seconds
-  2. A deeper database/metadata issue
-  3. The `BackgroundProcessingQueue.cpp:64` recurring error (separate crash)
-- **Next steps to diagnose**:
-  1. Check current Plex logs: `kubectl logs -n media -l app.kubernetes.io/name=plex --tail=100`
-  2. Try playing ~15 seconds after pod restart to rule out timing
-  3. Check if `POST /playQueues` still 500s after agents are registered
-  4. Look for `BackgroundProcessingQueue` errors — may indicate DB corruption
-  5. Check `Preferences.xml` — confirm `secureConnections=1` (not 0)
+## Known Issue: play_queue_items INT32 Overflow (RESOLVED 2026-02-23)
+
+### Root Cause
+Plex's C++ code uses `int32_t` for `play_queue_items.id` internally. After enough play queue activity, the SQLite autoincrement ID exceeds INT32_MAX (2,147,483,647), causing `std::exception` on every `POST /playQueues` → HTTP 500.
+
+**Symptom**: Every `POST /playQueues` returns 500 with `Got exception from request handler: std::exception` in the server log, even with valid metadata items. GET requests and library browsing work fine.
+
+**Secondary symptom**: `download_queue_items` entries stuck in `status=5` ("wrong state") cause `BackgroundProcessingQueue.cpp:64` to crash on startup — but this is separate from the playQueue 500 and does NOT block playback once the INT32 overflow is fixed.
+
+### Fix
+```bash
+POD=$(kubectl get pod -n media -l app.kubernetes.io/name=plex -o jsonpath='{.items[0].metadata.name}')
+
+# Check if IDs exceed INT32_MAX (2147483647)
+kubectl exec -n media $POD -- "/usr/lib/plexmediaserver/Plex SQLite" \
+  "/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
+  "SELECT COUNT(*), MIN(id), MAX(id) FROM play_queue_items;"
+
+# If MAX(id) > 2147483647, clear play queue tables (session data only — safe to delete)
+kubectl exec -n media $POD -- "/usr/lib/plexmediaserver/Plex SQLite" \
+  "/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
+  "BEGIN; DELETE FROM play_queue_items; DELETE FROM play_queues; DELETE FROM play_queue_generators; DELETE FROM sqlite_sequence WHERE name IN ('play_queue_items', 'play_queues', 'play_queue_generators'); COMMIT;"
+```
+
+No pod restart required. Verify with:
+```bash
+kubectl exec -n media $POD -- curl -s -w "\nHTTP:%{http_code}" -X POST \
+  "http://localhost:32400/playQueues?type=video&includeChapters=1&continuous=1&repeat=0&shuffle=0&uri=server%3A%2F%2Fd314a2f9c39c657c0c03b262d36a0395bf90376f%2Fcom.plexapp.plugins.library%2Flibrary%2Fmetadata%2F1&key=%2Flibrary%2Fmetadata%2F1&X-Plex-Token=$TOKEN" \
+  -H "X-Plex-Client-Identifier: test-client-123"
+# Should return HTTP:200
+```
+
+### Fix for download_queue_items stuck in status=5
+```bash
+# Delete stuck items (BPQ will skip cleanly on restart)
+kubectl exec -n media $POD -- "/usr/lib/plexmediaserver/Plex SQLite" \
+  "/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db" \
+  "PRAGMA wal_checkpoint(TRUNCATE); DELETE FROM download_queue_items WHERE status = 5; SELECT changes();"
+```
+
+## Plex Bundled SQLite
+The `sqlite3` binary is **not** installed in the container, but Plex ships its own:
+```bash
+"/usr/lib/plexmediaserver/Plex SQLite" "<path-to-db>" "<SQL statement>"
+```
+The main library database is at:
+```
+/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db
+```
 
 ## Preferences.xml Location
 ```

@@ -1,0 +1,15 @@
+{{- if not .Values.persistence.repositories.existingClaim }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "development-workspace.fullname" . }}-repositories
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.persistence.repositories.size }}
+  {{- if .Values.persistence.repositories.storageClassName }}
+  storageClassName: {{ .Values.persistence.repositories.storageClassName }}
+  {{- end }}
+{{- end }}
