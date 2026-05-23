@@ -1,0 +1,42 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: copilot-cli
+  namespace: development
+spec:
+  interval: 15m
+  timeout: 15m
+  chart:
+    spec:
+      chart: charts/incubator/copilot-cli
+      sourceRef:
+        kind: GitRepository
+        name: fosscharts-helm-chart
+        namespace: flux-system
+      interval: 15m
+  install:
+    createNamespace: false
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    git:
+      sync:
+        enabled: true
+        repository: https://github.com/fossum/elite-flux-cluster.git
+        ref: main
+        depth: 1
+    persistence:
+      config:
+        type: emptyDir
+      workspace:
+        type: emptyDir
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2048Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
