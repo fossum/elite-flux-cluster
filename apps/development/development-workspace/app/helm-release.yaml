@@ -1,0 +1,32 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: development-workspace
+  namespace: development
+spec:
+  chart:
+    spec:
+      chart: ./charts/development-workspace
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: cluster
+        namespace: flux-system
+  interval: 1m0s
+  timeout: 15m0s
+  values:
+    workspace:
+      root: /workspace/repos
+    git:
+      repositories:
+        - name: elite-flux-cluster
+          url: https://github.com/fossum/elite-flux-cluster.git
+          ref: main
+          depth: 1
+        - name: truecharts-public
+          url: https://github.com/fossum/truecharts-public.git
+          ref: copilot/create-helm-chart-copilot-cli
+          depth: 1
+    persistence:
+      repositories:
+        size: 20Gi
