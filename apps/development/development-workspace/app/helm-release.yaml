@@ -15,9 +15,20 @@ spec:
   interval: 1m0s
   timeout: 15m0s
   values:
+    timezone: America/Los_Angeles
     workspace:
       root: /workspace/repos
+      home: /workspace/home/vscode
     git:
+      user:
+        name:
+          secret: development-workspace-bootstrap
+          namespace: development
+          key: git_name
+        email:
+          secret: development-workspace-bootstrap
+          namespace: development
+          key: git_email
       repositories:
         - name: elite-flux-cluster
           url: https://github.com/fossum/elite-flux-cluster.git
@@ -27,6 +38,27 @@ spec:
           url: https://github.com/fossum/truecharts-public.git
           ref: copilot/create-helm-chart-copilot-cli
           depth: 1
+    apt:
+      proxy: ""
+    packages:
+      additional: []
+    shell:
+      ohMyZsh:
+        enabled: true
+        theme: robbyrussell
+        plugins:
+          - git
+        extraConfig: ""
+    python:
+      pyenv:
+        enabled: true
+        versions: ["3.10", "3.14"]
+        globalVersion: "3.14"
     persistence:
       repositories:
         size: 20Gi
+    updates:
+      upgradeOnStart: true
+      restartJob:
+        enabled: true
+        schedule: "0 4 * * 0"

@@ -41,7 +41,6 @@ data:
     WORKSPACE_HOME={{ .Values.workspace.home | quote }}
     TIMEZONE={{ .Values.timezone | quote }}
     SSH_SOURCE={{ .Values.ssh.mountPath | quote }}
-
     mkdir -p "$WORKSPACE_ROOT" "$WORKSPACE_HOME" "$WORKSPACE_HOME/.config" "$WORKSPACE_HOME/.cache" /tmp
     export HOME="$WORKSPACE_HOME"
     export TZ="$TIMEZONE"
@@ -90,6 +89,11 @@ data:
       for source_file in "$SSH_SOURCE"/*; do
         [ -f "$source_file" ] || continue
         [ -s "$source_file" ] || continue
+        case "$(basename "$source_file")" in
+          git_name|git_email)
+            continue
+            ;;
+        esac
         target_file="$HOME/.ssh/$(basename "$source_file")"
         cp "$source_file" "$target_file"
         chmod 600 "$target_file"
@@ -102,12 +106,12 @@ data:
     fi
 
     touch "$HOME/.gitconfig"
-    {{- if .Values.git.user.name }}
-    git config --global user.name {{ .Values.git.user.name | quote }}
-    {{- end }}
-    {{- if .Values.git.user.email }}
-    git config --global user.email {{ .Values.git.user.email | quote }}
-    {{- end }}
+    if [ -n "${GIT_USER_NAME:-}" ]; then
+      git config --global user.name "$GIT_USER_NAME"
+    fi
+    if [ -n "${GIT_USER_EMAIL:-}" ]; then
+      git config --global user.email "$GIT_USER_EMAIL"
+    fi
     git config --global init.defaultBranch main
 
     cat > "$HOME/.bashrc.workspace" <<'EOF_BASHRC'

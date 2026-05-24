@@ -1,3 +1,11 @@
+{{- $gitUserName := .Values.git.user.name -}}
+{{- $gitUserEmail := .Values.git.user.email -}}
+{{- if and (kindIs "map" $gitUserName) (hasKey $gitUserName "namespace") (ne (get $gitUserName "namespace") "") (ne (get $gitUserName "namespace") .Release.Namespace) -}}
+{{ fail "git.user.name.namespace must be empty or match the release namespace" }}
+{{- end }}
+{{- if and (kindIs "map" $gitUserEmail) (hasKey $gitUserEmail "namespace") (ne (get $gitUserEmail "namespace") "") (ne (get $gitUserEmail "namespace") .Release.Namespace) -}}
+{{ fail "git.user.email.namespace must be empty or match the release namespace" }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -56,6 +64,30 @@ spec:
               value: {{ .Values.workspace.home }}
             - name: TZ
               value: {{ .Values.timezone | quote }}
+            {{- if kindIs "string" $gitUserName }}
+            {{- if ne $gitUserName "" }}
+            - name: GIT_USER_NAME
+              value: {{ $gitUserName | quote }}
+            {{- end }}
+            {{- else if kindIs "map" $gitUserName }}
+            - name: GIT_USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ get $gitUserName "secret" | quote }}
+                  key: {{ get $gitUserName "key" | quote }}
+            {{- end }}
+            {{- if kindIs "string" $gitUserEmail }}
+            {{- if ne $gitUserEmail "" }}
+            - name: GIT_USER_EMAIL
+              value: {{ $gitUserEmail | quote }}
+            {{- end }}
+            {{- else if kindIs "map" $gitUserEmail }}
+            - name: GIT_USER_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ get $gitUserEmail "secret" | quote }}
+                  key: {{ get $gitUserEmail "key" | quote }}
+            {{- end }}
           command:
             - /bin/bash
             - /bootstrap-scripts/start-workspace.sh
