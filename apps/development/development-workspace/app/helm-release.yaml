@@ -26,10 +26,6 @@ spec:
         - path: .oh-my-zsh/custom/update-mode.zsh
           content: |
             zstyle ':omz:update' mode auto
-        - path: .oh-my-zsh/custom/aliases.zsh
-          contentBase64: |
-            YWxpYXMgeXQtZGw9J2RvY2tlciBydW4gLS1ybSAtaSAtZSBQR0lEPSQoaWQgLWcpIC1lIFBVSUQ9
-            JChpZCAtdSkgLXYgIiQocHdkKSI6L3dvcmtkaXI6cncgbWlrZW55ZS95b3V0dWJlLWRsJwo=
         - path: .oh-my-zsh/custom/completions.zsh
           contentBase64: |
             Y29tbWFuZCAtdiBmbHV4ID4vZGV2L251bGwgJiYgLiA8KGZsdXggY29tcGxldGlvbiB6c2gpCg==
@@ -215,7 +211,7 @@ spec:
           ref: copilot/create-helm-chart-copilot-cli
           depth: 1
     apt:
-      proxy: ""
+      proxy: "Acquire::http::Proxy "http://192.168.1.156:3142";"
     packages:
       additional: []
     shell:
