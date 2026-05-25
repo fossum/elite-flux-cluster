@@ -84,6 +84,12 @@ description: Development workspace chart and app guide for the elite-flux-cluste
   - **Secret name**: `development-workspace-secrets`
   - **Secret key**: `TAILSCALE_AUTH_KEY`
 - Persist Tailscale node state with the Tailscale PVC so pod replacement does not require a fresh login for the same node state.
+- Tailscale SSH can be enabled with:
+  ```yaml
+  tailscale:
+    ssh:
+      enabled: true
+  ```
 - The encrypted placeholder secret lives at:
   - `apps/development/development-workspace/app/tailscale.secret.yaml`
 - Keep the sidecar configuration generic and avoid tying it to a specific app protocol.
@@ -102,9 +108,20 @@ description: Development workspace chart and app guide for the elite-flux-cluste
   - `apt.proxy`
   - `packages.additional`
   - `workspace.files`
+  - `workspace.sshd.*`
   - `shell.ohMyZsh.*`
   - `python.pyenv.*`
   - `git.user.*`
+- The workspace can also run an **OpenSSH server** for tailnet access only:
+  ```yaml
+  workspace:
+    sshd:
+      enabled: true
+      port: 22
+      authorizedKeys: []
+  ```
+- When `workspace.sshd.enabled` is true, startup installs `openssh-server`, reuses mounted `~/.ssh/*.pub` files as `authorized_keys`, appends any explicit `authorizedKeys`, and starts `sshd` inside the main container.
+- Do not add a Kubernetes Service for SSH unless explicitly requested; the intended access pattern is through Tailscale only.
 
 ## Update Strategy
 - Long-running package refresh is handled with a **Kubernetes CronJob** in the chart, not unattended upgrades inside the container.
