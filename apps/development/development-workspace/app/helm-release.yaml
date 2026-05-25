@@ -19,6 +19,9 @@ spec:
     workspace:
       root: /workspace/repos
       home: /workspace/home/vscode
+      sshd:
+        enabled: true
+        port: 22
       files:
         - path: .oh-my-zsh/custom/update-mode.zsh
           content: |
@@ -234,6 +237,11 @@ spec:
       tailscale:
         enabled: true
         size: 1Gi
+    tailscale:
+      ssh:
+        enabled: true
+      image:
+        tag: stable
     updates:
       upgradeOnStart: true
       restartJob:
