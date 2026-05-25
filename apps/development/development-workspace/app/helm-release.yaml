@@ -24,253 +24,174 @@ spec:
           content: |
             zstyle ':omz:update' mode auto
         - path: .oh-my-zsh/custom/aliases.zsh
-          content: |
-            alias yt-dl='docker run --rm -i -e PGID=$(id -g) -e PUID=$(id -u) -v "$(pwd)":/workdir:rw mikenye/youtube-dl'
+          contentBase64: |
+            YWxpYXMgeXQtZGw9J2RvY2tlciBydW4gLS1ybSAtaSAtZSBQR0lEPSQoaWQgLWcpIC1lIFBVSUQ9
+            JChpZCAtdSkgLXYgIiQocHdkKSI6L3dvcmtkaXI6cncgbWlrZW55ZS95b3V0dWJlLWRsJwo=
         - path: .oh-my-zsh/custom/completions.zsh
-          content: |
-            command -v flux >/dev/null && . <(flux completion zsh)
+          contentBase64: |
+            Y29tbWFuZCAtdiBmbHV4ID4vZGV2L251bGwgJiYgLiA8KGZsdXggY29tcGxldGlvbiB6c2gpCg==
         - path: .oh-my-zsh/custom/k3s_config.zsh
-          content: |
-            export KUBECONFIG="$HOME/.kube/config/k3s.yaml"
+          contentBase64: |
+            ZXhwb3J0IEtVQkVDT05GSUc9IiRIT01FLy5rdWJlL2NvbmZpZy9rM3MueWFtbCIK
         - path: .oh-my-zsh/custom/plugins/kubectl-autocomplete/kubectl-autocomplete.plugin.zsh
-          content: |
-            #compdef kubectl
-            compdef _kubectl kubectl
-
-            # Copyright 2016 The Kubernetes Authors.
-            #
-            # Licensed under the Apache License, Version 2.0 (the "License");
-            # you may not use this file except in compliance with the License.
-            # You may obtain a copy of the License at
-            #
-            #     http://www.apache.org/licenses/LICENSE-2.0
-            #
-            # Unless required by applicable law or agreed to in writing, software
-            # distributed under the License is distributed on an "AS IS" BASIS,
-            # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-            # See the License for the specific language governing permissions and
-            # limitations under the License.
-            #compdef kubectl
-            compdef _kubectl kubectl
-
-            # zsh completion for kubectl                              -*- shell-script -*-
-
-            __kubectl_debug()
-            {
-                local file="$BASH_COMP_DEBUG_FILE"
-                if [[ -n ${file} ]]; then
-                    echo "$*" >> "${file}"
-                fi
-            }
-
-            _kubectl()
-            {
-                local shellCompDirectiveError=1
-                local shellCompDirectiveNoSpace=2
-                local shellCompDirectiveNoFileComp=4
-                local shellCompDirectiveFilterFileExt=8
-                local shellCompDirectiveFilterDirs=16
-                local shellCompDirectiveKeepOrder=32
-
-                local lastParam lastChar flagPrefix requestComp out directive comp lastComp noSpace keepOrder
-                local -a completions
-
-                __kubectl_debug "\n========= starting completion logic =========="
-                __kubectl_debug "CURRENT: ${CURRENT}, words[*]: ${words[*]}"
-
-                # The user could have moved the cursor backwards on the command-line.
-                # We need to trigger completion from the $CURRENT location, so we need
-                # to truncate the command-line ($words) up to the $CURRENT location.
-                # (We cannot use $CURSOR as its value does not work when a command is an alias.)
-                words=("${=words[1,CURRENT]}")
-                __kubectl_debug "Truncated words[*]: ${words[*]},"
-
-                lastParam=${words[-1]}
-                lastChar=${lastParam[-1]}
-                __kubectl_debug "lastParam: ${lastParam}, lastChar: ${lastChar}"
-
-                # For zsh, when completing a flag with an = (e.g., kubectl -n=<TAB>)
-                # completions must be prefixed with the flag
-                setopt local_options BASH_REMATCH
-                if [[ "${lastParam}" =~ '-.*=' ]]; then
-                    # We are dealing with a flag with an =
-                    flagPrefix="-P ${BASH_REMATCH}"
-                fi
-
-                # Prepare the command to obtain completions
-                requestComp="${words[1]} __complete ${words[2,-1]}"
-                if [ "${lastChar}" = "" ]; then
-                    # If the last parameter is complete (there is a space following it)
-                    # We add an extra empty parameter so we can indicate this to the go completion code.
-                    __kubectl_debug "Adding extra empty parameter"
-                    requestComp="${requestComp} \"\""
-                fi
-
-                __kubectl_debug "About to call: eval ${requestComp}"
-
-                # Use eval to handle any environment variables and such
-                out=$(eval ${requestComp} 2>/dev/null)
-                __kubectl_debug "completion output: ${out}"
-
-                # Extract the directive integer following a : from the last line
-                local lastLine
-                while IFS='\n' read -r line; do
-                    lastLine=${line}
-                done < <(printf "%s\n" "${out[@]}")
-                __kubectl_debug "last line: ${lastLine}"
-
-                if [ "${lastLine[1]}" = : ]; then
-                    directive=${lastLine[2,-1]}
-                    # Remove the directive including the : and the newline
-                    local suffix
-                    (( suffix=${#lastLine}+2))
-                    out=${out[1,-$suffix]}
-                else
-                    # There is no directive specified.  Leave $out as is.
-                    __kubectl_debug "No directive found.  Setting do default"
-                    directive=0
-                fi
-
-                __kubectl_debug "directive: ${directive}"
-                __kubectl_debug "completions: ${out}"
-                __kubectl_debug "flagPrefix: ${flagPrefix}"
-
-                if [ $((directive & shellCompDirectiveError)) -ne 0 ]; then
-                    __kubectl_debug "Completion received error. Ignoring completions."
-                    return
-                fi
-
-                local activeHelpMarker="_activeHelp_ "
-                local endIndex=${#activeHelpMarker}
-                local startIndex=$((${#activeHelpMarker}+1))
-                local hasActiveHelp=0
-                while IFS='\n' read -r comp; do
-                    # Check if this is an activeHelp statement (i.e., prefixed with $activeHelpMarker)
-                    if [ "${comp[1,$endIndex]}" = "$activeHelpMarker" ];then
-                        __kubectl_debug "ActiveHelp found: $comp"
-                        comp="${comp[$startIndex,-1]}"
-                        if [ -n "$comp" ]; then
-                            compadd -x "${comp}"
-                            __kubectl_debug "ActiveHelp will need delimiter"
-                            hasActiveHelp=1
-                        fi
-
-                        continue
-                    fi
-
-                    if [ -n "$comp" ]; then
-                        # If requested, completions are returned with a description.
-                        # The description is preceded by a TAB character.
-                        # For zsh's _describe, we need to use a : instead of a TAB.
-                        # We first need to escape any : as part of the completion itself.
-                        comp=${comp//:/\\:}
-
-                        local tab="$(printf '\t')"
-                        comp=${comp//$tab/:}
-
-                        __kubectl_debug "Adding completion: ${comp}"
-                        completions+=${comp}
-                        lastComp=$comp
-                    fi
-                done < <(printf "%s\n" "${out[@]}")
-
-                # Add a delimiter after the activeHelp statements, but only if:
-                # - there are completions following the activeHelp statements, or
-                # - file completion will be performed (so there will be choices after the activeHelp)
-                if [ $hasActiveHelp -eq 1 ]; then
-                    if [ ${#completions} -ne 0 ] || [ $((directive & shellCompDirectiveNoFileComp)) -eq 0 ]; then
-                        __kubectl_debug "Adding activeHelp delimiter"
-                        compadd -x "--"
-                        hasActiveHelp=0
-                    fi
-                fi
-
-                if [ $((directive & shellCompDirectiveNoSpace)) -ne 0 ]; then
-                    __kubectl_debug "Activating nospace."
-                    noSpace="-S ''"
-                fi
-
-                if [ $((directive & shellCompDirectiveKeepOrder)) -ne 0 ]; then
-                    __kubectl_debug "Activating keep order."
-                    keepOrder="-V"
-                fi
-
-                if [ $((directive & shellCompDirectiveFilterFileExt)) -ne 0 ]; then
-                    # File extension filtering
-                    local filteringCmd
-                    filteringCmd='_files'
-                    for filter in ${completions[@]}; do
-                        if [ ${filter[1]} != '*' ]; then
-                            # zsh requires a glob pattern to do file filtering
-                            filter="\*.$filter"
-                        fi
-                        filteringCmd+=" -g $filter"
-                    done
-                    filteringCmd+=" ${flagPrefix}"
-
-                    __kubectl_debug "File filtering command: $filteringCmd"
-                    _arguments '*:filename:'"$filteringCmd"
-                elif [ $((directive & shellCompDirectiveFilterDirs)) -ne 0 ]; then
-                    # File completion for directories only
-                    local subdir
-                    subdir="${completions[1]}"
-                    if [ -n "$subdir" ]; then
-                        __kubectl_debug "Listing directories in $subdir"
-                        pushd "${subdir}" >/dev/null 2>&1
-                    else
-                        __kubectl_debug "Listing directories in ."
-                    fi
-
-                    local result
-                    _arguments '*:dirname:_files -/'" ${flagPrefix}"
-                    result=$?
-                    if [ -n "$subdir" ]; then
-                        popd >/dev/null 2>&1
-                    fi
-                    return $result
-                else
-                    __kubectl_debug "Calling _describe"
-                    if eval _describe $keepOrder "completions" completions $flagPrefix $noSpace; then
-                        __kubectl_debug "_describe found some completions"
-
-                        # Return the success of having called _describe
-                        return 0
-                    else
-                        __kubectl_debug "_describe did not find completions."
-                        __kubectl_debug "Checking if we should do file completion."
-                        if [ $((directive & shellCompDirectiveNoFileComp)) -ne 0 ]; then
-                            __kubectl_debug "deactivating file completion"
-
-                            # We must return an error code here to let zsh know that there were no
-                            # completions found by _describe; this is what will trigger other
-                            # matching algorithms to attempt to find completions.
-                            # For example zsh can match letters in the middle of words.
-                            return 1
-                        else
-                            # Perform file completion
-                            __kubectl_debug "Activating file completion"
-
-                            # We must return the result of this command, so it must be the
-                            # last command, or else we must store its result to return it.
-                            _arguments '*:filename:_files'" ${flagPrefix}"
-                        fi
-                    fi
-                fi
-            }
-
-            # don't run the completion function when being source-ed or eval-ed
-            if [ "$funcstack[1]" = "_kubectl" ]; then
-                _kubectl
-            fi
+          contentBase64: |
+            I2NvbXBkZWYga3ViZWN0bApjb21wZGVmIF9rdWJlY3RsIGt1YmVjdGwKCiMgQ29weXJpZ2h0IDIw
+            MTYgVGhlIEt1YmVybmV0ZXMgQXV0aG9ycy4KIwojIExpY2Vuc2VkIHVuZGVyIHRoZSBBcGFjaGUg
+            TGljZW5zZSwgVmVyc2lvbiAyLjAgKHRoZSAiTGljZW5zZSIpOwojIHlvdSBtYXkgbm90IHVzZSB0
+            aGlzIGZpbGUgZXhjZXB0IGluIGNvbXBsaWFuY2Ugd2l0aCB0aGUgTGljZW5zZS4KIyBZb3UgbWF5
+            IG9idGFpbiBhIGNvcHkgb2YgdGhlIExpY2Vuc2UgYXQKIwojICAgICBodHRwOi8vd3d3LmFwYWNo
+            ZS5vcmcvbGljZW5zZXMvTElDRU5TRS0yLjAKIwojIFVubGVzcyByZXF1aXJlZCBieSBhcHBsaWNh
+            YmxlIGxhdyBvciBhZ3JlZWQgdG8gaW4gd3JpdGluZywgc29mdHdhcmUKIyBkaXN0cmlidXRlZCB1
+            bmRlciB0aGUgTGljZW5zZSBpcyBkaXN0cmlidXRlZCBvbiBhbiAiQVMgSVMiIEJBU0lTLAojIFdJ
+            VEhPVVQgV0FSUkFOVElFUyBPUiBDT05ESVRJT05TIE9GIEFOWSBLSU5ELCBlaXRoZXIgZXhwcmVz
+            cyBvciBpbXBsaWVkLgojIFNlZSB0aGUgTGljZW5zZSBmb3IgdGhlIHNwZWNpZmljIGxhbmd1YWdl
+            IGdvdmVybmluZyBwZXJtaXNzaW9ucyBhbmQKIyBsaW1pdGF0aW9ucyB1bmRlciB0aGUgTGljZW5z
+            ZS4KI2NvbXBkZWYga3ViZWN0bApjb21wZGVmIF9rdWJlY3RsIGt1YmVjdGwKCiMgenNoIGNvbXBs
+            ZXRpb24gZm9yIGt1YmVjdGwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAtKi0gc2hlbGwt
+            c2NyaXB0IC0qLQoKX19rdWJlY3RsX2RlYnVnKCkKewogICAgbG9jYWwgZmlsZT0iJEJBU0hfQ09N
+            UF9ERUJVR19GSUxFIgogICAgaWYgW1sgLW4gJHtmaWxlfSBdXTsgdGhlbgogICAgICAgIGVjaG8g
+            IiQqIiA+PiAiJHtmaWxlfSIKICAgIGZpCn0KCl9rdWJlY3RsKCkKewogICAgbG9jYWwgc2hlbGxD
+            b21wRGlyZWN0aXZlRXJyb3I9MQogICAgbG9jYWwgc2hlbGxDb21wRGlyZWN0aXZlTm9TcGFjZT0y
+            CiAgICBsb2NhbCBzaGVsbENvbXBEaXJlY3RpdmVOb0ZpbGVDb21wPTQKICAgIGxvY2FsIHNoZWxs
+            Q29tcERpcmVjdGl2ZUZpbHRlckZpbGVFeHQ9OAogICAgbG9jYWwgc2hlbGxDb21wRGlyZWN0aXZl
+            RmlsdGVyRGlycz0xNgogICAgbG9jYWwgc2hlbGxDb21wRGlyZWN0aXZlS2VlcE9yZGVyPTMyCgog
+            ICAgbG9jYWwgbGFzdFBhcmFtIGxhc3RDaGFyIGZsYWdQcmVmaXggcmVxdWVzdENvbXAgb3V0IGRp
+            cmVjdGl2ZSBjb21wIGxhc3RDb21wIG5vU3BhY2Uga2VlcE9yZGVyCiAgICBsb2NhbCAtYSBjb21w
+            bGV0aW9ucwoKICAgIF9fa3ViZWN0bF9kZWJ1ZyAiXG49PT09PT09PT0gc3RhcnRpbmcgY29tcGxl
+            dGlvbiBsb2dpYyA9PT09PT09PT09IgogICAgX19rdWJlY3RsX2RlYnVnICJDVVJSRU5UOiAke0NV
+            UlJFTlR9LCB3b3Jkc1sqXTogJHt3b3Jkc1sqXX0iCgogICAgIyBUaGUgdXNlciBjb3VsZCBoYXZl
+            IG1vdmVkIHRoZSBjdXJzb3IgYmFja3dhcmRzIG9uIHRoZSBjb21tYW5kLWxpbmUuCiAgICAjIFdl
+            IG5lZWQgdG8gdHJpZ2dlciBjb21wbGV0aW9uIGZyb20gdGhlICRDVVJSRU5UIGxvY2F0aW9uLCBz
+            byB3ZSBuZWVkCiAgICAjIHRvIHRydW5jYXRlIHRoZSBjb21tYW5kLWxpbmUgKCR3b3JkcykgdXAg
+            dG8gdGhlICRDVVJSRU5UIGxvY2F0aW9uLgogICAgIyAoV2UgY2Fubm90IHVzZSAkQ1VSU09SIGFz
+            IGl0cyB2YWx1ZSBkb2VzIG5vdCB3b3JrIHdoZW4gYSBjb21tYW5kIGlzIGFuIGFsaWFzLikKICAg
+            IHdvcmRzPSgiJHs9d29yZHNbMSxDVVJSRU5UXX0iKQogICAgX19rdWJlY3RsX2RlYnVnICJUcnVu
+            Y2F0ZWQgd29yZHNbKl06ICR7d29yZHNbKl19LCIKCiAgICBsYXN0UGFyYW09JHt3b3Jkc1stMV19
+            CiAgICBsYXN0Q2hhcj0ke2xhc3RQYXJhbVstMV19CiAgICBfX2t1YmVjdGxfZGVidWcgImxhc3RQ
+            YXJhbTogJHtsYXN0UGFyYW19LCBsYXN0Q2hhcjogJHtsYXN0Q2hhcn0iCgogICAgIyBGb3IgenNo
+            LCB3aGVuIGNvbXBsZXRpbmcgYSBmbGFnIHdpdGggYW4gPSAoZS5nLiwga3ViZWN0bCAtbj08VEFC
+            PikKICAgICMgY29tcGxldGlvbnMgbXVzdCBiZSBwcmVmaXhlZCB3aXRoIHRoZSBmbGFnCiAgICBz
+            ZXRvcHQgbG9jYWxfb3B0aW9ucyBCQVNIX1JFTUFUQ0gKICAgIGlmIFtbICIke2xhc3RQYXJhbX0i
+            ID1+ICctLio9JyBdXTsgdGhlbgogICAgICAgICMgV2UgYXJlIGRlYWxpbmcgd2l0aCBhIGZsYWcg
+            d2l0aCBhbiA9CiAgICAgICAgZmxhZ1ByZWZpeD0iLVAgJHtCQVNIX1JFTUFUQ0h9IgogICAgZmkK
+            CiAgICAjIFByZXBhcmUgdGhlIGNvbW1hbmQgdG8gb2J0YWluIGNvbXBsZXRpb25zCiAgICByZXF1
+            ZXN0Q29tcD0iJHt3b3Jkc1sxXX0gX19jb21wbGV0ZSAke3dvcmRzWzIsLTFdfSIKICAgIGlmIFsg
+            IiR7bGFzdENoYXJ9IiA9ICIiIF07IHRoZW4KICAgICAgICAjIElmIHRoZSBsYXN0IHBhcmFtZXRl
+            ciBpcyBjb21wbGV0ZSAodGhlcmUgaXMgYSBzcGFjZSBmb2xsb3dpbmcgaXQpCiAgICAgICAgIyBX
+            ZSBhZGQgYW4gZXh0cmEgZW1wdHkgcGFyYW1ldGVyIHNvIHdlIGNhbiBpbmRpY2F0ZSB0aGlzIHRv
+            IHRoZSBnbyBjb21wbGV0aW9uIGNvZGUuCiAgICAgICAgX19rdWJlY3RsX2RlYnVnICJBZGRpbmcg
+            ZXh0cmEgZW1wdHkgcGFyYW1ldGVyIgogICAgICAgIHJlcXVlc3RDb21wPSIke3JlcXVlc3RDb21w
+            fSBcIlwiIgogICAgZmkKCiAgICBfX2t1YmVjdGxfZGVidWcgIkFib3V0IHRvIGNhbGw6IGV2YWwg
+            JHtyZXF1ZXN0Q29tcH0iCgogICAgIyBVc2UgZXZhbCB0byBoYW5kbGUgYW55IGVudmlyb25tZW50
+            IHZhcmlhYmxlcyBhbmQgc3VjaAogICAgb3V0PSQoZXZhbCAke3JlcXVlc3RDb21wfSAyPi9kZXYv
+            bnVsbCkKICAgIF9fa3ViZWN0bF9kZWJ1ZyAiY29tcGxldGlvbiBvdXRwdXQ6ICR7b3V0fSIKCiAg
+            ICAjIEV4dHJhY3QgdGhlIGRpcmVjdGl2ZSBpbnRlZ2VyIGZvbGxvd2luZyBhIDogZnJvbSB0aGUg
+            bGFzdCBsaW5lCiAgICBsb2NhbCBsYXN0TGluZQogICAgd2hpbGUgSUZTPSdcbicgcmVhZCAtciBs
+            aW5lOyBkbwogICAgICAgIGxhc3RMaW5lPSR7bGluZX0KICAgIGRvbmUgPCA8KHByaW50ZiAiJXNc
+            biIgIiR7b3V0W0BdfSIpCiAgICBfX2t1YmVjdGxfZGVidWcgImxhc3QgbGluZTogJHtsYXN0TGlu
+            ZX0iCgogICAgaWYgWyAiJHtsYXN0TGluZVsxXX0iID0gOiBdOyB0aGVuCiAgICAgICAgZGlyZWN0
+            aXZlPSR7bGFzdExpbmVbMiwtMV19CiAgICAgICAgIyBSZW1vdmUgdGhlIGRpcmVjdGl2ZSBpbmNs
+            dWRpbmcgdGhlIDogYW5kIHRoZSBuZXdsaW5lCiAgICAgICAgbG9jYWwgc3VmZml4CiAgICAgICAg
+            KCggc3VmZml4PSR7I2xhc3RMaW5lfSsyKSkKICAgICAgICBvdXQ9JHtvdXRbMSwtJHN1ZmZpeF19
+            CiAgICBlbHNlCiAgICAgICAgIyBUaGVyZSBpcyBubyBkaXJlY3RpdmUgc3BlY2lmaWVkLiAgTGVh
+            dmUgJG91dCBhcyBpcy4KICAgICAgICBfX2t1YmVjdGxfZGVidWcgIk5vIGRpcmVjdGl2ZSBmb3Vu
+            ZC4gIFNldHRpbmcgZG8gZGVmYXVsdCIKICAgICAgICBkaXJlY3RpdmU9MAogICAgZmkKCiAgICBf
+            X2t1YmVjdGxfZGVidWcgImRpcmVjdGl2ZTogJHtkaXJlY3RpdmV9IgogICAgX19rdWJlY3RsX2Rl
+            YnVnICJjb21wbGV0aW9uczogJHtvdXR9IgogICAgX19rdWJlY3RsX2RlYnVnICJmbGFnUHJlZml4
+            OiAke2ZsYWdQcmVmaXh9IgoKICAgIGlmIFsgJCgoZGlyZWN0aXZlICYgc2hlbGxDb21wRGlyZWN0
+            aXZlRXJyb3IpKSAtbmUgMCBdOyB0aGVuCiAgICAgICAgX19rdWJlY3RsX2RlYnVnICJDb21wbGV0
+            aW9uIHJlY2VpdmVkIGVycm9yLiBJZ25vcmluZyBjb21wbGV0aW9ucy4iCiAgICAgICAgcmV0dXJu
+            CiAgICBmaQoKICAgIGxvY2FsIGFjdGl2ZUhlbHBNYXJrZXI9Il9hY3RpdmVIZWxwXyAiCiAgICBs
+            b2NhbCBlbmRJbmRleD0keyNhY3RpdmVIZWxwTWFya2VyfQogICAgbG9jYWwgc3RhcnRJbmRleD0k
+            KCgkeyNhY3RpdmVIZWxwTWFya2VyfSsxKSkKICAgIGxvY2FsIGhhc0FjdGl2ZUhlbHA9MAogICAg
+            d2hpbGUgSUZTPSdcbicgcmVhZCAtciBjb21wOyBkbwogICAgICAgICMgQ2hlY2sgaWYgdGhpcyBp
+            cyBhbiBhY3RpdmVIZWxwIHN0YXRlbWVudCAoaS5lLiwgcHJlZml4ZWQgd2l0aCAkYWN0aXZlSGVs
+            cE1hcmtlcikKICAgICAgICBpZiBbICIke2NvbXBbMSwkZW5kSW5kZXhdfSIgPSAiJGFjdGl2ZUhl
+            bHBNYXJrZXIiIF07dGhlbgogICAgICAgICAgICBfX2t1YmVjdGxfZGVidWcgIkFjdGl2ZUhlbHAg
+            Zm91bmQ6ICRjb21wIgogICAgICAgICAgICBjb21wPSIke2NvbXBbJHN0YXJ0SW5kZXgsLTFdfSIK
+            ICAgICAgICAgICAgaWYgWyAtbiAiJGNvbXAiIF07IHRoZW4KICAgICAgICAgICAgICAgIGNvbXBh
+            ZGQgLXggIiR7Y29tcH0iCiAgICAgICAgICAgICAgICBfX2t1YmVjdGxfZGVidWcgIkFjdGl2ZUhl
+            bHAgd2lsbCBuZWVkIGRlbGltaXRlciIKICAgICAgICAgICAgICAgIGhhc0FjdGl2ZUhlbHA9MQog
+            ICAgICAgICAgICBmaQoKICAgICAgICAgICAgY29udGludWUKICAgICAgICBmaQoKICAgICAgICBp
+            ZiBbIC1uICIkY29tcCIgXTsgdGhlbgogICAgICAgICAgICAjIElmIHJlcXVlc3RlZCwgY29tcGxl
+            dGlvbnMgYXJlIHJldHVybmVkIHdpdGggYSBkZXNjcmlwdGlvbi4KICAgICAgICAgICAgIyBUaGUg
+            ZGVzY3JpcHRpb24gaXMgcHJlY2VkZWQgYnkgYSBUQUIgY2hhcmFjdGVyLgogICAgICAgICAgICAj
+            IEZvciB6c2gncyBfZGVzY3JpYmUsIHdlIG5lZWQgdG8gdXNlIGEgOiBpbnN0ZWFkIG9mIGEgVEFC
+            LgogICAgICAgICAgICAjIFdlIGZpcnN0IG5lZWQgdG8gZXNjYXBlIGFueSA6IGFzIHBhcnQgb2Yg
+            dGhlIGNvbXBsZXRpb24gaXRzZWxmLgogICAgICAgICAgICBjb21wPSR7Y29tcC8vOi9cXDp9Cgog
+            ICAgICAgICAgICBsb2NhbCB0YWI9IiQocHJpbnRmICdcdCcpIgogICAgICAgICAgICBjb21wPSR7
+            Y29tcC8vJHRhYi86fQoKICAgICAgICAgICAgX19rdWJlY3RsX2RlYnVnICJBZGRpbmcgY29tcGxl
+            dGlvbjogJHtjb21wfSIKICAgICAgICAgICAgY29tcGxldGlvbnMrPSR7Y29tcH0KICAgICAgICAg
+            ICAgbGFzdENvbXA9JGNvbXAKICAgICAgICBmaQogICAgZG9uZSA8IDwocHJpbnRmICIlc1xuIiAi
+            JHtvdXRbQF19IikKCiAgICAjIEFkZCBhIGRlbGltaXRlciBhZnRlciB0aGUgYWN0aXZlSGVscCBz
+            dGF0ZW1lbnRzLCBidXQgb25seSBpZjoKICAgICMgLSB0aGVyZSBhcmUgY29tcGxldGlvbnMgZm9s
+            bG93aW5nIHRoZSBhY3RpdmVIZWxwIHN0YXRlbWVudHMsIG9yCiAgICAjIC0gZmlsZSBjb21wbGV0
+            aW9uIHdpbGwgYmUgcGVyZm9ybWVkIChzbyB0aGVyZSB3aWxsIGJlIGNob2ljZXMgYWZ0ZXIgdGhl
+            IGFjdGl2ZUhlbHApCiAgICBpZiBbICRoYXNBY3RpdmVIZWxwIC1lcSAxIF07IHRoZW4KICAgICAg
+            ICBpZiBbICR7I2NvbXBsZXRpb25zfSAtbmUgMCBdIHx8IFsgJCgoZGlyZWN0aXZlICYgc2hlbGxD
+            b21wRGlyZWN0aXZlTm9GaWxlQ29tcCkpIC1lcSAwIF07IHRoZW4KICAgICAgICAgICAgX19rdWJl
+            Y3RsX2RlYnVnICJBZGRpbmcgYWN0aXZlSGVscCBkZWxpbWl0ZXIiCiAgICAgICAgICAgIGNvbXBh
+            ZGQgLXggIi0tIgogICAgICAgICAgICBoYXNBY3RpdmVIZWxwPTAKICAgICAgICBmaQogICAgZmkK
+            CiAgICBpZiBbICQoKGRpcmVjdGl2ZSAmIHNoZWxsQ29tcERpcmVjdGl2ZU5vU3BhY2UpKSAtbmUg
+            MCBdOyB0aGVuCiAgICAgICAgX19rdWJlY3RsX2RlYnVnICJBY3RpdmF0aW5nIG5vc3BhY2UuIgog
+            ICAgICAgIG5vU3BhY2U9Ii1TICcnIgogICAgZmkKCiAgICBpZiBbICQoKGRpcmVjdGl2ZSAmIHNo
+            ZWxsQ29tcERpcmVjdGl2ZUtlZXBPcmRlcikpIC1uZSAwIF07IHRoZW4KICAgICAgICBfX2t1YmVj
+            dGxfZGVidWcgIkFjdGl2YXRpbmcga2VlcCBvcmRlci4iCiAgICAgICAga2VlcE9yZGVyPSItViIK
+            ICAgIGZpCgogICAgaWYgWyAkKChkaXJlY3RpdmUgJiBzaGVsbENvbXBEaXJlY3RpdmVGaWx0ZXJG
+            aWxlRXh0KSkgLW5lIDAgXTsgdGhlbgogICAgICAgICMgRmlsZSBleHRlbnNpb24gZmlsdGVyaW5n
+            CiAgICAgICAgbG9jYWwgZmlsdGVyaW5nQ21kCiAgICAgICAgZmlsdGVyaW5nQ21kPSdfZmlsZXMn
+            CiAgICAgICAgZm9yIGZpbHRlciBpbiAke2NvbXBsZXRpb25zW0BdfTsgZG8KICAgICAgICAgICAg
+            aWYgWyAke2ZpbHRlclsxXX0gIT0gJyonIF07IHRoZW4KICAgICAgICAgICAgICAgICMgenNoIHJl
+            cXVpcmVzIGEgZ2xvYiBwYXR0ZXJuIHRvIGRvIGZpbGUgZmlsdGVyaW5nCiAgICAgICAgICAgICAg
+            ICBmaWx0ZXI9IlwqLiRmaWx0ZXIiCiAgICAgICAgICAgIGZpCiAgICAgICAgICAgIGZpbHRlcmlu
+            Z0NtZCs9IiAtZyAkZmlsdGVyIgogICAgICAgIGRvbmUKICAgICAgICBmaWx0ZXJpbmdDbWQrPSIg
+            JHtmbGFnUHJlZml4fSIKCiAgICAgICAgX19rdWJlY3RsX2RlYnVnICJGaWxlIGZpbHRlcmluZyBj
+            b21tYW5kOiAkZmlsdGVyaW5nQ21kIgogICAgICAgIF9hcmd1bWVudHMgJyo6ZmlsZW5hbWU6JyIk
+            ZmlsdGVyaW5nQ21kIgogICAgZWxpZiBbICQoKGRpcmVjdGl2ZSAmIHNoZWxsQ29tcERpcmVjdGl2
+            ZUZpbHRlckRpcnMpKSAtbmUgMCBdOyB0aGVuCiAgICAgICAgIyBGaWxlIGNvbXBsZXRpb24gZm9y
+            IGRpcmVjdG9yaWVzIG9ubHkKICAgICAgICBsb2NhbCBzdWJkaXIKICAgICAgICBzdWJkaXI9IiR7
+            Y29tcGxldGlvbnNbMV19IgogICAgICAgIGlmIFsgLW4gIiRzdWJkaXIiIF07IHRoZW4KICAgICAg
+            ICAgICAgX19rdWJlY3RsX2RlYnVnICJMaXN0aW5nIGRpcmVjdG9yaWVzIGluICRzdWJkaXIiCiAg
+            ICAgICAgICAgIHB1c2hkICIke3N1YmRpcn0iID4vZGV2L251bGwgMj4mMQogICAgICAgIGVsc2UK
+            ICAgICAgICAgICAgX19rdWJlY3RsX2RlYnVnICJMaXN0aW5nIGRpcmVjdG9yaWVzIGluIC4iCiAg
+            ICAgICAgZmkKCiAgICAgICAgbG9jYWwgcmVzdWx0CiAgICAgICAgX2FyZ3VtZW50cyAnKjpkaXJu
+            YW1lOl9maWxlcyAtLyciICR7ZmxhZ1ByZWZpeH0iCiAgICAgICAgcmVzdWx0PSQ/CiAgICAgICAg
+            aWYgWyAtbiAiJHN1YmRpciIgXTsgdGhlbgogICAgICAgICAgICBwb3BkID4vZGV2L251bGwgMj4m
+            MQogICAgICAgIGZpCiAgICAgICAgcmV0dXJuICRyZXN1bHQKICAgIGVsc2UKICAgICAgICBfX2t1
+            YmVjdGxfZGVidWcgIkNhbGxpbmcgX2Rlc2NyaWJlIgogICAgICAgIGlmIGV2YWwgX2Rlc2NyaWJl
+            ICRrZWVwT3JkZXIgImNvbXBsZXRpb25zIiBjb21wbGV0aW9ucyAkZmxhZ1ByZWZpeCAkbm9TcGFj
+            ZTsgdGhlbgogICAgICAgICAgICBfX2t1YmVjdGxfZGVidWcgIl9kZXNjcmliZSBmb3VuZCBzb21l
+            IGNvbXBsZXRpb25zIgoKICAgICAgICAgICAgIyBSZXR1cm4gdGhlIHN1Y2Nlc3Mgb2YgaGF2aW5n
+            IGNhbGxlZCBfZGVzY3JpYmUKICAgICAgICAgICAgcmV0dXJuIDAKICAgICAgICBlbHNlCiAgICAg
+            ICAgICAgIF9fa3ViZWN0bF9kZWJ1ZyAiX2Rlc2NyaWJlIGRpZCBub3QgZmluZCBjb21wbGV0aW9u
+            cy4iCiAgICAgICAgICAgIF9fa3ViZWN0bF9kZWJ1ZyAiQ2hlY2tpbmcgaWYgd2Ugc2hvdWxkIGRv
+            IGZpbGUgY29tcGxldGlvbi4iCiAgICAgICAgICAgIGlmIFsgJCgoZGlyZWN0aXZlICYgc2hlbGxD
+            b21wRGlyZWN0aXZlTm9GaWxlQ29tcCkpIC1uZSAwIF07IHRoZW4KICAgICAgICAgICAgICAgIF9f
+            a3ViZWN0bF9kZWJ1ZyAiZGVhY3RpdmF0aW5nIGZpbGUgY29tcGxldGlvbiIKCiAgICAgICAgICAg
+            ICAgICAjIFdlIG11c3QgcmV0dXJuIGFuIGVycm9yIGNvZGUgaGVyZSB0byBsZXQgenNoIGtub3cg
+            dGhhdCB0aGVyZSB3ZXJlIG5vCiAgICAgICAgICAgICAgICAjIGNvbXBsZXRpb25zIGZvdW5kIGJ5
+            IF9kZXNjcmliZTsgdGhpcyBpcyB3aGF0IHdpbGwgdHJpZ2dlciBvdGhlcgogICAgICAgICAgICAg
+            ICAgIyBtYXRjaGluZyBhbGdvcml0aG1zIHRvIGF0dGVtcHQgdG8gZmluZCBjb21wbGV0aW9ucy4K
+            ICAgICAgICAgICAgICAgICMgRm9yIGV4YW1wbGUgenNoIGNhbiBtYXRjaCBsZXR0ZXJzIGluIHRo
+            ZSBtaWRkbGUgb2Ygd29yZHMuCiAgICAgICAgICAgICAgICByZXR1cm4gMQogICAgICAgICAgICBl
+            bHNlCiAgICAgICAgICAgICAgICAjIFBlcmZvcm0gZmlsZSBjb21wbGV0aW9uCiAgICAgICAgICAg
+            ICAgICBfX2t1YmVjdGxfZGVidWcgIkFjdGl2YXRpbmcgZmlsZSBjb21wbGV0aW9uIgoKICAgICAg
+            ICAgICAgICAgICMgV2UgbXVzdCByZXR1cm4gdGhlIHJlc3VsdCBvZiB0aGlzIGNvbW1hbmQsIHNv
+            IGl0IG11c3QgYmUgdGhlCiAgICAgICAgICAgICAgICAjIGxhc3QgY29tbWFuZCwgb3IgZWxzZSB3
+            ZSBtdXN0IHN0b3JlIGl0cyByZXN1bHQgdG8gcmV0dXJuIGl0LgogICAgICAgICAgICAgICAgX2Fy
+            Z3VtZW50cyAnKjpmaWxlbmFtZTpfZmlsZXMnIiAke2ZsYWdQcmVmaXh9IgogICAgICAgICAgICBm
+            aQogICAgICAgIGZpCiAgICBmaQp9CgojIGRvbid0IHJ1biB0aGUgY29tcGxldGlvbiBmdW5jdGlv
+            biB3aGVuIGJlaW5nIHNvdXJjZS1lZCBvciBldmFsLWVkCmlmIFsgIiRmdW5jc3RhY2tbMV0iID0g
+            Il9rdWJlY3RsIiBdOyB0aGVuCiAgICBfa3ViZWN0bApmaQo=
         - path: .oh-my-zsh/custom/themes/ericfoss.zsh-theme
-          content: |
-            PROMPT="%(?:%{$fg_bold[green]%}%1{➜%} :%{$fg_bold[red]%}%1{➜%} ) %{$fg[cyan]%}%c%{$reset_color%}"
-            PROMPT+=' $(git_prompt_info)'
-
-            ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg_bold[blue]%}git:(%{$fg[red]%}"
-            ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%} "
-            ZSH_THEME_GIT_PROMPT_DIRTY="%{$fg[blue]%}) %{$fg[yellow]%}%1{✗%}"
-            ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg[blue]%})"
+          contentBase64: |
+            UFJPTVBUPSIlKD86JXskZmdfYm9sZFtncmVlbl0lfSUxe+KenCV9IDoleyRmZ19ib2xkW3JlZF0l
+            fSUxe+KenCV9ICkgJXskZmdbY3lhbl0lfSVjJXskcmVzZXRfY29sb3IlfSIKUFJPTVBUKz0nICQo
+            Z2l0X3Byb21wdF9pbmZvKScKClpTSF9USEVNRV9HSVRfUFJPTVBUX1BSRUZJWD0iJXskZmdfYm9s
+            ZFtibHVlXSV9Z2l0OigleyRmZ1tyZWRdJX0iClpTSF9USEVNRV9HSVRfUFJPTVBUX1NVRkZJWD0i
+            JXskcmVzZXRfY29sb3IlfSAiClpTSF9USEVNRV9HSVRfUFJPTVBUX0RJUlRZPSIleyRmZ1tibHVl
+            XSV9KSAleyRmZ1t5ZWxsb3ddJX0lMXvinJclfSIKWlNIX1RIRU1FX0dJVF9QUk9NUFRfQ0xFQU49
+            IiV7JGZnW2JsdWVdJX0pIgo=
     git:
       user:
         name:
