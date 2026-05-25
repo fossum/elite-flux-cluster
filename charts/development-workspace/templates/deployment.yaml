@@ -1,5 +1,9 @@
 {{- $gitUserName := .Values.git.user.name -}}
 {{- $gitUserEmail := .Values.git.user.email -}}
+{{- $tailscaleExtraArgs := list (printf "--hostname=%s" .Values.tailscale.hostname) -}}
+{{- if .Values.tailscale.ssh.enabled -}}
+{{- $tailscaleExtraArgs = append $tailscaleExtraArgs "--ssh" -}}
+{{- end -}}
 {{- if and (kindIs "map" $gitUserName) (hasKey $gitUserName "namespace") (ne (get $gitUserName "namespace") "") (ne (get $gitUserName "namespace") .Release.Namespace) -}}
 {{ fail "git.user.name.namespace must be empty or match the release namespace" }}
 {{- end }}
@@ -106,6 +110,12 @@ spec:
               mountPath: /workspace
             - name: tmp
               mountPath: /tmp
+          {{- if .Values.workspace.sshd.enabled }}
+          ports:
+            - name: ssh
+              containerPort: {{ .Values.workspace.sshd.port }}
+              protocol: TCP
+          {{- end }}
         - name: tailscale
           image: {{ .Values.tailscale.image.repository }}:{{ .Values.tailscale.image.tag }}
           imagePullPolicy: {{ .Values.tailscale.image.pullPolicy }}
@@ -130,7 +140,7 @@ spec:
             - name: TS_AUTH_ONCE
               value: "true"
             - name: TS_EXTRA_ARGS
-              value: "--hostname={{ .Values.tailscale.hostname }}"
+              value: {{ join " " $tailscaleExtraArgs | quote }}
             - name: TS_KUBE_SECRET
               value: ""
             - name: TS_SOCKET

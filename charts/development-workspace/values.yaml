@@ -30,6 +30,12 @@ workspace:
     trap : TERM INT
     sleep infinity & wait
   files: []
+  sshd:
+    enabled: false
+    port: 22
+    authorizedKeys: []
+    passwordAuthentication: false
+    permitRootLogin: "no"
 
 ssh:
   secretName: development-workspace-bootstrap
@@ -69,11 +75,13 @@ persistence:
 tailscale:
   image:
     repository: ghcr.io/tailscale/tailscale
-    tag: v1.86.2
+    tag: stable
     pullPolicy: IfNotPresent
   authKeySecretName: development-workspace-secrets
   authKeySecretKey: TAILSCALE_AUTH_KEY
   hostname: development-workspace
+  ssh:
+    enabled: false
 
 updates:
   upgradeOnStart: true

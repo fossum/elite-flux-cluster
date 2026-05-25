@@ -61,6 +61,9 @@ data:
     fi
 
     packages=(ca-certificates curl git openssh-client tzdata)
+    {{- if .Values.workspace.sshd.enabled }}
+    packages+=(openssh-server)
+    {{- end }}
     {{- if .Values.shell.ohMyZsh.enabled }}
     packages+=(zsh)
     {{- end }}
@@ -104,6 +107,45 @@ data:
         esac
       done
     fi
+
+    {{- if .Values.workspace.sshd.enabled }}
+    touch "$HOME/.ssh/authorized_keys"
+    chmod 600 "$HOME/.ssh/authorized_keys"
+    for public_key in "$HOME"/.ssh/*.pub; do
+      [ -f "$public_key" ] || continue
+      key_contents="$(tr -d '\r' < "$public_key")"
+      [ -n "$key_contents" ] || continue
+      if ! grep -Fqx "$key_contents" "$HOME/.ssh/authorized_keys"; then
+        printf '%s\n' "$key_contents" >> "$HOME/.ssh/authorized_keys"
+      fi
+    done
+    {{- range .Values.workspace.sshd.authorizedKeys }}
+    if ! grep -Fqx {{ . | quote }} "$HOME/.ssh/authorized_keys"; then
+      printf '%s\n' {{ . | quote }} >> "$HOME/.ssh/authorized_keys"
+    fi
+    {{- end }}
+
+    if [ ${#SUDO[@]} -eq 0 ]; then
+      echo "workspace.sshd.enabled requires sudo in the main container image" >&2
+      exit 1
+    fi
+
+    "${SUDO[@]}" install -d -m 755 /run/sshd /var/run/sshd
+    cat <<'EOF_SSHD_CONFIG' | "${SUDO[@]}" tee /etc/ssh/sshd_config.d/development-workspace.conf >/dev/null
+    Port {{ .Values.workspace.sshd.port }}
+    PasswordAuthentication {{ ternary "yes" "no" .Values.workspace.sshd.passwordAuthentication }}
+    KbdInteractiveAuthentication no
+    ChallengeResponseAuthentication no
+    PubkeyAuthentication yes
+    PermitRootLogin {{ .Values.workspace.sshd.permitRootLogin }}
+    AuthorizedKeysFile {{ .Values.workspace.home }}/.ssh/authorized_keys
+    AllowUsers {{ .Values.user.name }}
+    EOF_SSHD_CONFIG
+
+    if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
+      "${SUDO[@]}" ssh-keygen -A
+    fi
+    {{- end }}
 
     touch "$HOME/.gitconfig"
     if [ -n "${GIT_USER_NAME:-}" ]; then
@@ -208,6 +250,10 @@ data:
 {{ .Values.workspace.startupScript | indent 4 }}
     EOF_WORKSPACE_STARTUP
     chmod 0755 /tmp/workspace-startup.sh
+
+    {{- if .Values.workspace.sshd.enabled }}
+    "${SUDO[@]}" /usr/sbin/sshd -D -e &
+    {{- end }}
 
     cd "$WORKSPACE_ROOT"
     exec /bin/bash /tmp/workspace-startup.sh
