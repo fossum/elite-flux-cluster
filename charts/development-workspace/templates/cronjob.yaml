@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ include "development-workspace.fullname" . }}-restarter
+  name: {{ include "development-workspace.restarterCronJobName" . }}
 spec:
   schedule: {{ .Values.updates.restartJob.schedule | quote }}
   concurrencyPolicy: Forbid
@@ -13,7 +13,7 @@ spec:
       template:
         spec:
           restartPolicy: OnFailure
-          serviceAccountName: {{ include "development-workspace.fullname" . }}-restarter
+          serviceAccountName: {{ include "development-workspace.restarterName" . }}
           containers:
             - name: kubectl
               image: {{ .Values.updates.restartJob.image.repository }}:{{ .Values.updates.restartJob.image.tag }}

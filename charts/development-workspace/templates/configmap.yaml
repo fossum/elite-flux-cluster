@@ -200,5 +200,10 @@ data:
     chmod {{ default "0644" $file.mode | quote }} "$target_path"
     {{- end }}
 
+    cat > /tmp/workspace-startup.sh <<'EOF_WORKSPACE_STARTUP'
+{{ .Values.workspace.startupScript | indent 4 }}
+    EOF_WORKSPACE_STARTUP
+    chmod 0755 /tmp/workspace-startup.sh
+
     cd "$WORKSPACE_ROOT"
-    exec /bin/bash -lc {{ .Values.workspace.startupScript | quote }}
+    exec /bin/bash /tmp/workspace-startup.sh
