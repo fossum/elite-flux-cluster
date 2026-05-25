@@ -29,6 +29,7 @@ workspace:
   startupScript: |
     trap : TERM INT
     sleep infinity & wait
+  files: []
 
 ssh:
   secretName: development-workspace-bootstrap
@@ -57,6 +58,11 @@ python:
 persistence:
   repositories:
     size: 20Gi
+    storageClassName: ""
+    existingClaim: ""
+  tailscale:
+    enabled: false
+    size: 1Gi
     storageClassName: ""
     existingClaim: ""
 

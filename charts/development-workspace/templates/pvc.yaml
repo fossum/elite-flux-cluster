@@ -13,3 +13,19 @@ spec:
   storageClassName: {{ .Values.persistence.repositories.storageClassName }}
   {{- end }}
 {{- end }}
+{{- if and .Values.persistence.tailscale.enabled (not .Values.persistence.tailscale.existingClaim) }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "development-workspace.fullname" . }}-tailscale-state
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.persistence.tailscale.size }}
+  {{- if .Values.persistence.tailscale.storageClassName }}
+  storageClassName: {{ .Values.persistence.tailscale.storageClassName }}
+  {{- end }}
+{{- end }}

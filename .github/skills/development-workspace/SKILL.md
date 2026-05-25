@@ -24,6 +24,15 @@ description: Development workspace chart and app guide for the elite-flux-cluste
 ## Workspace Layout
 - The persistent workspace root is **`/workspace/repos`**.
 - The persistent workspace home is **`/workspace/home/vscode`** and is used for git config, SSH config, and optional shell/runtime tooling.
+- Declarative custom files can be managed with:
+  ```yaml
+  workspace:
+    files:
+      - path: .oh-my-zsh/custom/update-mode.zsh
+        content: |
+          zstyle ':omz:update' mode auto
+        mode: "0644"
+  ```
 - Git repositories are configured as a list under:
   ```yaml
   git:
@@ -52,6 +61,14 @@ description: Development workspace chart and app guide for the elite-flux-cluste
 
 ## Storage and PVC Behavior
 - The chart provisions a PVC for the repositories volume unless `existingClaim` is set.
+- The chart can also provision a PVC for Tailscale state under:
+  ```yaml
+  persistence:
+    tailscale:
+      enabled: true
+      size: 1Gi
+      existingClaim: ""
+  ```
 - **Do not define a default storage class** in the chart. `storageClassName` should remain empty by default.
 - The HelmRelease may set PVC size, but should avoid forcing a storage class unless specifically requested for that deployment.
 
@@ -66,6 +83,7 @@ description: Development workspace chart and app guide for the elite-flux-cluste
 - The auth key is read from:
   - **Secret name**: `development-workspace-secrets`
   - **Secret key**: `TAILSCALE_AUTH_KEY`
+- Persist Tailscale node state with the Tailscale PVC so pod replacement does not require a fresh login for the same node state.
 - The encrypted placeholder secret lives at:
   - `apps/development/development-workspace/app/tailscale.secret.yaml`
 - Keep the sidecar configuration generic and avoid tying it to a specific app protocol.
@@ -83,6 +101,7 @@ description: Development workspace chart and app guide for the elite-flux-cluste
   - `timezone`
   - `apt.proxy`
   - `packages.additional`
+  - `workspace.files`
   - `shell.ohMyZsh.*`
   - `python.pyenv.*`
   - `git.user.*`

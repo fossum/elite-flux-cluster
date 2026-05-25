@@ -55,10 +55,8 @@ spec:
           stdin: true
           tty: true
           securityContext:
-            allowPrivilegeEscalation: false
+            allowPrivilegeEscalation: true
             readOnlyRootFilesystem: false
-            capabilities:
-              drop: ["ALL"]
           env:
             - name: HOME
               value: {{ .Values.workspace.home }}
@@ -165,6 +163,11 @@ spec:
         - name: tailscale-run
           emptyDir: {}
         - name: tailscale-state
+          {{- if .Values.persistence.tailscale.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.tailscale.existingClaim | default (printf "%s-tailscale-state" (include "development-workspace.fullname" .)) }}
+          {{- else }}
           emptyDir: {}
+          {{- end }}
         - name: tmp
           emptyDir: {}

@@ -176,5 +176,29 @@ data:
     {{- end }}
     {{- end }}
 
+    {{- range $index, $file := .Values.workspace.files }}
+    target_path={{ $file.path | quote }}
+    case "$target_path" in
+      /*)
+        ;;
+      *)
+        target_path="$HOME/$target_path"
+        ;;
+    esac
+    case "$target_path" in
+      "$HOME"/*|/workspace/*)
+        ;;
+      *)
+        echo "workspace.files[{{ $index }}].path must resolve under \$HOME or /workspace: $target_path" >&2
+        exit 1
+        ;;
+    esac
+    install -d -m 755 "$(dirname "$target_path")"
+    cat > "$target_path" <<'EOF_WORKSPACE_FILE_{{ $index }}'
+{{ $file.content | indent 4 }}
+    EOF_WORKSPACE_FILE_{{ $index }}
+    chmod {{ default "0644" $file.mode | quote }} "$target_path"
+    {{- end }}
+
     cd "$WORKSPACE_ROOT"
     exec /bin/bash -lc {{ .Values.workspace.startupScript | quote }}
