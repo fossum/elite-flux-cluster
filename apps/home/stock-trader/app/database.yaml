@@ -5,9 +5,9 @@ metadata:
   namespace: home
 spec:
   instances: 1
-  imageName: ghcr.io/cloudnative-pg/postgresql:17
+  imageName: ghcr.io/cloudnative-pg/postgresql:18
   monitoring:
-    enablePodMonitor: true
+    enablePodMonitor: false
   storage:
     size: 10Gi
     # storageClass: standard
