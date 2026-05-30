@@ -24,14 +24,10 @@ spec:
     remediation:
       retries: 3
   valuesFrom:
-    - kind: ConfigMap
+    - kind: Secret
       name: media-config
       valuesKey: BASE_DOMAIN
       targetPath: baseDomain
-    - kind: ConfigMap
-      name: media-config
-      valuesKey: LOCAL_IP
-      targetPath: localIP
   values:
     persistence:
       config:
@@ -57,15 +53,15 @@ spec:
               env:
                 # User Defined
                 ALLOWED_NETWORKS: "192.168.0.0/16"
-                ADVERTISE_IP: "https://{{ .Release.Name }}.{{ .Values.baseDomain }}/,http://{{ .Values.localIP }}:32400/"
+                ADVERTISE_IP: "https://{{ .Release.Name }}.{{ .Values.baseDomain }}/,http://192.168.1.154:32400/"
 
     service:
       main:
         type: LoadBalancer
-        loadBalancerIP: "{{ .Values.localIP }}"
+        loadBalancerIP: "192.168.1.154"
 
     plex:
-      additionalAdvertiseURL: "https://{{ .Release.Name }}.{{ .Values.baseDomain }}/,http://{{ .Values.localIP }}:32400/"
+      additionalAdvertiseURL: "https://{{ .Release.Name }}.{{ .Values.baseDomain }}/,http://192.168.1.154:32400/"
       requireHTTPS: false
       disableGDM: true
 
