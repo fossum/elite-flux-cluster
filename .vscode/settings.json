@@ -31,6 +31,7 @@
     "chat.tools.terminal.autoApprove": {
         "kubectl get": true,
         "kubectl describe": true,
-        "Test-NetConnection": true
+        "Test-NetConnection": true,
+        "git diff": true,
     }
 }

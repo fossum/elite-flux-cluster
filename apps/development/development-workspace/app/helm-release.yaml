@@ -211,7 +211,7 @@ spec:
           ref: copilot/create-helm-chart-copilot-cli
           depth: 1
     apt:
-      proxy: "Acquire::http::Proxy "http://192.168.1.156:3142";"
+      proxy: "http://192.168.1.156:3142"
     packages:
       additional: []
     shell:

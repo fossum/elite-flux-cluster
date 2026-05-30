@@ -1,6 +1,6 @@
 {{- $gitUserName := .Values.git.user.name -}}
 {{- $gitUserEmail := .Values.git.user.email -}}
-{{- $tailscaleExtraArgs := list (printf "--hostname=%s" .Values.tailscale.hostname) -}}
+{{- $tailscaleExtraArgs := list (printf "--hostname=%s" .Values.tailscale.hostname) (printf "--ssh=%t" .Values.tailscale.ssh.enabled) -}}
 {{- if .Values.tailscale.ssh.enabled -}}
 {{- $tailscaleExtraArgs = append $tailscaleExtraArgs "--ssh" -}}
 {{- end -}}
