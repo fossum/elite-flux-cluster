@@ -5,6 +5,7 @@
 
 # Local Environment
 *.env
+k3s.yaml
 
 # Decrypted files
 sopssecret.yaml
