@@ -66,3 +66,4 @@ spec:
     service:
       main:
         type: LoadBalancer
+        loadBalancerIP: "192.168.1.151"

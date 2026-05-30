@@ -66,6 +66,7 @@ spec:
     service:
       main:
         type: LoadBalancer
+        loadBalancerIP: "192.168.1.156"
 
     ingress:
       main:
