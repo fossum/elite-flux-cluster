@@ -15,6 +15,7 @@ spec:
               name: garage-fridge-lb
             spec:
               type: LoadBalancer
+              loadBalancerIP: "192.168.1.161"
 
   # PostgreSQL major version is usually determined by the operator's default
   # or can be specified with `imageName` or `imageTag` if you need a specific version.

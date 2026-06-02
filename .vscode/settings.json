@@ -25,6 +25,13 @@
         "webservice"
     ],
     "sops.creationEnabled": true,
-    "sops.defaults.ageKeyFile": "./age.agekey",
-    "sops.configPath": "./.sops.yaml"
+    "diffEditor.ignoreTrimWhitespace": false,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "chat.tools.terminal.autoApprove": {
+        "kubectl get": true,
+        "kubectl describe": true,
+        "Test-NetConnection": true,
+        "git diff": true,
+    }
 }
