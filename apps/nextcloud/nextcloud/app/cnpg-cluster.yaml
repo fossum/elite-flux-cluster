@@ -20,7 +20,7 @@ spec:
     storageClass: "truenas-nfs-api-csi"
 
   walStorage:
-    size: "5Gi"
+    size: "10Gi"
     storageClass: "longhorn"
 
   monitoring:
