@@ -28,6 +28,11 @@ spec:
       name: media-config
       valuesKey: BASE_DOMAIN
       targetPath: baseDomain
+    - kind: Secret
+      name: media-config
+      valuesKey: HP_API_PLEX
+      targetPath: ingress.main.integrations.homepage.widget.custom.key
+      optional: true
   values:
     persistence:
       config:

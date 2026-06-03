@@ -21,6 +21,11 @@ spec:
       name: media-config
       valuesKey: BASE_DOMAIN
       targetPath: baseDomain
+    - kind: Secret
+      name: media-config
+      valuesKey: HP_API_JELLYFIN
+      targetPath: ingress.main.integrations.homepage.widget.custom.key
+      optional: true
   values:
     # https://truecharts.org/charts/stable/jellyfin/
 
