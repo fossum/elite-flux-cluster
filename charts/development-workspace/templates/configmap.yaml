@@ -52,13 +52,13 @@ data:
       SUDO=()
     fi
 
-    if [ "$WORKSPACE_USER" != "$(id -un)" ]; then
-      if ! getent passwd "$WORKSPACE_USER" >/dev/null; then
-        primary_shell="$(getent passwd "$(id -un)" | cut -d: -f7 || true)"
-        if [ -z "$primary_shell" ]; then
-          primary_shell="/bin/bash"
+    if [ "$WORKSPACE_USER" != "vscode" ]; then
+      if getent passwd "vscode" >/dev/null && ! getent passwd "$WORKSPACE_USER" >/dev/null; then
+        "${SUDO[@]}" sed -i "s/^vscode:x:1000:1000::\/home\/vscode:/${WORKSPACE_USER}:x:1000:1000::\/workspace\/home\/vscode:/" /etc/passwd
+        "${SUDO[@]}" sed -i "s/^vscode:x:1000:/${WORKSPACE_USER}:x:1000:/" /etc/group
+        if [ -f /etc/sudoers.d/90-vscode ]; then
+          "${SUDO[@]}" sed -i "s/vscode/${WORKSPACE_USER}/g" /etc/sudoers.d/90-vscode
         fi
-        "${SUDO[@]}" useradd -m -s "$primary_shell" -g "$(id -gn)" "$WORKSPACE_USER"
       fi
     fi
 
@@ -186,7 +186,7 @@ data:
     PubkeyAuthentication yes
     PermitRootLogin {{ .Values.workspace.sshd.permitRootLogin }}
     AuthorizedKeysFile .ssh/authorized_keys
-    AllowUsers $(id -un) $WORKSPACE_USER
+    AllowUsers $WORKSPACE_USER
     EOF_SSHD_CONFIG
 
     if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
