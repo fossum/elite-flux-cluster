@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: minio-api-ready
+  namespace: observability
+  labels:
+    release: kube-prometheus-stack
+spec:
+  jobName: minio-api-ready
+  interval: 30s
+  module: http_2xx
+  prober:
+    url: blackbox-exporter.observability.svc.cluster.local:9115
+  targets:
+    staticConfig:
+      static:
+        - http://minio-api.storage.svc.cluster.local:10106/minio/health/ready

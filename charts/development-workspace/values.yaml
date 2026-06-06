@@ -80,6 +80,7 @@ tailscale:
   authKeySecretName: development-workspace-secrets
   authKeySecretKey: TAILSCALE_AUTH_KEY
   hostname: development-workspace
+  userspace: "false"
   ssh:
     enabled: false
 
