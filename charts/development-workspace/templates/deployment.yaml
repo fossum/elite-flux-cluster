@@ -1,6 +1,7 @@
 {{- $gitUserName := .Values.git.user.name -}}
 {{- $gitUserEmail := .Values.git.user.email -}}
 {{- $userName := .Values.user.name -}}
+{{- $workspaceHome := .Values.workspace.home | default (kindIs "string" $userName | ternary (printf "/workspace/home/%s" $userName) "") -}}
 {{- $tailscaleExtraArgs := list (printf "--hostname=%s" .Values.tailscale.hostname) (printf "--ssh=%t" .Values.tailscale.ssh.enabled) -}}
 {{- if .Values.tailscale.ssh.enabled -}}
 {{- $tailscaleExtraArgs = append $tailscaleExtraArgs "--ssh" -}}
@@ -28,6 +29,8 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
         app.kubernetes.io/name: {{ include "development-workspace.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
@@ -46,6 +49,19 @@ spec:
             readOnlyRootFilesystem: false
             capabilities:
               drop: ["ALL"]
+          env:
+            {{- if kindIs "string" $userName }}
+            {{- if ne $userName "" }}
+            - name: WORKSPACE_USER
+              value: {{ $userName | quote }}
+            {{- end }}
+            {{- else if kindIs "map" $userName }}
+            - name: WORKSPACE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ get $userName "secret" | quote }}
+                  key: {{ get $userName "key" | quote }}
+            {{- end }}
           command:
             - /bin/bash
             - /bootstrap-scripts/prepare-workspace.sh
@@ -60,16 +76,13 @@ spec:
         - name: main
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          workingDir: {{ $workspaceHome | default .Values.workspace.root }}
           stdin: true
           tty: true
           securityContext:
             allowPrivilegeEscalation: true
             readOnlyRootFilesystem: false
           env:
-            - name: HOME
-              value: {{ .Values.workspace.home }}
-            - name: TZ
-              value: {{ .Values.timezone | quote }}
             {{- if kindIs "string" $userName }}
             {{- if ne $userName "" }}
             - name: WORKSPACE_USER
@@ -82,6 +95,14 @@ spec:
                   name: {{ get $userName "secret" | quote }}
                   key: {{ get $userName "key" | quote }}
             {{- end }}
+            - name: HOME
+              {{- if $workspaceHome }}
+              value: {{ $workspaceHome }}
+              {{- else }}
+              value: /workspace/home/$(WORKSPACE_USER)
+              {{- end }}
+            - name: TZ
+              value: {{ .Values.timezone | quote }}
             {{- if kindIs "string" $gitUserName }}
             {{- if ne $gitUserName "" }}
             - name: GIT_USER_NAME

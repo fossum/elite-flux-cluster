@@ -18,7 +18,6 @@ spec:
     timezone: America/Los_Angeles
     workspace:
       root: /workspace/repos
-      home: /workspace/home/vscode
       sshd:
         enabled: true
         port: 22

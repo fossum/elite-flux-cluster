@@ -1,3 +1,5 @@
+{{- $userName := .Values.user.name -}}
+{{- $workspaceHome := .Values.workspace.home | default (kindIs "string" $userName | ternary (printf "/workspace/home/%s" $userName) "") -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -18,7 +20,16 @@ data:
         ;;
     esac
 
-    mkdir -p "$WORKSPACE_ROOT" {{ .Values.workspace.home | quote }}
+    WORKSPACE_USER="${WORKSPACE_USER:-vscode}"
+    {{- if $workspaceHome }}
+    WORKSPACE_HOME={{ $workspaceHome | quote }}
+    {{- else }}
+    WORKSPACE_HOME="/workspace/home/${WORKSPACE_USER}"
+    {{- end }}
+    if [ "$WORKSPACE_HOME" != "/workspace/home/vscode" ] && [ -d "/workspace/home/vscode" ] && [ ! -d "$WORKSPACE_HOME" ]; then
+      mv "/workspace/home/vscode" "$WORKSPACE_HOME"
+    fi
+    mkdir -p "$WORKSPACE_ROOT" "$WORKSPACE_HOME"
 
     {{- range .Values.git.repositories }}
     repo_path="$WORKSPACE_ROOT/{{ .name }}"
@@ -38,10 +49,17 @@ data:
     set -euo pipefail
 
     WORKSPACE_ROOT={{ .Values.workspace.root | quote }}
-    WORKSPACE_HOME={{ .Values.workspace.home | quote }}
+    WORKSPACE_USER="${WORKSPACE_USER:-vscode}"
+    {{- if $workspaceHome }}
+    WORKSPACE_HOME={{ $workspaceHome | quote }}
+    {{- else }}
+    WORKSPACE_HOME="/workspace/home/${WORKSPACE_USER}"
+    {{- end }}
     TIMEZONE={{ .Values.timezone | quote }}
     SSH_SOURCE={{ .Values.ssh.mountPath | quote }}
-    WORKSPACE_USER="${WORKSPACE_USER:-vscode}"
+    if [ "$WORKSPACE_HOME" != "/workspace/home/vscode" ] && [ -d "/workspace/home/vscode" ] && [ ! -d "$WORKSPACE_HOME" ]; then
+      mv "/workspace/home/vscode" "$WORKSPACE_HOME"
+    fi
     mkdir -p "$WORKSPACE_ROOT" "$WORKSPACE_HOME" "$WORKSPACE_HOME/.config" "$WORKSPACE_HOME/.cache" /tmp
     export HOME="$WORKSPACE_HOME"
     export TZ="$TIMEZONE"
@@ -55,17 +73,51 @@ data:
     if [ "$WORKSPACE_USER" != "vscode" ]; then
       if getent passwd "vscode" >/dev/null && ! getent passwd "$WORKSPACE_USER" >/dev/null; then
         if [ ${#SUDO[@]} -gt 0 ]; then
-          "${SUDO[@]}" bash -c "
-            sed -i 's/^vscode:x:1000:1000::\/home\/vscode:/${WORKSPACE_USER}:x:1000:1000::\/workspace\/home\/vscode:/' /etc/passwd
-            sed -i 's/^vscode:x:1000:/${WORKSPACE_USER}:x:1000:/' /etc/group
+          "${SUDO[@]}" bash -c '
+            WORKSPACE_USER="$1"
+            WORKSPACE_HOME="$2"
+            safe_sed() {
+              local file="$1"
+              local expr="$2"
+              if [ -f "$file" ]; then
+                local perms owner
+                perms=$(stat -c "%a" "$file" 2>/dev/null || echo "640")
+                owner=$(stat -c "%u:%g" "$file" 2>/dev/null || echo "0:0")
+                sed -i "$expr" "$file"
+                chown "$owner" "$file"
+                chmod "$perms" "$file"
+              fi
+            }
+            safe_sed /etc/passwd "s|^vscode:x:1000:1000::/home/vscode:|${WORKSPACE_USER}:x:1000:1000::${WORKSPACE_HOME}:|"
+            safe_sed /etc/group "s/^vscode:x:1000:/${WORKSPACE_USER}:x:1000:/"
+            safe_sed /etc/shadow "s/^vscode:/${WORKSPACE_USER}:/"
+            safe_sed /etc/gshadow "s/^vscode:/${WORKSPACE_USER}:/"
+            safe_sed /etc/subuid "s/^vscode:/${WORKSPACE_USER}:/"
+            safe_sed /etc/subgid "s/^vscode:/${WORKSPACE_USER}:/"
             if [ -f /etc/sudoers.d/vscode ]; then
-              sed -i 's/vscode/${WORKSPACE_USER}/g' /etc/sudoers.d/vscode
-              mv /etc/sudoers.d/vscode '/etc/sudoers.d/${WORKSPACE_USER}'
+              safe_sed /etc/sudoers.d/vscode "s/vscode/${WORKSPACE_USER}/g"
+              mv /etc/sudoers.d/vscode "/etc/sudoers.d/${WORKSPACE_USER}"
             fi
-          "
+          ' -- "$WORKSPACE_USER" "$WORKSPACE_HOME"
         else
-          sed -i "s/^vscode:x:1000:1000::\/home\/vscode:/${WORKSPACE_USER}:x:1000:1000::\/workspace\/home\/vscode:/" /etc/passwd
-          sed -i "s/^vscode:x:1000:/${WORKSPACE_USER}:x:1000:/" /etc/group
+          safe_sed() {
+            local file="$1"
+            local expr="$2"
+            if [ -f "$file" ]; then
+              local perms owner
+              perms=$(stat -c "%a" "$file" 2>/dev/null || echo "640")
+              owner=$(stat -c "%u:%g" "$file" 2>/dev/null || echo "0:0")
+              sed -i "$expr" "$file"
+              chown "$owner" "$file"
+              chmod "$perms" "$file"
+            fi
+          }
+          safe_sed /etc/passwd "s|^vscode:x:1000:1000::/home/vscode:|${WORKSPACE_USER}:x:1000:1000::${WORKSPACE_HOME}:|"
+          safe_sed /etc/group "s/^vscode:x:1000:/${WORKSPACE_USER}:x:1000:/"
+          safe_sed /etc/shadow "s/^vscode:/${WORKSPACE_USER}:/"
+          safe_sed /etc/gshadow "s/^vscode:/${WORKSPACE_USER}:/"
+          safe_sed /etc/subuid "s/^vscode:/${WORKSPACE_USER}:/"
+          safe_sed /etc/subgid "s/^vscode:/${WORKSPACE_USER}:/"
         fi
       fi
     fi
@@ -212,7 +264,7 @@ data:
     git config --global init.defaultBranch main
 
     cat > "$HOME/.bashrc.workspace" <<'EOF_BASHRC'
-    export HOME={{ .Values.workspace.home | quote }}
+    export HOME={{ $workspaceHome | default "/workspace/home/$USER" | quote }}
     export TZ={{ .Values.timezone | quote }}
     {{- if .Values.python.pyenv.enabled }}
     export PYENV_ROOT="$HOME/.pyenv"
@@ -245,7 +297,7 @@ data:
     EOF_ZSHRC
     fi
     cat > "$HOME/.zshrc.workspace" <<'EOF_ZSHRC_WORKSPACE'
-    export HOME={{ .Values.workspace.home | quote }}
+    export HOME={{ $workspaceHome | default "/workspace/home/$USER" | quote }}
     export TZ={{ .Values.timezone | quote }}
     {{- if .Values.python.pyenv.enabled }}
     export PYENV_ROOT="$HOME/.pyenv"
