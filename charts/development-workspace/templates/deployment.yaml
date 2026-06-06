@@ -1,5 +1,6 @@
 {{- $gitUserName := .Values.git.user.name -}}
 {{- $gitUserEmail := .Values.git.user.email -}}
+{{- $userName := .Values.user.name -}}
 {{- $tailscaleExtraArgs := list (printf "--hostname=%s" .Values.tailscale.hostname) (printf "--ssh=%t" .Values.tailscale.ssh.enabled) -}}
 {{- if .Values.tailscale.ssh.enabled -}}
 {{- $tailscaleExtraArgs = append $tailscaleExtraArgs "--ssh" -}}
@@ -9,6 +10,9 @@
 {{- end }}
 {{- if and (kindIs "map" $gitUserEmail) (hasKey $gitUserEmail "namespace") (ne (get $gitUserEmail "namespace") "") (ne (get $gitUserEmail "namespace") .Release.Namespace) -}}
 {{ fail "git.user.email.namespace must be empty or match the release namespace" }}
+{{- end }}
+{{- if and (kindIs "map" $userName) (hasKey $userName "namespace") (ne (get $userName "namespace") "") (ne (get $userName "namespace") .Release.Namespace) -}}
+{{ fail "user.name.namespace must be empty or match the release namespace" }}
 {{- end }}
 apiVersion: apps/v1
 kind: Deployment
@@ -66,6 +70,18 @@ spec:
               value: {{ .Values.workspace.home }}
             - name: TZ
               value: {{ .Values.timezone | quote }}
+            {{- if kindIs "string" $userName }}
+            {{- if ne $userName "" }}
+            - name: WORKSPACE_USER
+              value: {{ $userName | quote }}
+            {{- end }}
+            {{- else if kindIs "map" $userName }}
+            - name: WORKSPACE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ get $userName "secret" | quote }}
+                  key: {{ get $userName "key" | quote }}
+            {{- end }}
             {{- if kindIs "string" $gitUserName }}
             {{- if ne $gitUserName "" }}
             - name: GIT_USER_NAME

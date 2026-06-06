@@ -191,6 +191,10 @@ spec:
             JXskcmVzZXRfY29sb3IlfSAiClpTSF9USEVNRV9HSVRfUFJPTVBUX0RJUlRZPSIleyRmZ1tibHVl
             XSV9KSAleyRmZ1t5ZWxsb3ddJX0lMXvinJclfSIKWlNIX1RIRU1FX0dJVF9QUk9NUFRfQ0xFQU49
             IiV7JGZnW2JsdWVdJX0pIgo=
+    user:
+      name:
+        secret: development-workspace-bootstrap
+        key: workspace_user
     git:
       user:
         name:

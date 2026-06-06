@@ -41,6 +41,7 @@ data:
     WORKSPACE_HOME={{ .Values.workspace.home | quote }}
     TIMEZONE={{ .Values.timezone | quote }}
     SSH_SOURCE={{ .Values.ssh.mountPath | quote }}
+    WORKSPACE_USER="${WORKSPACE_USER:-vscode}"
     mkdir -p "$WORKSPACE_ROOT" "$WORKSPACE_HOME" "$WORKSPACE_HOME/.config" "$WORKSPACE_HOME/.cache" /tmp
     export HOME="$WORKSPACE_HOME"
     export TZ="$TIMEZONE"
@@ -49,6 +50,16 @@ data:
       SUDO=(sudo)
     else
       SUDO=()
+    fi
+
+    if [ "$WORKSPACE_USER" != "$(id -un)" ]; then
+      if ! getent passwd "$WORKSPACE_USER" >/dev/null; then
+        primary_shell="$(getent passwd "$(id -un)" | cut -d: -f7 || true)"
+        if [ -z "$primary_shell" ]; then
+          primary_shell="/bin/bash"
+        fi
+        "${SUDO[@]}" useradd -m -s "$primary_shell" -g "$(id -gn)" "$WORKSPACE_USER"
+      fi
     fi
 
     if [ -n {{ .Values.apt.proxy | quote }} ]; then
@@ -130,16 +141,52 @@ data:
       exit 1
     fi
 
+    passwd_home="$(getent passwd "$(id -un)" | cut -d: -f6 || true)"
+    if [ -n "$passwd_home" ] && [ "$passwd_home" != "$HOME" ]; then
+      install -d -m 700 "$passwd_home"
+    fi
+
+    sync_ssh_home() {
+      target_home="$1"
+      target_user="$2"
+      [ -n "$target_home" ] || return 0
+      target_group="$(id -gn "$target_user")"
+      "${SUDO[@]}" install -d -o "$target_user" -g "$target_group" -m 700 "$target_home/.ssh"
+      shopt -s dotglob nullglob
+      for ssh_file in "$HOME/.ssh"/*; do
+        [ -f "$ssh_file" ] || continue
+        target_ssh_file="$target_home/.ssh/$(basename "$ssh_file")"
+        "${SUDO[@]}" cp "$ssh_file" "$target_ssh_file"
+        "${SUDO[@]}" chown "$target_user:$target_group" "$target_ssh_file"
+        "${SUDO[@]}" chmod 600 "$target_ssh_file"
+        case "$(basename "$target_ssh_file")" in
+          *.pub|known_hosts)
+            "${SUDO[@]}" chmod 644 "$target_ssh_file"
+            ;;
+        esac
+      done
+      shopt -u dotglob nullglob
+      "${SUDO[@]}" chmod 700 "$target_home/.ssh"
+    }
+
+    if [ -n "$passwd_home" ] && [ "$passwd_home" != "$HOME" ]; then
+      sync_ssh_home "$passwd_home" "$(id -un)"
+    fi
+    if [ "$WORKSPACE_USER" != "$(id -un)" ]; then
+      additional_user_home="$(getent passwd "$WORKSPACE_USER" | cut -d: -f6 || true)"
+      sync_ssh_home "$additional_user_home" "$WORKSPACE_USER"
+    fi
+
     "${SUDO[@]}" install -d -m 755 /run/sshd /var/run/sshd
-    cat <<'EOF_SSHD_CONFIG' | "${SUDO[@]}" tee /etc/ssh/sshd_config.d/development-workspace.conf >/dev/null
+    cat <<EOF_SSHD_CONFIG | "${SUDO[@]}" tee /etc/ssh/sshd_config.d/development-workspace.conf >/dev/null
     Port {{ .Values.workspace.sshd.port }}
     PasswordAuthentication {{ ternary "yes" "no" .Values.workspace.sshd.passwordAuthentication }}
     KbdInteractiveAuthentication no
     ChallengeResponseAuthentication no
     PubkeyAuthentication yes
     PermitRootLogin {{ .Values.workspace.sshd.permitRootLogin }}
-    AuthorizedKeysFile {{ .Values.workspace.home }}/.ssh/authorized_keys
-    AllowUsers {{ .Values.user.name }}
+    AuthorizedKeysFile .ssh/authorized_keys
+    AllowUsers $(id -un) $WORKSPACE_USER
     EOF_SSHD_CONFIG
 
     if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
