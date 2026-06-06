@@ -237,7 +237,7 @@ data:
     esac
     install -d -m 755 "$(dirname "$target_path")"
     {{- if hasKey $file "contentBase64" }}
-    printf '%s' {{ $file.contentBase64 | quote }} | base64 -d > "$target_path"
+    printf '%s' {{ replace "\n" "" (replace "\r" "" $file.contentBase64) | quote }} | base64 -d > "$target_path"
     {{- else }}
     cat > "$target_path" <<'EOF_WORKSPACE_FILE_{{ $index }}'
 {{ $file.content | indent 4 }}
