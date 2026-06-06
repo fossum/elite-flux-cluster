@@ -56,6 +56,7 @@ description: Development workspace chart and app guide for the elite-flux-cluste
   - if `repo/.git` exists, it only verifies the directory is a Git worktree
   - if the path exists but is non-empty and not a Git repo, startup fails
   - if the path is absent, the repo is cloned
+- The init container automatically migrates your persistent home directory path (e.g., from `/workspace/home/vscode` to `/workspace/home/<custom-user>`) if a new home path is configured, preserving all profile configs, keys, and shell history.
 - The main container bootstrap configures the persisted home directory, git identity, timezone, SSH files, optional packages, and optional shell/runtime tools before starting the long-lived workspace process.
 - **Do not** reintroduce `git reset --hard`, `git clean -fdx`, or automatic fetch/reset behavior on pod startup unless explicitly requested. Preserving work in progress is a core requirement.
 
@@ -96,6 +97,7 @@ description: Development workspace chart and app guide for the elite-flux-cluste
 
 ## Main Container Conventions
 - The main workload is a long-lived interactive development container.
+- The `workingDir` of the container spec is set to `workspace.home` to ensure interactive sessions (e.g. `kubectl exec`) default to the user's home directory.
 - Startup is configured through:
   ```yaml
   workspace:
