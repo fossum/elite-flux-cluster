@@ -54,10 +54,18 @@ data:
 
     if [ "$WORKSPACE_USER" != "vscode" ]; then
       if getent passwd "vscode" >/dev/null && ! getent passwd "$WORKSPACE_USER" >/dev/null; then
-        "${SUDO[@]}" sed -i "s/^vscode:x:1000:1000::\/home\/vscode:/${WORKSPACE_USER}:x:1000:1000::\/workspace\/home\/vscode:/" /etc/passwd
-        "${SUDO[@]}" sed -i "s/^vscode:x:1000:/${WORKSPACE_USER}:x:1000:/" /etc/group
-        if [ -f /etc/sudoers.d/90-vscode ]; then
-          "${SUDO[@]}" sed -i "s/vscode/${WORKSPACE_USER}/g" /etc/sudoers.d/90-vscode
+        if [ ${#SUDO[@]} -gt 0 ]; then
+          "${SUDO[@]}" bash -c "
+            sed -i 's/^vscode:x:1000:1000::\/home\/vscode:/${WORKSPACE_USER}:x:1000:1000::\/workspace\/home\/vscode:/' /etc/passwd
+            sed -i 's/^vscode:x:1000:/${WORKSPACE_USER}:x:1000:/' /etc/group
+            if [ -f /etc/sudoers.d/vscode ]; then
+              sed -i 's/vscode/${WORKSPACE_USER}/g' /etc/sudoers.d/vscode
+              mv /etc/sudoers.d/vscode '/etc/sudoers.d/${WORKSPACE_USER}'
+            fi
+          "
+        else
+          sed -i "s/^vscode:x:1000:1000::\/home\/vscode:/${WORKSPACE_USER}:x:1000:1000::\/workspace\/home\/vscode:/" /etc/passwd
+          sed -i "s/^vscode:x:1000:/${WORKSPACE_USER}:x:1000:/" /etc/group
         fi
       fi
     fi
