@@ -321,4 +321,4 @@ spec:
                 - ReadWriteOnce
               resources:
                 requests:
-                  storage: 15Gi # Seven days of home-lab metrics usually fits well in a modest PVC.
+                  storage: 20Gi # Seven days of home-lab metrics usually fits well in a modest PVC.
