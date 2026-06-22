@@ -92,7 +92,7 @@ updates:
     successfulJobsHistoryLimit: 1
     failedJobsHistoryLimit: 1
     image:
-      repository: docker.io/bitnami/kubectl
+      repository: docker.io/alpine/k8s
       tag: 1.32.4
       pullPolicy: IfNotPresent
 
