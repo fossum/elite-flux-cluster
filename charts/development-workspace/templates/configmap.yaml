@@ -353,6 +353,46 @@ data:
     chmod {{ default "0644" $file.mode | quote }} "$target_path"
     {{- end }}
 
+    {{- if .Values.ag2r.enabled }}
+    if ! command -v node >/dev/null 2>&1; then
+      curl -fsSL https://deb.nodesource.com/setup_22.x | "${SUDO[@]}" bash -
+      "${SUDO[@]}" apt-get install -y --no-install-recommends nodejs
+    fi
+
+    AG2R_DIR="$HOME/.ag2r"
+    if [ ! -d "$AG2R_DIR/.git" ]; then
+      git clone --branch {{ .Values.ag2r.ref | quote }} --depth 1 {{ .Values.ag2r.repository | quote }} "$AG2R_DIR"
+    else
+      git -C "$AG2R_DIR" pull --ff-only || true
+    fi
+    cd "$AG2R_DIR"
+    npm install --production 2>&1 | tail -1
+
+    : > "$AG2R_DIR/.env"
+    echo "PORT={{ .Values.ag2r.port }}" >> "$AG2R_DIR/.env"
+    echo "CDP_HOST={{ .Values.ag2r.cdp.host }}" >> "$AG2R_DIR/.env"
+    echo "CDP_PORT={{ .Values.ag2r.cdp.port }}" >> "$AG2R_DIR/.env"
+    echo "AUTH_ENABLED={{ .Values.ag2r.auth.enabled }}" >> "$AG2R_DIR/.env"
+    {{- if .Values.ag2r.auth.password }}
+    echo "APP_PASSWORD={{ .Values.ag2r.auth.password }}" >> "$AG2R_DIR/.env"
+    {{- end }}
+    {{- if .Values.ag2r.auth.sessionSecret }}
+    echo "SESSION_SECRET={{ .Values.ag2r.auth.sessionSecret }}" >> "$AG2R_DIR/.env"
+    {{- end }}
+    echo "POLL_INTERVAL_MS={{ .Values.ag2r.pollIntervalMs }}" >> "$AG2R_DIR/.env"
+    echo "TUNNEL_ENABLED={{ .Values.ag2r.tunnel.enabled }}" >> "$AG2R_DIR/.env"
+    {{- if .Values.ag2r.tunnel.url }}
+    echo "TUNNEL_URL={{ .Values.ag2r.tunnel.url }}" >> "$AG2R_DIR/.env"
+    {{- end }}
+    echo "AG2R_TELEMETRY={{ .Values.ag2r.telemetry }}" >> "$AG2R_DIR/.env"
+    {{- if .Values.ag2r.vapidEmail }}
+    echo "VAPID_EMAIL={{ .Values.ag2r.vapidEmail }}" >> "$AG2R_DIR/.env"
+    {{- end }}
+
+    cd "$AG2R_DIR" && {{ if .Values.ag2r.debug }}AG2R_DEBUG=1 {{ end }}node server.js &
+    cd "$WORKSPACE_ROOT"
+    {{- end }}
+
     cat > /tmp/workspace-startup.sh <<'EOF_WORKSPACE_STARTUP'
 {{ .Values.workspace.startupScript | indent 4 }}
     EOF_WORKSPACE_STARTUP

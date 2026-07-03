@@ -154,6 +154,14 @@ spec:
               containerPort: {{ .Values.workspace.sshd.port }}
               protocol: TCP
           {{- end }}
+          {{- if .Values.ag2r.enabled }}
+          {{- if not .Values.workspace.sshd.enabled }}
+          ports:
+          {{- end }}
+            - name: ag2r
+              containerPort: {{ .Values.ag2r.port }}
+              protocol: TCP
+          {{- end }}
         - name: tailscale
           image: {{ .Values.tailscale.image.repository }}:{{ .Values.tailscale.image.tag }}
           imagePullPolicy: {{ .Values.tailscale.image.pullPolicy }}

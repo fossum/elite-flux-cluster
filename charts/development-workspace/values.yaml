@@ -61,6 +61,26 @@ python:
     versions: []
     globalVersion: ""
 
+ag2r:
+  enabled: false
+  repository: https://github.com/the-future-company/ag2r.git
+  ref: main
+  port: 3000
+  cdp:
+    host: 127.0.0.1
+    port: 9000
+  auth:
+    enabled: false
+    password: ""
+    sessionSecret: ""
+  pollIntervalMs: 500
+  tunnel:
+    enabled: false
+    url: ""
+  telemetry: false
+  vapidEmail: ""
+  debug: false
+
 persistence:
   repositories:
     size: 20Gi

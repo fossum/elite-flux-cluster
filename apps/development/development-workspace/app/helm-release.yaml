@@ -239,6 +239,8 @@ spec:
     tailscale:
       image:
         tag: stable
+    ag2r:
+      enabled: true
     updates:
       upgradeOnStart: true
       restartJob:
