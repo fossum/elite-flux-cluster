@@ -32,6 +32,20 @@ spec:
                 secretKeyRef:
                   name: {{ $secretName }}
                   key: IBEAM_PASSWORD
+            - name: IBEAM_TOTP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: IBEAM_TOTP_SECRET
+                  optional: true
+            - name: IBEAM_OAUTH_TIMEOUT
+              value: {{ .Values.ibeam.oauthTimeout | quote }}
+            - name: IBEAM_PAGE_LOAD_TIMEOUT
+              value: {{ .Values.ibeam.pageLoadTimeout | quote }}
+            {{- if .Values.ibeam.twoFaHandler }}
+            - name: IBEAM_TWO_FA_HANDLER
+              value: {{ .Values.ibeam.twoFaHandler | quote }}
+            {{- end }}
             {{- range $key, $val := .Values.ibeam.env }}
             - name: {{ $key }}
               value: {{ $val | quote }}

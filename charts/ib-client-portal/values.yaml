@@ -12,9 +12,16 @@ service:
 
 # Client Portal configurations
 ibeam:
+  # Timeout settings (in seconds)
+  oauthTimeout: 120        # Increase to allow plenty of time for 2FA push notification approval
+  pageLoadTimeout: 30
+
+  # 2FA handler setting: "" (default, waits for push), or "PYOTP" (uses TOTP secret)
+  twoFaHandler: ""
+
   # Additional environment variables to pass directly to the container
   env: {}
-  
+
   # Existing Kubernetes Secret name containing credentials
-  # Expected keys: IBEAM_ACCOUNT, IBEAM_PASSWORD
+  # Expected keys: IBEAM_ACCOUNT, IBEAM_PASSWORD, IBEAM_TOTP_SECRET (optional)
   existingSecret: ""

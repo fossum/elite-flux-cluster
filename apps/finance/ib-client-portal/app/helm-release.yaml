@@ -16,6 +16,7 @@ spec:
   timeout: 15m0s
   values:
     ibeam:
+      twoFaHandler: "PYOTP"
       existingSecret: ib-client-portal-credentials
     service:
       type: LoadBalancer
