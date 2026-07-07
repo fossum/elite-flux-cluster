@@ -1,0 +1,6 @@
+apiVersion: v2
+name: ib-client-portal
+description: "A Helm chart for Interactive Brokers Client Portal Gateway (IBeam)"
+type: application
+version: 0.1.0
+appVersion: "latest"

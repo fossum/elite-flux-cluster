@@ -1,0 +1,20 @@
+deployment:
+  replicas: 1
+
+image:
+  repository: voyz/ibeam
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 5000
+
+# Client Portal configurations
+ibeam:
+  # Additional environment variables to pass directly to the container
+  env: {}
+  
+  # Existing Kubernetes Secret name containing credentials
+  # Expected keys: IBEAM_ACCOUNT, IBEAM_PASSWORD
+  existingSecret: ""

@@ -1,0 +1,21 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ib-client-portal
+  namespace: finance
+spec:
+  chart:
+    spec:
+      chart: ./charts/ib-client-portal
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: cluster
+        namespace: flux-system
+  interval: 1m0s
+  timeout: 15m0s
+  values:
+    ibeam:
+      existingSecret: ib-client-portal-credentials
+    service:
+      type: LoadBalancer

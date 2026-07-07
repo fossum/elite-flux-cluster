@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ib-client-portal.fullname" . }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ include "ib-client-portal.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "ib-client-portal.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: ib-client-portal
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- $secretName := .Values.ibeam.existingSecret | default (printf "%s-credentials" (include "ib-client-portal.fullname" .)) }}
+            - name: IBEAM_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: IBEAM_ACCOUNT
+            - name: IBEAM_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: IBEAM_PASSWORD
+            {{- range $key, $val := .Values.ibeam.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+          ports:
+            - name: api
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
