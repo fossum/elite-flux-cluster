@@ -1,0 +1,40 @@
+deployment:
+  replicas: 1
+
+image:
+  repository: ghcr.io/gnzsnz/ib-gateway
+  tag: stable
+  pullPolicy: IfNotPresent
+
+# IB Gateway configuration
+ibgateway:
+  # Trading mode: "paper" or "live"
+  tradingMode: paper
+  # Read-only API: "yes" or "no"
+  readOnlyApi: "yes"
+  # 2FA timeout action: "restart" or "exit"
+  twofaTimeoutAction: restart
+
+  # Credentials – override via SOPS-encrypted secret
+  twsUserId: ""
+  twsPassword: ""
+  # TOTP secret key for 2FA authentication
+  twsTotpKey: ""
+  # VNC password for debugging access
+  vncServerPassword: ""
+
+  # Existing Kubernetes Secret name containing credentials.
+  # If set, the chart will use this secret instead of creating one.
+  # Expected keys: TWS_USERID, TWS_PASSWORD, TWS_TOTP_KEY, VNC_SERVER_PASSWORD
+  existingSecret: ""
+
+service:
+  type: ClusterIP
+  apiPort: 4002      # 4001 for live, 4002 for paper
+  vncPort: 5900
+
+persistence:
+  jts:
+    size: 1Gi
+    storageClassName: ""
+    existingClaim: ""

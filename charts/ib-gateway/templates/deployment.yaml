@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ib-gateway.fullname" . }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ include "ib-gateway.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "ib-gateway.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: ib-gateway
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: TRADING_MODE
+              value: {{ .Values.ibgateway.tradingMode | quote }}
+            - name: READ_ONLY_API
+              value: {{ .Values.ibgateway.readOnlyApi | quote }}
+            - name: TWOFA_TIMEOUT_ACTION
+              value: {{ .Values.ibgateway.twofaTimeoutAction | quote }}
+            {{- $secretName := .Values.ibgateway.existingSecret | default (printf "%s-credentials" (include "ib-gateway.fullname" .)) }}
+            - name: TWS_USERID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: TWS_USERID
+            - name: TWS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: TWS_PASSWORD
+            - name: TWS_TOTP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: TWS_TOTP_KEY
+                  optional: true
+            - name: VNC_SERVER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: VNC_SERVER_PASSWORD
+                  optional: true
+          ports:
+            - name: api
+              containerPort: {{ .Values.service.apiPort }}
+              protocol: TCP
+            - name: vnc
+              containerPort: {{ .Values.service.vncPort }}
+              protocol: TCP
+          volumeMounts:
+            - name: jts
+              mountPath: /home/ibgateway/Jts
+      volumes:
+        - name: jts
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.jts.existingClaim | default (printf "%s-jts" (include "ib-gateway.fullname" .)) }}

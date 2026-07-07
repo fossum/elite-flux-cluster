@@ -6,6 +6,7 @@ resources:
   - default
   - flux-entry.yaml
   - development
+  - finance
   - games
   - gitlab
   - home
