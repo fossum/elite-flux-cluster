@@ -17,6 +17,7 @@ spec:
   values:
     ibgateway:
       tradingMode: paper
+      readOnlyApi: "no"
       existingSecret: ib-gateway-credentials
     service:
       type: LoadBalancer
