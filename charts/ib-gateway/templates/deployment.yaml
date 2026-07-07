@@ -27,6 +27,8 @@ spec:
               value: {{ .Values.ibgateway.readOnlyApi | quote }}
             - name: TWOFA_TIMEOUT_ACTION
               value: {{ .Values.ibgateway.twofaTimeoutAction | quote }}
+            - name: TWS_SETTINGS_PATH
+              value: {{ .Values.ibgateway.twsSettingsPath | quote }}
             {{- $secretName := .Values.ibgateway.existingSecret | default (printf "%s-credentials" (include "ib-gateway.fullname" .)) }}
             - name: TWS_USERID
               valueFrom:
@@ -59,7 +61,7 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: jts
-              mountPath: /home/ibgateway/Jts
+              mountPath: {{ .Values.ibgateway.twsSettingsPath | quote }}
       volumes:
         - name: jts
           persistentVolumeClaim:

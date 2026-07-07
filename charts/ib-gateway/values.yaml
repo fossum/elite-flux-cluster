@@ -14,6 +14,8 @@ ibgateway:
   readOnlyApi: "yes"
   # 2FA timeout action: "restart" or "exit"
   twofaTimeoutAction: restart
+  # TWS settings path for persistent settings configuration
+  twsSettingsPath: /home/ibgateway/tws_settings
 
   # Credentials – override via SOPS-encrypted secret
   twsUserId: ""
