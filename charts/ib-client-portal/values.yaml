@@ -13,7 +13,7 @@ workload:
           env:
             IBEAM_OAUTH_TIMEOUT: "120"
             IBEAM_PAGE_LOAD_TIMEOUT: "30"
-            # Do not modify! IBEAM_GATEWAY_BASE_URL
+            IBEAM_GATEWAY_BASE_URL: "http://localhost:5000"  # Do not modify!
             IBEAM_INPUTS_DIR: "/srv/inputs"    # Must match the persistence mountPath.
             IBEAM_OUTPUTS_DIR: "/srv/outputs"  # Must match the persistence mountPath.
             HOME: "/tmp"
