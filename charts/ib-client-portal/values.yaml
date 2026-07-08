@@ -13,6 +13,9 @@ workload:
           env:
             IBEAM_OAUTH_TIMEOUT: "120"
             IBEAM_PAGE_LOAD_TIMEOUT: "30"
+            IBEAM_GATEWAY_BASE_URL: '{{ if .Values.ingress.main.enabled }}https://{{ (index .Values.ingress.main.hosts 0).host }}{{ else }}https://localhost:5000{{ end }}'
+            IBEAM_INPUTS_DIR: "/srv/inputs"
+            IBEAM_OUTPUTS_DIR: "/srv/outputs"
           envValueFrom: {}
             # Flux will map the secrets dynamically into this dict via helm-release.yaml
 
@@ -52,3 +55,13 @@ ingress:
         enabled: false
       homepage:
         enabled: false
+
+persistence:
+  outputs:
+    enabled: true
+    type: emptyDir
+    mountPath: '{{ .Values.workload.main.podSpec.containers.main.env.IBEAM_OUTPUTS_DIR }}'
+  inputs:
+    enabled: true
+    type: emptyDir
+    mountPath: '{{ .Values.workload.main.podSpec.containers.main.env.IBEAM_INPUTS_DIR }}'
