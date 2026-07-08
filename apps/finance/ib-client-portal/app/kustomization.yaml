@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - helm-release.yaml
   - secret.sops.yaml
+  - ib-client-portal-auth.sops.yaml
