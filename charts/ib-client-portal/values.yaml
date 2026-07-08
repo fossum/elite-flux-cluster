@@ -14,8 +14,10 @@ workload:
             IBEAM_OAUTH_TIMEOUT: "120"
             IBEAM_PAGE_LOAD_TIMEOUT: "30"
             IBEAM_GATEWAY_BASE_URL: '{{ if .Values.ingress.main.enabled }}https://{{ (index .Values.ingress.main.hosts 0).host }}{{ else }}https://localhost:5000{{ end }}'
-            IBEAM_INPUTS_DIR: "/srv/inputs"
-            IBEAM_OUTPUTS_DIR: "/srv/outputs"
+            IBEAM_INPUTS_DIR: "/srv/inputs"    # Must match the persistence mountPath.
+            IBEAM_OUTPUTS_DIR: "/srv/outputs"  # Must match the persistence mountPath.
+            HOME: "/tmp"
+            JAVA_TOOL_OPTIONS: "-Dvertx.cacheDirBase=/tmp/vertx-cache -Dvertx.disableFileCaching=true -Dvertx.disableFileCPResolving=true"
           envValueFrom: {}
             # Flux will map the secrets dynamically into this dict via helm-release.yaml
 
@@ -65,3 +67,7 @@ persistence:
     enabled: true
     type: emptyDir
     mountPath: "/srv/inputs"
+  gw-logs:
+    enabled: true
+    type: emptyDir
+    mountPath: "/srv/clientportal.gw/logs"
