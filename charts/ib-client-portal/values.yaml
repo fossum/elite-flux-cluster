@@ -17,7 +17,7 @@ workload:
             IBEAM_INPUTS_DIR: "/srv/inputs"    # Must match the persistence mountPath.
             IBEAM_OUTPUTS_DIR: "/srv/outputs"  # Must match the persistence mountPath.
             HOME: "/tmp"
-            JAVA_TOOL_OPTIONS: "-Dvertx.cacheDirBase=/tmp/vertx-cache -Dvertx.disableFileCaching=true -Dvertx.disableFileCPResolving=true"
+            JAVA_TOOL_OPTIONS: "-Dvertx.cacheDirBase=/tmp/vertx-cache -Dvertx.cacheDir=/tmp/vertx-cache -Dvertx.disableFileCaching=true -Dvertx.disableFileCPResolving=true"
           envValueFrom: {}
             # Flux will map the secrets dynamically into this dict via helm-release.yaml
 
