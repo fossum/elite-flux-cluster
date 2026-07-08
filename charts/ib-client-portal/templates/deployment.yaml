@@ -36,7 +36,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ $secretName }}
-                  key: IBEAM_TOTP_SECRET
+                  key: IBEAM_PYOTP_SECRET
                   optional: true
             - name: IBEAM_OAUTH_TIMEOUT
               value: {{ .Values.ibeam.oauthTimeout | quote }}
