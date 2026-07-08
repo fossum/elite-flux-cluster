@@ -46,8 +46,8 @@ ingress:
     enabled: false
     ingressClassName: ""
     annotations:
-      nginx.org/basic-auth-secret: ib-client-portal-auth
-      nginx.org/basic-auth-realm: "Authentication Required"
+      # nginx.org/basic-auth-secret: ib-client-portal-auth
+      # nginx.org/basic-auth-realm: "Authentication Required"
     hosts:
       - host: ""
         paths:
