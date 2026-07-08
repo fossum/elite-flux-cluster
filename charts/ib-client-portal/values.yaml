@@ -1,5 +1,20 @@
-deployment:
-  replicas: 1
+# ib-client-portal Helm Chart Values (TrueCharts common library)
+
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate
+    podSpec:
+      containers:
+        main:
+          enabled: true
+          primary: true
+          imageSelector: image
+          env:
+            IBEAM_OAUTH_TIMEOUT: "120"
+            IBEAM_PAGE_LOAD_TIMEOUT: "30"
+          envValueFrom: {}
+            # Flux will map the secrets dynamically into this dict via helm-release.yaml
 
 image:
   repository: voyz/ibeam
@@ -7,21 +22,33 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type: ClusterIP
-  port: 5000
+  main:
+    enabled: true
+    primary: true
+    type: ClusterIP
+    ports:
+      main:
+        enabled: true
+        primary: true
+        port: 5000
+        protocol: http
+        targetPort: 5000
 
-# Client Portal configurations
-ibeam:
-  # Timeout settings (in seconds)
-  oauthTimeout: 120        # Increase to allow plenty of time for 2FA push notification approval
-  pageLoadTimeout: 30
-
-  # 2FA handler setting: "" (default, waits for push), or "PYOTP" (uses TOTP secret)
-  twoFaHandler: ""
-
-  # Additional environment variables to pass directly to the container
-  env: {}
-
-  # Existing Kubernetes Secret name containing credentials
-  # Expected keys: IBEAM_ACCOUNT, IBEAM_PASSWORD, IBEAM_TOTP_SECRET (optional)
-  existingSecret: ""
+ingress:
+  main:
+    enabled: false
+    ingressClassName: ""
+    annotations: {}
+    hosts:
+      - host: ""
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: ""
+      traefik:
+        enabled: false
+      homepage:
+        enabled: false

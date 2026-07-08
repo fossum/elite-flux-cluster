@@ -14,9 +14,37 @@ spec:
         namespace: flux-system
   interval: 1m0s
   timeout: 15m0s
+  valuesFrom:
+    - kind: Secret
+      name: ib-client-portal-credentials
+      valuesKey: IBEAM_ACCOUNT
+      targetPath: workload.main.podSpec.containers.main.env.IBEAM_ACCOUNT
+    - kind: Secret
+      name: ib-client-portal-credentials
+      valuesKey: IBEAM_PASSWORD
+      targetPath: workload.main.podSpec.containers.main.env.IBEAM_PASSWORD
+    - kind: Secret
+      name: ib-client-portal-credentials
+      valuesKey: IBEAM_PYOTP_SECRET
+      targetPath: workload.main.podSpec.containers.main.env.IBEAM_PYOTP_SECRET
+      optional: true
   values:
-    ibeam:
-      twoFaHandler: "PYOTP"
-      existingSecret: ib-client-portal-credentials
-    service:
-      type: LoadBalancer
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                IBEAM_TWO_FA_HANDLER: "PYOTP"
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        hosts:
+          - host: ib-client-portal.thefoss.org
+        integrations:
+          traefik:
+            enabled: false
+          certManager:
+            enabled: true
+            certificateIssuer: thefoss-le-prod
