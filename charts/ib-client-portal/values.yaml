@@ -13,7 +13,7 @@ workload:
           env:
             IBEAM_OAUTH_TIMEOUT: "120"
             IBEAM_PAGE_LOAD_TIMEOUT: "30"
-            IBEAM_GATEWAY_BASE_URL: '{{ if .Values.ingress.main.enabled }}https://{{ (index .Values.ingress.main.hosts 0).host }}{{ else }}https://localhost:5000{{ end }}'
+            # Do not modify! IBEAM_GATEWAY_BASE_URL
             IBEAM_INPUTS_DIR: "/srv/inputs"    # Must match the persistence mountPath.
             IBEAM_OUTPUTS_DIR: "/srv/outputs"  # Must match the persistence mountPath.
             HOME: "/tmp"
@@ -71,3 +71,34 @@ persistence:
     enabled: true
     type: emptyDir
     mountPath: "/srv/clientportal.gw/logs"
+  gateway-config:
+    enabled: true
+    type: configmap
+    objectName: "gateway-config"
+    mountPath: "/srv/clientportal.gw/root/conf.yaml"
+    subPath: "conf.yaml"
+    readOnly: true
+
+configmap:
+  gateway-config:
+    enabled: true
+    data:
+      conf.yaml: |
+        !!ibgroup.web.core.clientportal.gw.Config
+        authDelay: 3000
+        ccp: false
+        cors: {origin.allowed: '*', allowCredentials: false}
+        ip2loc: US
+        ips:
+          allow: [10.*, 192.*, 131.216.*, 172.17.0.*, 127.0.0.1, x.x.x.x]
+          deny: [212.90.324.10, 0.0.0.0/0]
+        listenPort: 5000
+        listenSsl: false
+        portalBaseURL: ''
+        proxyRemoteHost: https://api.ibkr.com
+        proxyRemoteSsl: true
+        ssoPing: 5
+        svcEnvironment: v1
+        tst: false
+        twsBaseURL: /tws.proxy
+        webApps: []

@@ -36,7 +36,6 @@ spec:
             main:
               env:
                 IBEAM_TWO_FA_HANDLER: "PYOTP"
-                IBEAM_GATEWAY_BASE_URL: "https://localhost:5000"
     ingress:
       main:
         enabled: true
