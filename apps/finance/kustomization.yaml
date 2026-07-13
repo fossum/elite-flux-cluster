@@ -4,3 +4,4 @@ resources:
   - namespace.yaml
   - ib-gateway/ks.yaml
   - ib-client-portal/ks.yaml
+  - momentum-day-trader/ks.yaml

@@ -1,0 +1,57 @@
+# generic-npm Helm Chart Values (TrueCharts common library)
+
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate
+    podSpec:
+      containers:
+        main:
+          enabled: true
+          primary: true
+          imageSelector: image
+          env:
+            PORT: "3000"
+          envValueFrom: {}
+
+image:
+  repository: generic-npm
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  main:
+    enabled: true
+    primary: true
+    type: ClusterIP
+    ports:
+      main:
+        enabled: true
+        primary: true
+        port: 3000
+        protocol: http
+        targetPort: 3000
+
+ingress:
+  main:
+    enabled: false
+    ingressClassName: "external"
+    hosts:
+      - host: ""
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: "thefoss-le-prod"
+      traefik:
+        enabled: false
+      homepage:
+        enabled: false
+
+persistence:
+  app-data:
+    enabled: true
+    type: emptyDir
+    mountPath: "/app"

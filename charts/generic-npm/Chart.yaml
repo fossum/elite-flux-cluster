@@ -1,0 +1,10 @@
+apiVersion: v2
+name: generic-npm
+description: "A generic Helm chart for running Node.js/npm applications"
+type: application
+version: 0.1.0
+appVersion: "latest"
+dependencies:
+  - name: common
+    version: 28.26.0
+    repository: oci://oci.trueforge.org/truecharts
