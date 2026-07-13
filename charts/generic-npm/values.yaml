@@ -35,7 +35,7 @@ service:
 ingress:
   main:
     enabled: false
-    ingressClassName: "external"
+    ingressClassName: ""
     hosts:
       - host: ""
         paths:
@@ -44,7 +44,7 @@ ingress:
     integrations:
       certManager:
         enabled: true
-        certificateIssuer: "thefoss-le-prod"
+        certificateIssuer: ""
       traefik:
         enabled: false
       homepage:
