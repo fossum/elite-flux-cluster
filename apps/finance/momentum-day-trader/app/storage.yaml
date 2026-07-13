@@ -6,6 +6,7 @@ metadata:
   labels:
     app: momentum-day-trader
 spec:
+  storageClassName: momentum-day-trader-pv
   capacity:
     storage: 1Gi
   accessModes:
@@ -21,6 +22,7 @@ metadata:
   name: momentum-day-trader-pvc
   namespace: finance
 spec:
+  storageClassName: momentum-day-trader-pv
   accessModes:
     - ReadWriteMany
   resources:

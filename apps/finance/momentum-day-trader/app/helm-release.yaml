@@ -29,6 +29,7 @@ spec:
       # TODO: Update with the actual pushed image repository in the future
       repository: generic-npm
       tag: latest
+      pullPolicy: Always
     workload:
       main:
         podSpec:
