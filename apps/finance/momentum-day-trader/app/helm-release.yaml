@@ -1,0 +1,58 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: momentum-day-trader
+  namespace: finance
+spec:
+  chart:
+    spec:
+      chart: ./charts/generic-npm
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: cluster
+        namespace: flux-system
+  interval: 1m0s
+  timeout: 15m0s
+  valuesFrom:
+    - kind: Secret
+      name: momentum-day-trader-secrets
+      valuesKey: GEMINI_API_KEY
+      targetPath: workload.main.podSpec.containers.main.env.GEMINI_API_KEY
+    - kind: Secret
+      name: momentum-day-trader-secrets
+      valuesKey: FMP_API_KEY
+      targetPath: workload.main.podSpec.containers.main.env.FMP_API_KEY
+  values:
+    image:
+      # TODO: Update with the actual pushed image repository in the future
+      repository: generic-npm
+      tag: latest
+      pullPolicy: Always
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                PORT: "3000"
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        hosts:
+          - host: trader.thefoss.org
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+        integrations:
+          certManager:
+            enabled: true
+            certificateIssuer: thefoss-le-prod
+    persistence:
+      app-data:
+        enabled: true
+        type: pvc
+        existingClaim: momentum-day-trader-pvc
+        mountPath: "/app"

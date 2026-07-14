@@ -1,0 +1,17 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-apps-finance-momentum-day-trader
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: cluster-apps-finance-namespace
+  path: ./apps/finance/momentum-day-trader/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: cluster
+  wait: true
+  interval: 30m0s
+  timeout: 5m0s
