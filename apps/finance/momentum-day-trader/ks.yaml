@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
 spec:
   dependsOn:
-    - name: cluster-apps-finance-namespace
+    - name: finance-namespace
   path: ./apps/finance/momentum-day-trader/app
   prune: true
   sourceRef:
