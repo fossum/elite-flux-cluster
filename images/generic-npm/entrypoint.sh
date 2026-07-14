@@ -6,9 +6,9 @@ export PORT=${PORT:-3000}
 
 # Install dependencies if package.json exists and we need to
 if [ -f "package.json" ]; then
-    if [ ! -d "node_modules" ] || [ package.json -nt node_modules ]; then
+    if [ ! -d "node_modules" ] || [ ! -f "/app/.install-done" ] || [ package.json -nt /app/.install-done ]; then
         echo "Dependencies missing or package.json updated. Installing dependencies..."
-        npm install
+        npm install && touch /app/.install-done
     else
         echo "Dependencies up to date."
     fi

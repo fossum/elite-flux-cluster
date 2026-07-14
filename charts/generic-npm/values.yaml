@@ -42,3 +42,7 @@ persistence:
     type: emptyDir
     mountPath: "/.npm"
 
+probes:
+  startup:
+    spec:
+      failureThreshold: 600
