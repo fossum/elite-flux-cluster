@@ -12,6 +12,7 @@ workload:
           imageSelector: image
           env:
             PORT: "3000"
+            PULL_REPO: "true"
           envValueFrom: {}
 
 image:
