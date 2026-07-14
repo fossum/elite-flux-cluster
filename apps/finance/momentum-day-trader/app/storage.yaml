@@ -14,7 +14,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     server: 192.168.1.10
-    path: /mnt/local-raid/home/ericfoss/development/momentum-day-trader
+    path: /mnt/local-raid/nfs/momentum-day-trader
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

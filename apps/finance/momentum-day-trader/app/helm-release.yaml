@@ -26,8 +26,7 @@ spec:
       targetPath: workload.main.podSpec.containers.main.env.FMP_API_KEY
   values:
     image:
-      # TODO: Update with the actual pushed image repository in the future
-      repository: generic-npm
+      repository: fossum/generic-npm
       tag: latest
       pullPolicy: Always
     workload:
