@@ -1,7 +1,8 @@
 FROM node:lts-alpine
 
 # Install some useful build tools just in case native deps are needed
-RUN apk add --no-cache python3 make g++ git
+RUN apk add --no-cache python3 make g++ git openssh-client
+
 
 # Set working directory
 WORKDIR /app
