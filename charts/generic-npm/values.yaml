@@ -37,3 +37,8 @@ persistence:
     enabled: true
     type: emptyDir
     mountPath: "/app"
+  npm-cache:
+    enabled: true
+    type: emptyDir
+    mountPath: "/.npm"
+
