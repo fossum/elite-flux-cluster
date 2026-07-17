@@ -52,7 +52,7 @@ spec:
       main:
         enabled: true
         annotations:
-          nginx.org/websocket-services: momentum-day-trader
+          nginx.org/websocket-services: momentum-day-trader-generic-npm
         ingressClassName: external
         hosts:
           - host: trader.thefoss.org
