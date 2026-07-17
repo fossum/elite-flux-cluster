@@ -24,6 +24,18 @@ spec:
       name: momentum-day-trader-secrets
       valuesKey: FMP_API_KEY
       targetPath: workload.main.podSpec.containers.main.env.FMP_API_KEY
+    - kind: Secret
+      name: momentum-day-trader-secrets
+      valuesKey: APP_URL
+      targetPath: workload.main.podSpec.containers.main.env.APP_URL
+    - kind: Secret
+      name: momentum-day-trader-secrets
+      valuesKey: FIREBASE_DATABASE_ID
+      targetPath: workload.main.podSpec.containers.main.env.FIREBASE_DATABASE_ID
+    - kind: Secret
+      name: momentum-day-trader-secrets
+      valuesKey: VITE_FIREBASE_DATABASE_ID
+      targetPath: workload.main.podSpec.containers.main.env.VITE_FIREBASE_DATABASE_ID
   values:
     image:
       repository: fossum/generic-npm
