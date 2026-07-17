@@ -51,11 +51,15 @@ spec:
     ingress:
       main:
         enabled: true
+        annotations:
+          nginx.org/websocket-services: momentum-day-trader
         ingressClassName: external
         hosts:
           - host: trader.thefoss.org
             paths:
               - path: /
+                pathType: ImplementationSpecific
+              - path: /vite-hmr
                 pathType: ImplementationSpecific
         integrations:
           certManager:
