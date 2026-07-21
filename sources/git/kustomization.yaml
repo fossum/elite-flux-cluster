@@ -4,3 +4,5 @@ resources:
   - elite-flux-cluster.yaml
   - fosscharts-helm-chart-repo.yaml
   - fosscharts-repo.yaml
+  - momentum-trader.yaml
+

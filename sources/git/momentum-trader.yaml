@@ -1,0 +1,10 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: momentum-day-trader
+  namespace: flux-system
+spec:
+  interval: 10m
+  url: https://gitlab.thefoss.org/ericfoss/momentum-day-trader.git
+  ref:
+    branch: main

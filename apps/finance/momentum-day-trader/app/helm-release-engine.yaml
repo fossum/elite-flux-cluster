@@ -51,6 +51,8 @@ spec:
     workload:
       main:
         podSpec:
+          annotations:
+            fluxcd.io/git-repo: "flux-system/momentum-day-trader"
           containers:
             main:
               args: ["npm", "run", "start:engine"]
@@ -58,7 +60,6 @@ spec:
                 PORT: "3000"
                 BUILD_APP: "true"
                 BUILD_SCRIPT: "build:engine"
-                # FIREBASE_SERVICE_ACCOUNT_PATH: "/app/secrets/service-account.json"
     ingress:
       main:
         enabled: false
@@ -75,13 +76,3 @@ spec:
         type: pvc
         existingClaim: momentum-day-trader-pvc
         mountPath: "/app"
-      # account:
-      #   enabled: true
-      #   type: secret
-      #   objectName: service-account
-      #   targetSelector:
-      #     main:
-      #       main:
-      #         mountPath: "/app/secrets/service-account.json"
-      #         subPath: "service-account.json"
-      #         readOnly: true

@@ -48,6 +48,8 @@ spec:
     workload:
       main:
         podSpec:
+          annotations:
+            fluxcd.io/git-repo: "flux-system/momentum-day-trader"
           containers:
             main:
               env:
@@ -75,3 +77,4 @@ spec:
         type: pvc
         existingClaim: momentum-day-trader-pvc
         mountPath: "/app"
+
