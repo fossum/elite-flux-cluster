@@ -68,5 +68,5 @@ spec:
       secrets:
         enabled: true
         type: secret
-        secretName: momentum-day-trader-secrets
+        objectName: momentum-day-trader-secrets
         mountPath: "/app/secrets"
