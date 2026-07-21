@@ -22,5 +22,16 @@ else
     echo "Warning: No package.json found in $(pwd)"
 fi
 
+# Run build script if BUILD_APP is set
+if [ -n "$BUILD_APP" ]; then
+    BUILD_SCRIPT=${BUILD_SCRIPT:-build}
+    if [ -f "package.json" ] && grep -q "\"$BUILD_SCRIPT\"" package.json; then
+        echo "BUILD_APP is set. Running npm run $BUILD_SCRIPT..."
+        npm run "$BUILD_SCRIPT"
+    else
+        echo "Warning: BUILD_APP is set, but '$BUILD_SCRIPT' script was not found in package.json."
+    fi
+fi
+
 # Run the command passed to the container
 exec "$@"

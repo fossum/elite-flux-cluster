@@ -19,6 +19,9 @@ The container can be configured using the following environment variables:
 | -------------------- | ----------- | ------- |
 | `PORT` | The port the application server will listen on. | `3000` |
 | `PULL_REPO` | If set to any non-empty value, the container will run `git pull` at startup. | *Not Set* |
+| `BUILD_APP` | If set to any non-empty value, runs `npm run <BUILD_SCRIPT>` at startup. | *Not Set* |
+| `BUILD_SCRIPT` | The npm script name to execute when building. | `build` |
+
 
 ## Usage in Kubernetes
 
