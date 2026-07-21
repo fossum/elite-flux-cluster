@@ -13,7 +13,7 @@ spec:
         kind: GitRepository
         name: cluster
         namespace: flux-system
-  interval: 1m0s
+  interval: 15m0s
   timeout: 15m0s
   valuesFrom:
     - kind: Secret

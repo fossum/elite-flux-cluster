@@ -4,7 +4,7 @@ metadata:
   name: flux-entry
   namespace: flux-system
 spec:
-  interval: 1m
+  interval: 15m
   path: ./apps
   prune: true
   sourceRef:
