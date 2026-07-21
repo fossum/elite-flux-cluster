@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: momentum-day-trader
+  name: momentum-engine
   namespace: finance
 spec:
   chart:
@@ -50,25 +50,12 @@ spec:
         podSpec:
           containers:
             main:
+              command: ["npm", "run", "start:engine"]
               env:
                 PORT: "3000"
     ingress:
       main:
-        enabled: true
-        annotations:
-          nginx.org/websocket-services: momentum-day-trader-generic-npm
-        ingressClassName: external
-        hosts:
-          - host: trader.thefoss.org
-            paths:
-              - path: /
-                pathType: ImplementationSpecific
-              - path: /vite-hmr
-                pathType: ImplementationSpecific
-        integrations:
-          certManager:
-            enabled: true
-            certificateIssuer: thefoss-le-prod
+        enabled: false
     persistence:
       app-data:
         enabled: true
