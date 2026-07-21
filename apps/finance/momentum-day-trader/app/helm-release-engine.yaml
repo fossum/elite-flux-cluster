@@ -50,9 +50,9 @@ spec:
         podSpec:
           containers:
             main:
-              command: ["npm", "run", "start:engine"]
               env:
                 PORT: "3000"
+                BUILD_APP: "true"
     ingress:
       main:
         enabled: false

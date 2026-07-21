@@ -13,6 +13,8 @@ workload:
           env:
             PORT: "3000"
             PULL_REPO: "true"
+            # BUILD_APP: "true"
+            # BUILD_SCRIPT: "build"
           envValueFrom: {}
 
 image:
