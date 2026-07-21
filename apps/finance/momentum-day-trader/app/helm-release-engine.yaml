@@ -68,8 +68,13 @@ spec:
         type: pvc
         existingClaim: momentum-day-trader-pvc
         mountPath: "/app"
-      secrets:
+      account:
         enabled: true
         type: secret
-        objectName: service-account
-        mountPath: "/app/secrets"
+        objectName: momentum-day-trader-secrets
+        targetSelector:
+          main:
+            main:
+              mountPath: "/app/secrets/service-account.json"
+              subPath: "service-account.json"
+              readOnly: true
