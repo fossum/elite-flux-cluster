@@ -41,6 +41,9 @@ spec:
       valuesKey: ENCRYPTION_KEY
       targetPath: workload.main.podSpec.containers.main.env.ENCRYPTION_KEY
   values:
+    secret:
+      momentum-day-trader-secrets:
+        enabled: false
     image:
       repository: fossum/generic-npm
       tag: latest
@@ -67,8 +70,6 @@ spec:
         mountPath: "/app"
       secrets:
         enabled: true
-        type: custom
+        type: secret
+        objectName: momentum-day-trader-secrets
         mountPath: "/app/secrets"
-        volumeSpec:
-          secret:
-            secretName: momentum-day-trader-secrets
