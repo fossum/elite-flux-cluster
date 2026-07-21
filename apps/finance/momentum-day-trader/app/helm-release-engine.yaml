@@ -55,6 +55,7 @@ spec:
                 PORT: "3000"
                 BUILD_APP: "true"
                 BUILD_SCRIPT: "build:engine"
+                FIREBASE_SERVICE_ACCOUNT_PATH: "/app/secrets/service-account.json"
     ingress:
       main:
         enabled: false
@@ -64,3 +65,8 @@ spec:
         type: pvc
         existingClaim: momentum-day-trader-pvc
         mountPath: "/app"
+      secrets:
+        enabled: true
+        type: secret
+        secretName: momentum-day-trader-secrets
+        mountPath: "/app/secrets"
