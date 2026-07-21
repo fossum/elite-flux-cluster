@@ -6,3 +6,4 @@ resources:
   - helm-release-engine.yaml
   - storage.yaml
   - secret.secret.yaml
+  - service-account.secret.yaml

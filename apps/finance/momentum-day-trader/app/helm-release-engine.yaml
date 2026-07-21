@@ -42,7 +42,7 @@ spec:
       targetPath: workload.main.podSpec.containers.main.env.ENCRYPTION_KEY
   values:
     secret:
-      momentum-day-trader-secrets:
+      service-account:
         enabled: false
     image:
       repository: fossum/generic-npm
@@ -71,5 +71,5 @@ spec:
       secrets:
         enabled: true
         type: secret
-        objectName: momentum-day-trader-secrets
+        objectName: service-account
         mountPath: "/app/secrets"
