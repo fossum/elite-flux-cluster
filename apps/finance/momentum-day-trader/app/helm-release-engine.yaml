@@ -60,6 +60,7 @@ spec:
                 PORT: "3000"
                 BUILD_APP: "true"
                 BUILD_SCRIPT: "build:engine"
+                FIREBASE_SERVICE_ACCOUNT_PATH: "/app/service-account.json"
     ingress:
       main:
         enabled: false
