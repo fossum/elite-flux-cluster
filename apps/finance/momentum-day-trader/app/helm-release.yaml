@@ -55,6 +55,10 @@ spec:
         podSpec:
           annotations:
             fluxcd.io/git-repo: "flux-system/momentum-day-trader"
+          dnsConfig:
+            options:
+              - name: ndots
+                value: "5"
           containers:
             main:
               env:
