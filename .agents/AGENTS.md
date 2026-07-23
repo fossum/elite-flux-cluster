@@ -36,6 +36,7 @@ Configuration is managed through a combination of `values` blocks within `HelmRe
 All secrets are encrypted in the Git repository using [SOPS](httpss://github.com/getsops/sops) with `age`.
 
 - **File Naming**: Encrypted files must end with `.secret.yaml`.
+- **Quoting Values**: All string values in SOPS-encrypted files must be wrapped in double-quotes (e.g. `GEMINI_API_KEY: "value"`) to work correctly and avoid encryption or parsing issues.
 - **Workflow**:
   1.  To edit a secret, you must first decrypt it. You can use the `Decrypt File` task in VS Code.
   2.  After making changes, you **must** re-encrypt the file using the `Encrypt File` task.
