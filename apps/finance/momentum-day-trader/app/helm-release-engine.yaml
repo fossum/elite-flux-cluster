@@ -63,7 +63,7 @@ spec:
                 value: "5"
           containers:
             main:
-              args: ["npm", "run", "start:engine"]
+              args: ["sh", "-c", "npm run build:engine && npm run start:engine"]
               env:
                 PORT: "3000"
                 BUILD_APP: "true"

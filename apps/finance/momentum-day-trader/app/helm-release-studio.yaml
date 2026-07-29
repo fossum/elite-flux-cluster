@@ -37,6 +37,15 @@ spec:
             options:
               - name: ndots
                 value: "5"
+          initContainers:
+            init-db-wait:
+              enabled: true
+              type: init
+              imageSelector: image
+              command:
+                - sh
+                - -c
+                - "until nc -z -w 2 momentum-day-trader-cnpg-rw 5432; do echo waiting for postgres; sleep 2; done;"
           containers:
             main:
               args: ["npx", "drizzle-kit", "studio", "--host", "0.0.0.0", "--port", "4983"]
