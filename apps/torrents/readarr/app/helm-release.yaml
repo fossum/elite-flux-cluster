@@ -43,8 +43,21 @@ spec:
       valuesKey: HP_API_READARR
       targetPath: ingress.main.integrations.homepage.widget.custom.key
       optional: true
+    - kind: ConfigMap
+      name: torrents-config
+      valuesKey: HP_API_READARR
+      targetPath: workload.main.podSpec.containers.main.env.READARR__AUTH__APIKEY
   values:
     TZ: America/Los_Angeles
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                PROWLARR__AUTH__ENABLED: "True"
+                PROWLARR__AUTH__METHOD: "Forms"
+                PROWLARR__AUTH__REQUIRED: "True"
     image:
       repository: ghcr.io/linuxserver/readarr
       tag: 1.0.980@sha256:8df86e9dd650abe705d69b8215491680a1b7e41d5be54a3172f661a755928616

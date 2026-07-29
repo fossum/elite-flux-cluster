@@ -44,8 +44,21 @@ spec:
       valuesKey: HP_API_RADARR
       targetPath: ingress.main.integrations.homepage.widget.custom.key
       optional: true
+    - kind: ConfigMap
+      name: torrents-config
+      valuesKey: HP_API_RADARR
+      targetPath: workload.main.podSpec.containers.main.env.RADARR__AUTH__APIKEY
   values:
     TZ: America/Los_Angeles
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                PROWLARR__AUTH__ENABLED: "True"
+                PROWLARR__AUTH__METHOD: "Forms"
+                PROWLARR__AUTH__REQUIRED: "True"
     ingress:
       main:
         enabled: true
