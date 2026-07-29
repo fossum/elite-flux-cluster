@@ -12,7 +12,7 @@ workload:
           imageSelector: image
           env:
             PORT: "3000"
-            PULL_REPO: "true"
+            PULL_REPO: "false"
             # BUILD_APP: "true"
             # BUILD_SCRIPT: "build"
           envValueFrom: {}
