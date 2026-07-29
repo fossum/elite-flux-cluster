@@ -44,6 +44,32 @@ This guide contains step-by-step instructions for diagnosing and resolving compl
      ```
   3. The API server will immediately unblock, allowing the namespace termination to complete and letting Flux recreate the operators.
 
+### C. Re-binding Released PersistentVolumes (Retain Reclaim Policy)
+* **Symptom**: An application PVC is deleted or re-created during a GitOps update, and Kubernetes provisions a new blank volume while the old volume becomes `Released`.
+* **Root Cause**: The volume reclaim policy was set to `Retain` (or default), leaving the old PV untouched in a `Released` state bound to a non-existent PVC UID.
+* **Resolution**:
+  1. Clear the stale `claimRef` on the Released PV to make it `Available`:
+     ```bash
+     kubectl patch pv <pv-name> -p '{"spec":{"claimRef":null}}'
+     ```
+  2. If the volume was attached to a different node via CSI, delete any stale VolumeAttachment:
+     ```bash
+     kubectl delete volumeattachment <attachment-name>
+     ```
+  3. Re-create the PVC specifying `volumeName: <pv-name>`:
+     ```yaml
+     apiVersion: v1
+     kind: PersistentVolumeClaim
+     metadata:
+       name: <pvc-name>
+       namespace: <namespace>
+     spec:
+       accessModes: [ReadWriteOnce]
+       resources: { requests: { storage: <size> } }
+       storageClassName: <storage-class>
+       volumeName: <pv-name>
+     ```
+
 ---
 
 ## 2. Unblocking Stuck Helm Releases

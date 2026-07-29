@@ -141,6 +141,9 @@ spec:
             config:
               secret: gitlab-s3-configuration
               key: connection
+          cron:
+            enabled: true
+            schedule: "0 2 * * 0"
 
 
     gitlab-runner:
@@ -152,6 +155,8 @@ spec:
           secretName: gitlab-registry-tls
 
     gitaly:
+      persistence:
+        volumeName: "pvc-d27bcb0a-03a0-408b-9494-df2ede8f1140"
       ingress:
         tls:
           secretName: gitlab-gitaly-tls

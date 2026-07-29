@@ -62,11 +62,15 @@ spec:
         enabled: true
         storageClass: longhorn
         size: 1Gi
+        retain: true
+        volumeName: pvc-9f94ea42-8582-46cc-9cdf-c12c17ee4a52
       incomplete:
         enabled: true
         storageClass: longhorn-single-nojobs
         size: 200Gi
         mountPath: /downloads/incomplete
+        retain: true
+        volumeName: pvc-01a2fd7f-81fc-4c0a-839d-7392dec131ee
       media:
         enabled: true
         type: nfs

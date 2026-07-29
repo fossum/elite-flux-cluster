@@ -46,6 +46,16 @@ spec:
       fallbackDefaults:
         storageClass: "truenas-iscsi-api-csi"
 
+    persistence:
+      config:
+        enabled: true
+        storageClass: truenas-iscsi-api-csi
+        size: 100Gi
+        accessModes:
+          - ReadWriteOnce
+        retain: true
+        volumeName: pvc-52e3b83a-1095-473d-b1d5-616730c0f2cb
+
     service:
       api:
         type: NodePort

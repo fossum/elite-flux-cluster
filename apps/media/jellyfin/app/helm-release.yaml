@@ -31,11 +31,17 @@ spec:
 
     persistence:
       config:
+        enabled: true
         storageClass: longhorn
         size: 5Gi
+        retain: true
+        volumeName: pvc-6462a930-f27f-43c9-b7ed-7fb6a5fa403c
       data:
+        enabled: true
         storageClass: longhorn
         size: 10Gi
+        retain: true
+        volumeName: pvc-55500b9f-2bd5-465e-92cf-da02e4aa602d
       shared:
         enabled: true
         type: pvc

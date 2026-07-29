@@ -46,6 +46,7 @@ spec:
         accessModes:
           - ReadWriteOnce
         retain: true
+        volumeName: pvc-318143ca-ab5f-4f4f-aaeb-8ed38512fe3c
     ingress:
       main:
         enabled: true

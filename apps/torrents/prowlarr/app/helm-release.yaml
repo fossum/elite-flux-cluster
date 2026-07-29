@@ -66,6 +66,8 @@ spec:
         enabled: true
         storageClass: longhorn
         size: 1Gi
+        retain: true
+        volumeName: pvc-05261490-98bd-465b-9611-3cb219985ad3
       media:
         enabled: true
         type: nfs

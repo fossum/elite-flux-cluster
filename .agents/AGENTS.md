@@ -64,6 +64,13 @@ This cluster uses **NGINX Inc's ingress controller** (`nginx/nginx-ingress`), no
   - Staging issuer: `thefoss-le-stage` (for testing to avoid rate limits)
   - Let's Encrypt has a rate limit of 5 certificates per exact domain set per week.
 
+### 6. Persistent Storage & Volume Reclaim Policies
+
+All PersistentVolume (PV) resources defined in or provisioned for this GitOps cluster should explicitly enforce `persistentVolumeReclaimPolicy: Retain`.
+
+- **Rationale**: When namespaces or application PVCs are updated, replaced, or deleted by FluxCD during reconciliations, `Retain` ensures that the underlying storage volumes on TrueNAS (NFS/iSCSI) or Longhorn remain intact in a `Released` state rather than being automatically deleted.
+- **Recovery Pattern**: Released PVs can be re-bound to new PVCs by clearing their `.spec.claimRef` (`kubectl patch pv <pv-name> -p '{"spec":{"claimRef":null}}'`) to make them `Available`, then creating a PVC specifying `volumeName: <pv-name>`.
+
 ## Developer Workflow
 
 1.  **Modify YAML**: Make changes to `HelmRelease` files, `ConfigMap`s, or other Kubernetes manifests.
