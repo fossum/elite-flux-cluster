@@ -5,3 +5,4 @@ resources:
 - gotk-sync.yaml
 - ../flux-entry.yaml
 - ../../sources
+- ../clustersettings.secret.yaml
