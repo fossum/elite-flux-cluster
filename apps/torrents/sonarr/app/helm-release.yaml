@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: sonarr
-      version: 23.8.0
+      version: ^26.0.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -53,9 +53,9 @@ spec:
           containers:
             main:
               env:
-                PROWLARR__AUTH__ENABLED: "True"
-                PROWLARR__AUTH__METHOD: "Forms"
-                PROWLARR__AUTH__REQUIRED: "True"
+                SONARR__AUTH__ENABLED: "True"
+                SONARR__AUTH__METHOD: "Forms"
+                SONARR__AUTH__REQUIRED: "True"
     ingress:
       main:
         enabled: true

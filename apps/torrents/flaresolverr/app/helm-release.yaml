@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: flaresolverr
-      version: 15.5.1
+      version: ^17.0.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -30,5 +30,31 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
-  uninstall:
-    keepHistory: false
+  valuesFrom:
+    - kind: ConfigMap
+      name: vpn-addon-config
+      valuesKey: addons.yaml
+  values:
+    securityContext:
+      container:
+        runAsUser: 0
+        runAsGroup: 0
+        readOnlyRootFilesystem: false
+
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                LOG_LEVEL: info
+                LOG_HTML: "false"
+                CAPTCHA_SOLVER: turnstile
+                TZ: America/Los_Angeles
+
+    persistence:
+      shm:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        mountPath: /dev/shm

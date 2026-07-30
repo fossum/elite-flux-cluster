@@ -6,7 +6,7 @@ resources:
   - flaresolverr/ks.yaml
   - lazy-librarian/ks.yaml
   - prowlarr/ks.yaml
-  - readarr/ks.yaml
+  # - readarr/ks.yaml
   - radarr/ks.yaml
   - sonarr/ks.yaml
   - torrents.secret.yaml

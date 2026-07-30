@@ -55,9 +55,9 @@ spec:
           containers:
             main:
               env:
-                PROWLARR__AUTH__ENABLED: "True"
-                PROWLARR__AUTH__METHOD: "Forms"
-                PROWLARR__AUTH__REQUIRED: "True"
+                READARR__AUTH__ENABLED: "True"
+                READARR__AUTH__METHOD: "Forms"
+                READARR__AUTH__REQUIRED: "True"
     image:
       repository: ghcr.io/linuxserver/readarr
       tag: 1.0.980@sha256:8df86e9dd650abe705d69b8215491680a1b7e41d5be54a3172f661a755928616

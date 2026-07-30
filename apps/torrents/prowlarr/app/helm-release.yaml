@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: prowlarr
-      version: 21.0.0
+      version: ^22.0.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -45,6 +45,9 @@ spec:
       name: torrents-config
       valuesKey: HP_API_PROWLARR
       targetPath: workload.main.podSpec.containers.main.env.PROWLARR__AUTH__APIKEY
+    - kind: ConfigMap
+      name: vpn-addon-config
+      valuesKey: addons.yaml
   values:
     TZ: America/Los_Angeles
     workload:
