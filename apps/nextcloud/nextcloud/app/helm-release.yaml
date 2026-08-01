@@ -49,6 +49,7 @@ spec:
     nextcloud:
       general:
         default_phone_region: US
+      configs: {}
       previews:
         # Casings are important
         # https://github.com/nextcloud/server/blob/master/config/config.sample.php#L1269
