@@ -12,8 +12,6 @@ spec:
     initdb:
       database: nextcloud
       owner: nextcloud
-      secret:
-        name: nextcloud-cnpg-main-user
 
   storage:
     size: "20Gi"

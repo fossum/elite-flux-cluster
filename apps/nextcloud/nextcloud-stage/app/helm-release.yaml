@@ -56,6 +56,7 @@ spec:
         proxy.config.php: |-
           <?php
           $CONFIG = array (
+            'trusted_domains' => array('nextcloud.thefoss.org', '10.42.0.0/16'),
             'trusted_proxies' => array('10.0.0.0/8'),
             'overwriteprotocol' => 'https',
             'overwrite.cli.url' => 'https://nextcloud.thefoss.org',
@@ -109,12 +110,12 @@ spec:
     externalDatabase:
       enabled: true
       type: postgresql
-      host: nextcloud-cnpg-main-rw
+      host: nextcloud2-cnpg-main-rw
       database: app
       user: app
       existingSecret:
         enabled: true
-        secretName: nextcloud-cnpg-main-app
+        secretName: nextcloud2-cnpg-main-app
         usernameKey: username
         passwordKey: password
 
