@@ -181,9 +181,6 @@ spec:
     certmanager-issuer:
       email: you@example.com
 
-    certmanager:
-      install: false
-
     nginx-ingress:
       enabled: false
 
