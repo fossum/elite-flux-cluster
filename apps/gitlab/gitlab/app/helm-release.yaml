@@ -150,6 +150,9 @@ spec:
       install: false
 
     registry:
+      storage:
+        secret: gitlab-minio-storage
+        key: connection
       ingress:
         tls:
           secretName: gitlab-registry-tls
