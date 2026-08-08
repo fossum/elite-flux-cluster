@@ -19,12 +19,12 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
-    timeout: 40m
+    timeout: 60m
   upgrade:
     crds: CreateReplace
     remediation:
       retries: 3
-    timeout: 40m
+    timeout: 60m
   valuesFrom:
     - kind: ConfigMap
       name: gitlab-config
@@ -155,6 +155,8 @@ spec:
           secretName: gitlab-registry-tls
 
     gitaly:
+      podSecurityContext:
+        fsGroupChangePolicy: OnRootMismatch
       persistence:
         volumeName: "pvc-d27bcb0a-03a0-408b-9494-df2ede8f1140"
       ingress:
