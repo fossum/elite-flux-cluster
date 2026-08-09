@@ -79,6 +79,8 @@ spec:
           secretName: thefoss-org-cf-origin-cert
 
       appConfig:
+        consolidatedObjectStore:
+          enabled: true
         objectStorage:
           config:
             secret: gitlab-minio-storage
