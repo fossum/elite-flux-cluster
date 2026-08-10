@@ -1,0 +1,50 @@
+# Blast-radius caps for CI jobs.
+#
+# IMPORTANT: a ResourceQuota rejection FAILS the job, it does not queue it.
+# `concurrent` in the HelmRelease is the real throttle; this quota only stops a
+# runaway pipeline from evicting real workloads. Size it comfortably ABOVE
+# concurrent x per-job limits.
+#
+# Per job (from runners.config): build 2 cpu / 4Gi / 20Gi ephemeral
+#                              + helper 500m / 512Mi / 2Gi
+#                              + buildkit service 2 cpu / 4Gi / 20Gi
+#                              ~= 4.5 cpu, 8.5Gi, 42Gi ephemeral
+# With concurrent: 2 that is ~9 cpu / 17Gi. The values below leave headroom.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: gitlab-runner-jobs
+  namespace: gitlab-runner-jobs
+spec:
+  hard:
+    count/pods: "12"
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    requests.ephemeral-storage: 8Gi
+    limits.cpu: "12"
+    limits.memory: 24Gi
+    limits.ephemeral-storage: 96Gi
+---
+# Defaults for any container that does not set its own, and a hard per-container
+# ceiling. `max` must stay >= the *_limit values in runners.config or every job
+# is rejected at admission.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: gitlab-runner-jobs
+  namespace: gitlab-runner-jobs
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: 500m
+        memory: 512Mi
+        ephemeral-storage: 2Gi
+      defaultRequest:
+        cpu: 100m
+        memory: 128Mi
+        ephemeral-storage: 256Mi
+      max:
+        cpu: "2"
+        memory: 4Gi
+        ephemeral-storage: 20Gi

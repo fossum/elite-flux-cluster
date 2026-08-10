@@ -1,0 +1,212 @@
+# The security boundary for GitLab CI on this cluster.
+#
+# READ THIS FIRST: nothing in this file does anything unless k3s is enforcing
+# NetworkPolicy. k3s bundles kube-router's netpol controller and enforces by
+# default, but not if the server was started with --disable-network-policy or
+# --flannel-backend=none. A policy that silently no-ops looks exactly like one
+# that works. Verify empirically before trusting this -- see the "Prove
+# NetworkPolicy is real" step in the implementation plan.
+#
+# Two recurring gotchas encoded below:
+#  1. NetworkPolicy is evaluated in the iptables `filter` table, i.e. AFTER
+#     kube-proxy's DNAT. So a rule naming a ClusterIP or LoadBalancer IP can
+#     never match -- by the time policy runs, the destination is the backing
+#     pod IP (or, for the k3s apiserver, the node IP on port 6443).
+#  2. Do not use `endPort` anywhere: the bundled kube-router controller handles
+#     it unreliably.
+
+# ---------------------------------------------------------------------------
+# Namespace: gitlab-runner  (the manager)
+# ---------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: gitlab-runner
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: gitlab-runner
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-apiserver
+  namespace: gitlab-runner
+spec:
+  # The manager is the only workload in this namespace, so an empty selector
+  # is both correct and immune to chart label changes.
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    # NOT 10.43.0.1:443. In k3s the apiserver runs in the k3s host process, and
+    # kube-proxy DNATs the ClusterIP to <node-ip>:6443 before policy is
+    # evaluated, so the node network on 6443 is the only rule that can match.
+    - to:
+        - ipBlock:
+            cidr: 192.168.1.0/24
+      ports:
+        - protocol: TCP
+          port: 6443
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-gitlab
+  namespace: gitlab-runner
+spec:
+  # The manager is the only workload in this namespace, so an empty selector
+  # is both correct and immune to chart label changes.
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    # Two `to` entries covering both possible shapes of the ingress controller.
+    # Whichever does not apply is simply inert.
+    #  * ordinary pod  -> the LB IP is DNAT'd to its pod IP, so only the
+    #                     selector matches. Verify the label with:
+    #                     kubectl get pods -A -l app.kubernetes.io/name=nginx-ingress
+    #  * hostNetwork   -> no pod IP exists, so only the ipBlock matches.
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: nginx-ingress
+        - ipBlock:
+            cidr: ${NGINX_EXTERNAL_IP}/32
+      ports:
+        - protocol: TCP
+          port: 443
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-metrics-scrape
+  namespace: gitlab-runner
+spec:
+  # The manager is the only workload in this namespace, so an empty selector
+  # is both correct and immune to chart label changes.
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+      ports:
+        - protocol: TCP
+          port: 9252
+---
+# ---------------------------------------------------------------------------
+# Namespace: gitlab-runner-jobs  (arbitrary CI code runs here)
+# ---------------------------------------------------------------------------
+# Note there are NO ingress rules for this namespace, and that is correct:
+#  * `services:` containers share the job pod's network namespace, so BuildKit
+#    is reached at tcp://localhost:1234, never across the pod network.
+#  * pods/attach traffic originates from the kubelet, not from the manager.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: gitlab-runner-jobs
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: gitlab-runner-jobs
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress
+  namespace: gitlab-runner-jobs
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    # 1. GitLab and its container registry, through the external ingress.
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: nginx-ingress
+        - ipBlock:
+            cidr: ${NGINX_EXTERNAL_IP}/32
+      ports:
+        - protocol: TCP
+          port: 443
+    # 2. The public internet, for package registries -- and NOTHING private.
+    #    The `except` list is the whole point: a CI job cannot reach TrueNAS at
+    #    192.168.1.10, any other LAN host, the k3s pod CIDR (10.42.0.0/16) or
+    #    the service CIDR (10.43.0.0/16), all of which fall inside these ranges.
+    #    (Container image pulls are done by the kubelet, not the pod, so they
+    #    are unaffected by any of this -- only BuildKit's own FROM pulls need
+    #    this rule.)
+    #
+    #    If verification shows kube-router does not honour ipBlock.except, the
+    #    fallback is an explicit public-only CIDR allowlist with the private
+    #    ranges removed by construction.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 169.254.0.0/16
+              - 127.0.0.0/8
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80

@@ -1,0 +1,35 @@
+# Two namespaces on purpose:
+#   gitlab-runner       -- the runner manager and, critically, its token Secret.
+#   gitlab-runner-jobs  -- transient CI job pods and nothing else, so a compromised
+#                          job lands in a namespace with nothing worth stealing.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitlab-runner
+  labels:
+    # The manager pod satisfies PSA "restricted" out of the box once
+    # seccompProfile is set in the HelmRelease.
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitlab-runner-jobs
+  labels:
+    # "baseline", NOT "restricted", and this is deliberate:
+    #   * restricted requires runAsNonRoot, but nearly every CI image
+    #     (node/python/golang/ubuntu, anything running apt-get) runs as UID 0,
+    #     so essentially every job would be rejected at admission.
+    #   * restricted also forbids seccompProfile: Unconfined, which rootless
+    #     BuildKit needs.
+    # baseline still rejects every actual node-escape vector: privileged,
+    # hostPath, hostNetwork, hostPID, hostIPC, added capabilities, unmasked /proc.
+    # This is the admission-time backstop that holds even if the runner's
+    # config.toml is wrong.
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
