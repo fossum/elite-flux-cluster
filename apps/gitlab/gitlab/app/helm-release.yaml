@@ -85,14 +85,6 @@ spec:
           config:
             secret: gitlab-minio-storage
             key: connection
-        lfs: null
-        artifacts: null
-        uploads: null
-        packages: null
-        externalDiffs: null
-        terraformState: null
-        ciSecureFiles: null
-        dependencyProxy: null
         omniauth:
           enabled: true
           providers:
