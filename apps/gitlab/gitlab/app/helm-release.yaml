@@ -79,6 +79,11 @@ spec:
           secretName: thefoss-org-cf-origin-cert
 
       appConfig:
+        object_store:
+          enabled: true
+          connection:
+            secret: 'gitlab-minio-storage'
+            key: 'connection'
         objectStorage:
           config:
             secret: gitlab-minio-storage
