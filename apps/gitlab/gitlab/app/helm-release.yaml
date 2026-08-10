@@ -63,9 +63,6 @@ spec:
         enabled: false
       registry:
         bucket: 'gitlab-registry-storage'
-        storage:
-          secret: gitlab-minio-storage
-          key: connection
       time_zone: 'America/Los_Angeles'
 
       ingress:
