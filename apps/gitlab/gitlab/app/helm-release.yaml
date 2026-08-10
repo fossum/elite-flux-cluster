@@ -85,6 +85,24 @@ spec:
           config:
             secret: gitlab-minio-storage
             key: connection
+        lfs:
+          bucket: 'gitlab-lfs-storage'
+        artifacts:
+          bucket: 'gitlab-artifacts-storage'
+        uploads:
+          bucket: 'gitlab-uploads-storage'
+        packages:
+          bucket: 'gitlab-packages-storage'
+        externalDiffs:
+          bucket: 'gitlab-external-diffs-storage'
+        terraformState:
+          bucket: 'gitlab-terraform-state-storage'
+        ciSecureFiles:
+          bucket: 'gitlab-ci-secure-files-storage'
+        dependencyProxy:
+          bucket: 'gitlab-dependency-proxy-storage'
+        backups:
+          bucket: 'gitlab-backup-storage'
         omniauth:
           enabled: true
           providers:
