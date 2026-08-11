@@ -69,7 +69,7 @@ spec:
       privileged: false
       readOnlyRootFilesystem: false
       capabilities:
-        drop: ["ALL"]
+        drop: [ALL]
 
     resources:
       requests:
@@ -98,24 +98,24 @@ spec:
       # "system:serviceaccount:gitlab-runner:gitlab-runner" cannot ...`, add the
       # verb it names here rather than widening the list.
       rules:
-        - resources: ["pods"]
-          verbs: ["create", "delete", "get", "list", "watch"]
-        - resources: ["pods/exec"]
-          verbs: ["create", "get", "patch", "delete"]
-        - resources: ["pods/attach"]
-          verbs: ["create", "get", "patch", "delete"]
-        - resources: ["pods/log"]
-          verbs: ["get", "list"]
-        - resources: ["events"]
-          verbs: ["list", "watch"]
-        - resources: ["secrets"]
-          verbs: ["create", "delete", "get", "update"]
-        - resources: ["configmaps"]
-          verbs: ["create", "delete", "get", "update"]
-        - resources: ["serviceaccounts"]
-          verbs: ["get"]
-        - resources: ["services"]
-          verbs: ["create", "get", "delete"]
+        - resources: [pods]
+          verbs: [create, delete, get, list, watch]
+        - resources: [pods/exec]
+          verbs: [create, get, patch, delete]
+        - resources: [pods/attach]
+          verbs: [create, get, patch, delete]
+        - resources: [pods/log]
+          verbs: [get, list]
+        - resources: [events]
+          verbs: [list, watch]
+        - resources: [secrets]
+          verbs: [create, delete, get, update]
+        - resources: [configmaps]
+          verbs: [create, delete, get, update]
+        - resources: [serviceaccounts]
+          verbs: [get]
+        - resources: [services]
+          verbs: [create, get, delete]
         # "namespaces" is deliberately absent: without it the runner can never
         # create a namespace, which is a hard stop on namespace_per_job.
 
