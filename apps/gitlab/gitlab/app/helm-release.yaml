@@ -73,6 +73,8 @@ spec:
       # the envoy gateway pod and hangs the certmanager-issuer job forever.
       gatewayApi:
         enabled: false
+        installEnvoy: false
+        configureCertmanager: false
 
       ingress:
         enable: true
