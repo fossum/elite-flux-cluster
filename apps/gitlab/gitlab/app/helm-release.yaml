@@ -65,6 +65,15 @@ spec:
         bucket: 'gitlab-registry-storage'
       time_zone: 'America/Los_Angeles'
 
+      # Chart 10.x defaults to Gateway API (Envoy) ingress, which is unused
+      # here -- this cluster terminates everything through the external
+      # NGINX Inc ingress controller + cert-manager (global.ingress below).
+      # Left enabled, it installs its own Envoy Gateway/HTTPRoutes and a
+      # cert-manager Issuer with no valid Gateway parentRef, which crash-loops
+      # the envoy gateway pod and hangs the certmanager-issuer job forever.
+      gatewayApi:
+        enabled: false
+
       ingress:
         enable: true
         configureCertmanager: false
