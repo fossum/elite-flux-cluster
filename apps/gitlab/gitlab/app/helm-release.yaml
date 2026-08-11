@@ -77,7 +77,7 @@ spec:
         configureCertmanager: false
 
       ingress:
-        enable: true
+        enabled: true
         configureCertmanager: false
         class: external
         provider: external
