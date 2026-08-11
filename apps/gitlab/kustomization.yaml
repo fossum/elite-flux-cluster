@@ -3,6 +3,8 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - cnpg-cluster.yaml
+  - cnpg-cluster-17.yaml
+  - cnpg-s3-backup.secret.yaml
   - gitlab-rails.secret.yaml
   - gitlab.config.yaml
   - minio.secret.yaml

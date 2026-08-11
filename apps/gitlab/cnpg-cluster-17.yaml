@@ -1,0 +1,70 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: gitlab-cnpg-main-17
+  namespace: gitlab
+spec:
+  instances: 1
+
+  imageName: "ghcr.io/cloudnative-pg/postgresql:17.5"
+
+  # Bootstraps this new PG17 cluster by logically importing gitlabhq_production
+  # (via pg_dump/pg_restore) from the live PG16 cluster below. CNPG has no
+  # in-place major version upgrade, so this is the supported migration path.
+  # Only run this against the source cluster while GitLab writes are stopped,
+  # otherwise anything written after the dump starts will not carry over.
+  bootstrap:
+    initdb:
+      database: gitlabhq_production
+      owner: gitlab
+      import:
+        type: microservice
+        databases:
+          - gitlabhq_production
+        source:
+          externalCluster: gitlab-cnpg-main-16
+
+  externalClusters:
+    - name: gitlab-cnpg-main-16
+      connectionParameters:
+        host: gitlab-cnpg-main-rw.gitlab.svc.cluster.local
+        port: "5432"
+        dbname: gitlabhq_production
+        user: gitlab
+        sslmode: prefer
+      password:
+        name: gitlab-cnpg-main-app
+        key: password
+
+  storage:
+    size: "10Gi"
+    storageClass: "longhorn"
+
+  monitoring:
+    enablePodMonitor: true
+
+  backup:
+    retentionPolicy: "14d"
+    target: primary
+    barmanObjectStore:
+      destinationPath: "s3://gitlab-postgres-backup/"
+      endpointURL: "http://minio-api.storage.svc.cluster.local:10106"
+      s3Credentials:
+        accessKeyId:
+          name: gitlab-cnpg-s3-backup-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: gitlab-cnpg-s3-backup-creds
+          key: ACCESS_SECRET_KEY
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: gitlab-cnpg-main-17-daily
+  namespace: gitlab
+spec:
+  cluster:
+    name: gitlab-cnpg-main-17
+  schedule: "0 0 2 * * *"
+  backupOwnerReference: self
+  method: barmanObjectStore
