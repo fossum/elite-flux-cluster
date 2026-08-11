@@ -1,0 +1,271 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gitlab-runner
+  namespace: gitlab-runner
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: gitlab-runner
+      # appVersion 18.11.4, matched to the GitLab server's 18.11.9 minor.
+      # A runner ahead of its GitLab server is unsupported -- bump this only
+      # together with apps/gitlab/gitlab/app/helm-release.yaml.
+      version: 0.88.4
+      sourceRef:
+        kind: HelmRepository
+        name: gitlab
+        namespace: flux-system
+      interval: 60m
+  install:
+    createNamespace: false
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    # Must match GitLab's external_url: clone, artifact, cache and CI_REGISTRY
+    # URLs all derive from it, so pointing this at an in-cluster Service would
+    # only make the manager and its jobs disagree.
+    gitlabUrl: https://gitlab.thefoss.org/
+
+    replicas: 1
+    # THIS is the "run more than one job at a time" knob. The Kubernetes
+    # executor creates one transient pod per job, so capacity scales on demand
+    # up to this number and the scheduler spreads the pods across nodes.
+    # Sized against limits.yaml: ~4.5 CPU / 8.5Gi per job. Raise only after
+    # watching real usage.
+    concurrent: 2
+    checkInterval: 10
+    logLevel: info
+    # Let an in-flight job finish rather than killing it on rollout.
+    terminationGracePeriodSeconds: 3600
+    unregisterRunners: true
+
+    sessionServer:
+      # Would stand up a LoadBalancer offering an interactive terminal into
+      # running job pods. Keep it off.
+      enabled: false
+
+    # Pin the GitLab hostnames to the ingress VIP so CI traffic stays on the LAN
+    # regardless of what upstream DNS returns (and never hairpins via Cloudflare).
+    hostAliases:
+      - ip: "${NGINX_EXTERNAL_IP}"
+        hostnames:
+          - gitlab.thefoss.org
+          - registry.thefoss.org
+
+    # The gitlab-runner namespace enforces PodSecurity "restricted". The chart
+    # defaults already satisfy it apart from seccomp, added here. Helm merges
+    # into the default map, so runAsUser: 100 / fsGroup: 65533 are preserved.
+    podSecurityContext:
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      privileged: false
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop: ["ALL"]
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+    serviceAccount:
+      create: true
+      name: gitlab-runner
+
+    rbac:
+      create: true
+      # No ClusterRole, ever.
+      clusterWideAccess: false
+      # `rules` IS MANDATORY. The chart's role.yaml emits
+      #     apiGroups: [""] / resources: ["*"] / verbs: ["*"]
+      # whenever this list is empty, which would hand the manager everything in
+      # the job namespace. Because runners.jobNamespace is set, the chart
+      # renders this Role AND its RoleBinding into gitlab-runner-jobs, bound to
+      # the ServiceAccount above -- no hand-written RBAC is needed.
+      #
+      # If a job fails with `... is forbidden: User
+      # "system:serviceaccount:gitlab-runner:gitlab-runner" cannot ...`, add the
+      # verb it names here rather than widening the list.
+      rules:
+        - resources: ["pods"]
+          verbs: ["create", "delete", "get", "list", "watch"]
+        - resources: ["pods/exec"]
+          verbs: ["create", "get", "patch", "delete"]
+        - resources: ["pods/attach"]
+          verbs: ["create", "get", "patch", "delete"]
+        - resources: ["pods/log"]
+          verbs: ["get", "list"]
+        - resources: ["events"]
+          verbs: ["list", "watch"]
+        - resources: ["secrets"]
+          verbs: ["create", "delete", "get", "update"]
+        - resources: ["configmaps"]
+          verbs: ["create", "delete", "get", "update"]
+        - resources: ["serviceaccounts"]
+          verbs: ["get"]
+        - resources: ["services"]
+          verbs: ["create", "get", "delete"]
+        # "namespaces" is deliberately absent: without it the runner can never
+        # create a namespace, which is a hard stop on namespace_per_job.
+
+    metrics:
+      enabled: true
+      port: 9252
+      # PodMonitor rather than ServiceMonitor, so no Service is needed.
+      # kube-prometheus-stack sets podMonitorSelectorNilUsesHelmValues: false,
+      # so this is picked up without extra labels.
+      podMonitor:
+        enabled: true
+      serviceMonitor:
+        enabled: false
+    service:
+      enabled: false
+
+    runners:
+      name: k8s-shared
+      executor: kubernetes
+      secret: gitlab-runner-token
+      # Job pods land in their own namespace, away from the token Secret above.
+      # This also makes the chart render its Role/RoleBinding there.
+      jobNamespace: gitlab-runner-jobs
+      # NOTE: "locked" / "protected" / "run untagged" are properties of the
+      # runner itself under GitLab 16+ authentication tokens -- set them in the
+      # GitLab UI when you create the instance runner, not here.
+      #
+      # NOTE: no literal "$" may appear in the TOML below. Flux's postBuild
+      # envsubst runs over this manifest; ${NGINX_EXTERNAL_IP} is intentional,
+      # anything else would need "$$" or a
+      # kustomize.toolkit.fluxcd.io/substitute: disabled annotation.
+      config: |
+        [[runners]]
+          environment = ["FF_PRINT_POD_EVENTS=true", "FF_RETRIEVE_POD_WARNING_EVENTS=true"]
+          [runners.kubernetes]
+            namespace = "gitlab-runner-jobs"
+            service_account = "gitlab-runner-job"
+
+            # --- hard boundaries: every one of these MUST stay "" -----------
+            # Left at their permissive defaults, a .gitlab-ci.yml could pick its
+            # own namespace or ServiceAccount and walk straight out of the
+            # sandbox. Pod annotations matter too -- they can select an AppArmor
+            # profile.
+            namespace_overwrite_allowed = ""
+            service_account_overwrite_allowed = ""
+            pod_annotations_overwrite_allowed = ""
+            pod_labels_overwrite_allowed = ""
+            # No *_overwrite_max_allowed keys are set, so jobs cannot raise
+            # their own CPU/memory caps via CI variables. Do not add them.
+
+            privileged = false
+            allow_privilege_escalation = false
+
+            image = "alpine:3.20"
+            poll_timeout = 600
+            # "always" only: otherwise a job can ask for if-not-present and pick
+            # up a node-cached tag that another project populated.
+            pull_policy = ["always"]
+            allowed_pull_policies = ["always"]
+
+            allowed_images = [
+              "registry.thefoss.org/**",
+              "docker.io/**",
+              "ghcr.io/**",
+              "alpine:*",
+              "ubuntu:*",
+              "debian:*",
+              "node:*",
+              "python:*",
+              "golang:*",
+            ]
+            allowed_services = [
+              "moby/buildkit:*-rootless",
+              "docker.io/moby/buildkit:*-rootless",
+              "registry.thefoss.org/**",
+            ]
+
+            cpu_request = "250m"
+            cpu_limit = "2"
+            memory_request = "512Mi"
+            memory_limit = "4Gi"
+            # ephemeral-storage is the forgotten DoS vector: a build that fills
+            # a node's root filesystem evicts everything else on that node.
+            ephemeral_storage_request = "1Gi"
+            ephemeral_storage_limit = "20Gi"
+
+            helper_cpu_request = "100m"
+            helper_cpu_limit = "500m"
+            helper_memory_request = "128Mi"
+            helper_memory_limit = "512Mi"
+            helper_ephemeral_storage_request = "512Mi"
+            helper_ephemeral_storage_limit = "2Gi"
+
+            service_cpu_request = "250m"
+            service_cpu_limit = "2"
+            service_memory_request = "512Mi"
+            service_memory_limit = "4Gi"
+            service_ephemeral_storage_request = "1Gi"
+            service_ephemeral_storage_limit = "20Gi"
+
+            # DNS-independent path to GitLab for job pods, mirroring the
+            # chart-level hostAliases for the manager.
+            [[runners.kubernetes.host_aliases]]
+              ip = "${NGINX_EXTERNAL_IP}"
+              hostnames = ["gitlab.thefoss.org", "registry.thefoss.org"]
+
+            # Optional node isolation -- the cheap 80% of a dedicated VLAN node.
+            # Keeps builds off whichever node runs GitLab/Gitaly and the
+            # TrueNAS-attached storage. Requires labelling a node out of band
+            # (`kubectl label node elite4 workload=ci`), which is not
+            # GitOps-managed, so it stays commented until that is done.
+            # [runners.kubernetes.node_selector]
+            #   workload = "ci"
+
+            [runners.kubernetes.pod_security_context]
+              # run_as_non_root is deliberately NOT set: most CI images run as
+              # UID 0, and PodSecurity "baseline" permits that.
+              [runners.kubernetes.pod_security_context.seccomp_profile]
+                type = "RuntimeDefault"
+
+            [runners.kubernetes.build_container_security_context]
+              allow_privilege_escalation = false
+              [runners.kubernetes.build_container_security_context.capabilities]
+                # NOT ["ALL"] -- dropping everything removes CHOWN,
+                # DAC_OVERRIDE, FOWNER, SETUID and SETGID and breaks apt-get in
+                # essentially every job. The default set already excludes the
+                # dangerous ones (SYS_ADMIN, NET_ADMIN, SYS_MODULE, SYS_PTRACE);
+                # these two are the ones worth removing.
+                drop = ["NET_RAW", "MKNOD"]
+
+            [runners.kubernetes.helper_container_security_context]
+              allow_privilege_escalation = false
+              [runners.kubernetes.helper_container_security_context.capabilities]
+                drop = ["NET_RAW", "MKNOD"]
+
+            # Service containers are where rootless BuildKit runs, and it needs
+            # two things the build container does not:
+            #   * NoNewPrivs OFF -- newuidmap/newgidmap are setuid binaries and
+            #     rootlesskit needs them for subuid mapping.
+            #   * seccomp Unconfined -- rootlesskit needs unshare/mount.
+            # Both are permitted by PodSecurity "baseline" and forbidden by
+            # "restricted", which is the other reason the jobs namespace is
+            # baseline.
+            [runners.kubernetes.service_container_security_context]
+              allow_privilege_escalation = true
+              [runners.kubernetes.service_container_security_context.capabilities]
+                drop = ["NET_RAW"]
+              [runners.kubernetes.service_container_security_context.seccomp_profile]
+                type = "Unconfined"
+
+            # There is deliberately NO [runners.kubernetes.volumes] section.
+            # A host_path entry here is the single thing that would defeat the
+            # entire namespace boundary.

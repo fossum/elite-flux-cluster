@@ -145,3 +145,51 @@ kubectl exec -n gitlab deploy/gitlab-toolbox -- \
 kubectl exec -n gitlab deploy/gitlab-toolbox -- \
   sh -lc "cd /srv/gitlab && bundle exec rake gitlab:doctor:secrets RAILS_ENV=production"
 ```
+
+## CI Runners
+
+GitLab CI runners are a **separate HelmRelease**, not part of the GitLab chart
+(`gitlab-runner.install` stays `false` in `apps/gitlab/gitlab/app/helm-release.yaml`) so their
+lifecycle, RBAC and namespace are independent of the slow 60m-timeout GitLab release.
+
+- **HelmRelease**: `apps/gitlab-runner/gitlab-runner/app/helm-release.yaml`, chart `gitlab-runner`
+  pinned to `0.88.4` (appVersion 18.11.4) from the same `gitlab` HelmRepository. Keep the runner's
+  minor at or below the GitLab server's — bump both together.
+- **Namespaces**: manager in `gitlab-runner`, job pods in `gitlab-runner-jobs`. The split is the
+  point: a compromised CI job lands in a namespace holding nothing but other job pods.
+- **Parallelism** comes from `concurrent` (one transient pod per job), not from multiple runner
+  registrations. A second registration would add zero capacity.
+- **Token**: `apps/gitlab-runner/runner-token.secret.yaml`, keys `runner-token` (the `glrt-…`
+  authentication token) and an empty `runner-registration-token` that must exist or the pod hangs
+  mounting its volume. **Create the token in the GitLab UI with no expiration date** — the chart
+  keeps `config.toml` on tmpfs, so a rotated token is lost on pod restart and the runner silently
+  goes offline about a month later.
+
+### Guardrails that must not be casually relaxed
+
+| Control | Where | If you remove it |
+|---|---|---|
+| `rbac.rules` explicit list | helm-release.yaml | empty list makes the chart grant `*/*` on the core API group in the job namespace |
+| `*_overwrite_allowed = ""` | `runners.config` TOML | a `.gitlab-ci.yml` can choose its own namespace/ServiceAccount and leave the sandbox |
+| PodSecurity `baseline` on `gitlab-runner-jobs` | namespace.yaml | loses the admission-time backstop against `privileged` / `hostPath` / `hostNetwork` |
+| No `[runners.kubernetes.volumes]` | `runners.config` TOML | a `host_path` entry defeats the entire namespace boundary |
+| NetworkPolicy `ipBlock.except` on RFC1918 | network-policies.yaml | CI jobs regain reach to TrueNAS and the rest of the LAN |
+
+### Runner troubleshooting
+
+```bash
+kubectl -n gitlab-runner logs deploy/gitlab-runner            # registration + job dispatch
+kubectl -n gitlab-runner-jobs get pods -w                     # transient job pods
+kubectl -n gitlab-runner-jobs describe resourcequota
+kubectl auth can-i --list \
+  --as=system:serviceaccount:gitlab-runner:gitlab-runner -n gitlab-runner-jobs
+```
+
+- `... is forbidden: User "system:serviceaccount:gitlab-runner:gitlab-runner" cannot ...` → add
+  exactly that verb to `rbac.rules`; do not widen the list.
+- Pod stuck mounting `projected-secrets` → a key is missing from `gitlab-runner-token`.
+- Jobs cannot clone → check the NetworkPolicy allowlist and that `${NGINX_EXTERNAL_IP}` substituted.
+- Rootless BuildKit failures: `newuidmap: Operation not permitted` means NoNewPrivs is on for the
+  service container; `rootlesskit: operation not permitted` means AppArmor/userns is restricted on
+  the node; `failed to mount overlay` needs `--oci-worker-snapshotter=native`. Never "fix" these by
+  setting the jobs namespace to PodSecurity `privileged`.

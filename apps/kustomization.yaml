@@ -9,6 +9,7 @@ resources:
   - finance
   - games
   - gitlab
+  - gitlab-runner
   - home
   - infrastructure
   - kube-system
