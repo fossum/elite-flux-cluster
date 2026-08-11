@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: gitlab
-      version: 9.11.10  # App version 18.11.9
+      version: 10.2.1  # App version 19.2.1
       sourceRef:
         kind: HelmRepository
         name: gitlab
@@ -81,10 +81,6 @@ spec:
           connection:
             secret: 'gitlab-minio-storage'
             key: 'connection'
-        objectStorage:
-          config:
-            secret: gitlab-minio-storage
-            key: connection
         lfs:
           bucket: 'gitlab-lfs-storage'
         artifacts:
@@ -151,8 +147,8 @@ spec:
 
     registry:
       storage:
-        secret: gitlab-minio-storage
-        key: connection
+        secret: gitlab-registry-storage-driver
+        key: config
       ingress:
         tls:
           secretName: gitlab-registry-tls
