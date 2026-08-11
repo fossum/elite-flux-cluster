@@ -116,12 +116,12 @@ spec:
             - secret: gitlab-google-oauth2-secret
 
       psql:
-        host: gitlab-cnpg-main-rw.gitlab.svc.cluster.local
+        host: gitlab-cnpg-main-17-rw.gitlab.svc.cluster.local
         port: 5432
         database: gitlabhq_production
         username: gitlab
         password:
-          secret: gitlab-cnpg-main-app
+          secret: gitlab-cnpg-main-17-app
           key: password
         # ssl: {} # Configure SSL if your external DB requires it
         # preparedStatements: false # Set to true if supported and desired
