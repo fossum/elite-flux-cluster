@@ -180,6 +180,7 @@ spec:
               "registry.thefoss.org/**",
               "docker.io/**",
               "ghcr.io/**",
+              "registry.gitlab.com/security-products/**",
               "alpine:*",
               "ubuntu:*",
               "debian:*",
