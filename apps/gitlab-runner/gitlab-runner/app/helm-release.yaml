@@ -181,6 +181,8 @@ spec:
               "docker.io/**",
               "ghcr.io/**",
               "registry.gitlab.com/security-products/**",
+              "mcr.microsoft.com/**",
+              "bitnami/**",
               "alpine:*",
               "ubuntu:*",
               "debian:*",
