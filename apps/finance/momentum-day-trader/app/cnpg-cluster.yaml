@@ -4,7 +4,18 @@ metadata:
   name: momentum-day-trader-cnpg
   namespace: finance
 spec:
-  instances: 1 # Number of PostgreSQL instances (1 for single instance, 3 for HA)
+  instances: 2 # 1 primary + 1 read-only replica
+
+  managed:
+    services:
+      additional:
+        - selectorType: ro
+          serviceTemplate:
+            metadata:
+              name: momentum-day-trader-cnpg-ro-lb
+            spec:
+              type: LoadBalancer
+              loadBalancerIP: "192.168.1.158"
 
   # PostgreSQL major version is usually determined by the operator's default
   # or can be specified with `imageName` or `imageTag` if you need a specific version.
