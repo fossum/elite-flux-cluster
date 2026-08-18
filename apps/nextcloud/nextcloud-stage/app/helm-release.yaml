@@ -110,12 +110,12 @@ spec:
     externalDatabase:
       enabled: true
       type: postgresql
-      host: nextcloud2-cnpg-main-rw
-      database: app
-      user: app
+      host: nextcloud-cnpg-main-rw
+      database: nextcloud
+      user: nextcloud
       existingSecret:
         enabled: true
-        secretName: nextcloud2-cnpg-main-app
+        secretName: nextcloud-cnpg-main-app
         usernameKey: username
         passwordKey: password
 
