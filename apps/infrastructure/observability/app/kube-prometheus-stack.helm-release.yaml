@@ -254,6 +254,34 @@ spec:
                 annotations:
                   summary: CNPG replication lag is high.
                   description: 'CNPG metrics target {{ $labels.job }} in namespace {{ $labels.namespace }} has replication lag above 16 MiB for at least 15 minutes.'
+              - alert: CloudNativePGWALArchivingFailing
+                expr: cnpg_collector_pg_wal_archive_status{value="ready"} > 10
+                for: 10m
+                labels:
+                  severity: critical
+                annotations:
+                  summary: CNPG WAL archiving is failing.
+                  description: 'CNPG cluster {{ $labels.job }} in namespace {{ $labels.namespace }} has {{ $value }} unarchived WAL files queued.'
+              - alert: CloudNativePGClusterNotHealthy
+                expr: cnpg_collector_up == 0
+                for: 5m
+                labels:
+                  severity: critical
+                annotations:
+                  summary: CNPG cluster is not healthy.
+                  description: 'CNPG cluster pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is reporting unhealthy state.'
+      storage-health:
+        groups:
+          - name: storage.health
+            rules:
+              - alert: PersistentVolumeFillingUp
+                expr: (kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes) > 0.85
+                for: 10m
+                labels:
+                  severity: warning
+                annotations:
+                  summary: PersistentVolume disk space is above 85%.
+                  description: 'PVC {{ $labels.persistentvolumeclaim }} in namespace {{ $labels.namespace }} is at {{ $value | humanizePercentage }} utilization.'
 
     alertmanager:
       enabled: true
