@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: gitlab
-      version: 10.2.1  # App version 19.2.1
+      version: ^10.0.0  # App version 19.x
       sourceRef:
         kind: HelmRepository
         name: gitlab
@@ -34,17 +34,17 @@ spec:
     global:
       smtp:
         enabled: true
-        address: 'smtp.gmail.com'
-        authentication: 'login'
+        address: smtp.gmail.com
+        authentication: login
         password:
           secret: gitlab-smtp-password
           key: password
         port: 587
         starttls_auto: true
         tls: false
-        openssl_verify_mode: 'peer'
+        openssl_verify_mode: peer
       email:
-        display_name: 'GitLab'
+        display_name: GitLab
       certificates:
         # Ensure no secrets are listed here if you don't need custom CAs
         # customCAs:
@@ -62,8 +62,8 @@ spec:
       minio:
         enabled: false
       registry:
-        bucket: 'gitlab-registry-storage'
-      time_zone: 'America/Los_Angeles'
+        bucket: gitlab-registry-storage
+      time_zone: America/Los_Angeles
 
       # Chart 10.x defaults to Gateway API (Envoy) ingress, which is unused
       # here -- this cluster terminates everything through the external
@@ -90,26 +90,26 @@ spec:
         object_store:
           enabled: true
           connection:
-            secret: 'gitlab-minio-storage'
-            key: 'connection'
+            secret: gitlab-minio-storage
+            key: connection
         lfs:
-          bucket: 'gitlab-lfs-storage'
+          bucket: gitlab-lfs-storage
         artifacts:
-          bucket: 'gitlab-artifacts-storage'
+          bucket: gitlab-artifacts-storage
         uploads:
-          bucket: 'gitlab-uploads-storage'
+          bucket: gitlab-uploads-storage
         packages:
-          bucket: 'gitlab-packages-storage'
+          bucket: gitlab-packages-storage
         externalDiffs:
-          bucket: 'gitlab-external-diffs-storage'
+          bucket: gitlab-external-diffs-storage
         terraformState:
-          bucket: 'gitlab-terraform-state-storage'
+          bucket: gitlab-terraform-state-storage
         ciSecureFiles:
-          bucket: 'gitlab-ci-secure-files-storage'
+          bucket: gitlab-ci-secure-files-storage
         dependencyProxy:
-          bucket: 'gitlab-dependency-proxy-storage'
+          bucket: gitlab-dependency-proxy-storage
         backups:
-          bucket: 'gitlab-backup-storage'
+          bucket: gitlab-backup-storage
         omniauth:
           enabled: true
           providers:
@@ -139,7 +139,7 @@ spec:
       gitlab-shell:
         service:
           type: LoadBalancer
-          loadBalancerIP: "192.168.1.157"
+          loadBalancerIP: 192.168.1.157
 
       toolbox:
         backups:
@@ -168,17 +168,17 @@ spec:
       podSecurityContext:
         fsGroupChangePolicy: OnRootMismatch
       persistence:
-        volumeName: "pvc-d27bcb0a-03a0-408b-9494-df2ede8f1140"
+        volumeName: pvc-d27bcb0a-03a0-408b-9494-df2ede8f1140
       ingress:
         tls:
           secretName: gitlab-gitaly-tls
       resources:
         requests:
-          cpu: "500m"
-          memory: "1Gi"
+          cpu: 500m
+          memory: 1Gi
         limits:
           cpu: "2"
-          memory: "2Gi"
+          memory: 2Gi
 
     redis:
       install: false
