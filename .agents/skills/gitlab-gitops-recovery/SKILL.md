@@ -84,6 +84,14 @@ vendor/gems/attr_encrypted/lib/attr_encrypted.rb: attr_decrypt
 ### Root Cause
 Occurs when the restored PostgreSQL database contains fields encrypted under a previous `db_key_base` in `secrets.yml` (from `gitlab-rails-secret`). When Rails attempts to render views requiring those encrypted settings (e.g. reCAPTCHA, CI job signing keys, external auth), `attr_encrypted` fails to decrypt them.
 
+> [!WARNING]
+> Before diagnosing a `CipherError` on a `*_token_encrypted` column (e.g. `runners_token_encrypted`)
+> as corruption, make sure you're decrypting it with the right method — GitLab has two token
+> encryption formats and using the wrong one produces this exact error on perfectly healthy data.
+> See the `gitlab` skill's "Diagnosing `OpenSSL::Cipher::CipherError`" section before clearing any
+> columns. `ApplicationSetting` encrypted fields (below) are a different, single-format case where
+> this distinction doesn't apply.
+
 ### Resolution Steps
 1. **Audit Database Secrets**:
    ```bash

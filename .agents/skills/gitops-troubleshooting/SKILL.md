@@ -91,13 +91,48 @@ This guide contains step-by-step instructions for diagnosing and resolving compl
 ### B. Stalled Releases / Max Retries Exceeded
 * **Symptom**: A HelmRelease fails with the message `terminal error: exceeded maximum retries: cannot remediate failed release` or `stalled resources`. Flux refuses to retry the release even after annotations are updated.
 * **Root Cause**: The release reached its maximum remediation failure count in the `HelmRelease.status.failures` field.
-* **Resolution**:
-  1. Delete the failed release secrets from the target namespace if present.
-  2. Clear the stalled status and reset the failures counter in the Helm controller by suspending and immediately resuming the release:
+* **Resolution, cheapest first**:
+  1. If you've since pushed a **new commit** that fixes the underlying cause, a plain
+     `flux reconcile helmrelease -n <namespace> <release-name>` (no `--with-source` needed if the
+     source already synced) is often enough — it force-triggers a fresh reconcile attempt outside
+     the normal retry/backoff bookkeeping and can clear a `Stalled: MissingRollbackTarget` state
+     even while `status.observedGeneration` still shows the old generation for a few seconds.
+     Cheaper and less disruptive than the options below; try it before reaching for suspend/resume
+     or secret deletion.
+  2. If that doesn't unstick it: delete the failed release secrets from the target namespace if
+     present.
+  3. Clear the stalled status and reset the failures counter in the Helm controller by suspending and immediately resuming the release:
      ```bash
      flux suspend helmrelease -n <namespace> <release-name>
      flux resume helmrelease -n <namespace> <release-name>
      ```
+
+### C. `flux reconcile ... --with-source` CLI timeout ≠ actual failure
+* **Symptom**: `flux reconcile helmrelease <name> -n <namespace> --with-source` prints
+  `✗ context deadline exceeded` and returns, but the release is still healthy or still genuinely
+  progressing when you check `kubectl get helmrelease`.
+* **Root Cause**: The `flux` CLI's own client-side wait for the reconcile to *finish* has a short
+  timeout unrelated to the HelmRelease's own `spec.upgrade.timeout` (which can be much longer, e.g.
+  `60m`). The actual `helm upgrade` operation keeps running server-side inside `helm-controller`
+  regardless of whether the CLI gave up waiting.
+* **Resolution**: don't treat CLI timeout as failure. Poll `kubectl get helmrelease -n <namespace>
+  <name>` / `.status.conditions[?(@.type=="Ready")]` directly instead of trusting the `flux
+  reconcile` command's own exit/output.
+
+### D. `ttlSecondsAfterFinished` Jobs can fail a long-running Helm `--wait` with a false "not found"
+* **Symptom**: A `helm upgrade` that otherwise looks like it's progressing normally (all real
+  workload pods healthy) eventually fails with `jobs.batch "<name>-<hash>" not found`, and this
+  repeats across retries with a *different* hash each time.
+* **Root Cause**: The chart includes a plain (non-hook) `Job` with `ttlSecondsAfterFinished` set to
+  something shorter than the overall release's `--wait` duration. If the Job finishes quickly but
+  the rest of the release takes long enough (large image pulls, other slow-to-ready resources),
+  Kubernetes garbage-collects the finished Job via its TTL before Helm's own polling loop gets back
+  around to checking it, and Helm reports the resource as unexpectedly missing rather than
+  successfully completed.
+* **Resolution**: this isn't something you can wait out — it will keep recurring on retries as
+  long as the release takes longer than the Job's TTL. Fix the actual reason the overall release is
+  slow (or, if the Job's function isn't needed at all in this cluster, disable whatever chart
+  feature creates it).
 
 ---
 

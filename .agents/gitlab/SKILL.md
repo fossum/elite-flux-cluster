@@ -8,7 +8,8 @@ description: GitLab deployment, backup, restore, and post-restore troubleshootin
 ## Deployment Overview
 - **Namespace**: `gitlab`
 - **HelmRelease**: `apps/gitlab/gitlab/app/helm-release.yaml`
-- **Chart**: `gitlab` `8.11.2`
+- **Chart**: `gitlab` — check `helm-release.yaml` for the currently pinned version (this drifts;
+  was `10.2.1` / app `19.2.1` as of the PG16→PG17 + Gateway API cleanup work, see below)
 - **App Kustomization**: `apps/gitlab/gitlab/app/kustomization.yaml`
 - **Ingress hosts**:
   - `gitlab.thefoss.org`
@@ -17,8 +18,10 @@ description: GitLab deployment, backup, restore, and post-restore troubleshootin
 
 ## Architecture Notes
 - GitLab uses **external PostgreSQL** via CloudNativePG:
-  - host: `gitlab-cnpg-main-rw.gitlab.svc.cluster.local`
-  - credentials secret: `gitlab-cnpg-main-app`
+  - host: `gitlab-cnpg-main-17-rw.gitlab.svc.cluster.local` (name carries the PG major version —
+    check `global.psql.host` in `helm-release.yaml` for the current one, it changes on major
+    version migrations; see `cnpg-gitops-recovery` skill §4 for the migration procedure)
+  - credentials secret: `gitlab-cnpg-main-17-app` (CNPG auto-names this `<cluster-name>-app`)
 - GitLab uses **external Redis**, not the chart-managed Redis:
   - host: `redis.infrastructure.svc.cluster.local`
   - credentials secret: `gitlab-redis-secret`
@@ -26,12 +29,88 @@ description: GitLab deployment, backup, restore, and post-restore troubleshootin
   - object storage secret: `gitlab-minio-storage`
   - toolbox backup secret: `gitlab-s3-configuration`
   - backup bucket: `gitlab-backup-storage`
+  - **registry storage secret is a different format, do not reuse `gitlab-minio-storage`**: Rails'
+    `global.appConfig.object_store.connection` wants the "fog" shape
+    (`provider: AWS`, `region`, `aws_access_key_id`, `aws_secret_access_key`, `endpoint`,
+    `path_style`). The container registry's own `registry.storage.secret`/`.key` wants a
+    completely different shape — a `storage/config` file with a top-level driver block:
+    ```yaml
+    s3:
+      accesskey: "..."
+      secretkey: "..."
+      region: "us-east-1"
+      regionendpoint: "http://minio-api.storage.svc.cluster.local:10106"
+      bucket: "gitlab-registry-storage"
+      secure: false
+      v4auth: true
+      pathstyle: true
+    ```
+    Pointing the registry at the fog-format secret doesn't error at apply time — it crash-loops
+    the registry pod at runtime with `configuration error: parsing config.yml: yaml: unmarshal
+    errors: line N: cannot unmarshal !!map into string`. Use a dedicated secret
+    (`apps/gitlab/registry-storage.secret.yaml`, e.g. `gitlab-registry-storage-driver`, key
+    `config`) for the registry.
 - GitLab toolbox is the restore/backup entrypoint. The toolbox image includes:
   - `/usr/local/bin/backup-utility`
   - `gitlab-backup-cli`
   - `aws`
   - `s3cmd`
   - `/etc/gitlab/.s3cfg`
+
+## Chart Major-Version Upgrades (e.g. 9.x → 10.x)
+
+GitLab does **not support downgrading** once a version's migrations have run against the database
+— if a chart bump is reverted after its migrations executed but before the app itself came up
+cleanly, the DB is left in a stuck hybrid schema state (some newer tables/columns present, others
+pending) that the older app code can neither use nor cleanly roll back from. Re-attempting the
+*same* upgrade forward (fixing whatever actually broke) is the only real way out — there is no
+"just revert the values.yaml" escape hatch once migrations have started. `gitlab-rake
+gitlab:db:schema_checker:run` and `db:migrate:status` (look for `NO FILE` entries dated recently,
+not the expected old/pre-2020 ones, and for `down` rows) are how you tell whether this has
+happened.
+
+Before editing `global.appConfig`/`global.gatewayApi`/etc. in `helm-release.yaml` for a version
+bump, **pull the real chart and check its actual `values.yaml` and `_checkConfig_*.tpl`
+templates** rather than guessing keys from memory or docs:
+```bash
+helm repo add gitlab https://charts.gitlab.io/   # already added if run before
+helm pull gitlab/gitlab --version <X.Y.Z> --untar --untardir /tmp/gitlab-chart-check
+```
+Then `helm template` locally with the real decrypted values (`sops --decrypt` the ConfigMap/inline
+values, `-f` them in) before pushing — the chart's own `gitlab.checkConfig` fail-fast validation
+(rendered into `NOTES.txt`, calls `fail` on problems) catches config errors for free, the same way
+a real `helm upgrade` would, without touching the cluster. Two concrete traps found this way:
+
+- **`global.appConfig.objectStorage` and `global.appConfig.consolidatedObjectStore` do not exist
+  in any version of this chart.** They're silently-ignored dead keys — Helm doesn't error on
+  unknown values unless a JSON schema forbids `additionalProperties`. The real key for consolidated
+  object storage is `global.appConfig.object_store` (snake_case, `enabled` + `connection`). A
+  previous session spent 8 commits guessing at the wrong keys; check the real chart source.
+- **`global.gatewayApi.enabled: true` is chart 10.x's new default**, and disabling *only* that flag
+  is not enough. Three independent gates control different pieces:
+  - `global.gatewayApi.enabled` — gates the `Gateway`/`GatewayClass`/`HTTPRoute` template `if`s
+  - `global.gatewayApi.installEnvoy` — gates the `envoy-gateway` **sub-chart install itself**, via
+    a `condition:` on the Chart.yaml dependency, completely independent of `.enabled`
+  - `global.gatewayApi.configureCertmanager` — gates whether the `certmanager-issuer` sub-chart
+    renders a Gateway-mode cert-manager `Issuer`, also independent of `.enabled`
+
+  Leaving `installEnvoy`/`configureCertmanager` on while only setting `enabled: false` leaves an
+  `envoy-gateway` deployment crash-looping (holds a LoadBalancer IP) and a `gitlab-issuer` Job
+  perpetually failing to apply a Gateway `Issuer` that the cert-manager admission webhook rejects
+  for missing `parentRefs`. Set all three to `false` if this cluster doesn't use Gateway API
+  ingress (it doesn't — see the classic-`Ingress` section below).
+  - That same `gitlab-issuer` Job (not a Helm hook — a plain Job with a `ttlSecondsAfterFinished:
+    1800` and an infinite internal `while ! kubectl apply; do sleep 1; done` retry loop) can also
+    fail an otherwise-successful upgrade with `jobs.batch "gitlab-issuer-<hash>" not found`: if the
+    overall Helm release `--wait` takes long enough, the Job's 30-minute TTL expires and Kubernetes
+    garbage-collects it before Helm gets back around to polling it. See `gitops-troubleshooting`
+    skill for the general Stalled/`MissingRollbackTarget` recovery pattern this produces.
+- **`global.ingress.enable` is a chart-independent typo — the real key is `enabled`.** This one
+  had been silently wrong (as `enable`, no `d`) since the app was first added; it never mattered
+  because chart 9.x's real `global.ingress.enabled` default was `true`. Chart 10.x changed that
+  default to `false`, so the typo suddenly took the site down (zero `Ingress` resources rendered)
+  with no error anywhere — Helm doesn't warn on unknown keys. If ingress disappears after a chart
+  bump with no explanation, suspect a silently-wrong key name before anything more exotic.
 
 ## Key Repo Conventions
 - Keep `global.minio.enabled: false`, `redis.install: false`, and `postgresql.install: false`. This deployment is intentionally wired to external services.
@@ -116,6 +195,48 @@ description: GitLab deployment, backup, restore, and post-restore troubleshootin
   kubectl exec -n gitlab deploy/gitlab-toolbox -- \
     sh -lc 'cd /srv/gitlab && bundle exec rake db:migrate RAILS_ENV=production'
   ```
+
+## Diagnosing `OpenSSL::Cipher::CipherError` — use the right decrypt method or you WILL get false positives
+
+GitLab stores token-type encrypted columns (`runners_token_encrypted`, etc.) in **two different
+formats**, and using the wrong decrypt call to check them produces `CipherError` on perfectly
+valid, healthy data — indistinguishable from real corruption unless you know to check which
+method you're using.
+
+- **Legacy/static-nonce format**: bare ciphertext, no prefix. Decrypt with
+  `Gitlab::CryptoHelper.aes256_gcm_decrypt(token)` (no explicit nonce — it derives the IV
+  deterministically from the key itself).
+- **Newer "dynamic nonce" format**: `"|" + ciphertext + <12 raw IV bytes>` — see
+  `lib/authn/token_field/encryption_helper.rb`, `DYNAMIC_NONCE_IDENTIFIER = "|"`. The trailing 12
+  bytes are **not** random binary, they're the first 12 *characters* of
+  `Digest::SHA256.hexdigest(plaintext_token)` (i.e. printable ASCII hex chars like `34421976d2f5`)
+  — packed as bytes, not the raw digest. This is intentional upstream behavior, not corruption; a
+  leading `0x7c` (`|`) byte on one of these columns is the format marker, not mangled data.
+  **You must decrypt these via `Authn::TokenField::EncryptionHelper.decrypt_token(token)`**, which
+  parses the `|...<iv>` framing correctly before calling the underlying crypto helper. Calling the
+  bare `Gitlab::CryptoHelper.aes256_gcm_decrypt(token)` on a dynamic-nonce-format token treats the
+  whole `|`-prefixed+IV-suffixed string as if it were plain ciphertext and reliably throws
+  `OpenSSL::Cipher::CipherError` — on a token that is completely valid and would decrypt fine
+  through the real application code path.
+
+**Before concluding any encrypted column is corrupted and clearing/regenerating it**, verify with
+the real path GitLab itself uses (check the actual production backtrace for which class raised —
+if it went through `token_field/encryption_helper.rb`, use `EncryptionHelper.decrypt_token`, not
+the bare crypto helper), e.g.:
+```ruby
+# Read-only diagnostic — do NOT skip straight to clearing columns off one bad scan.
+Project.where.not(runners_token_encrypted: nil).find_each do |p|
+  begin
+    Authn::TokenField::EncryptionHelper.decrypt_token(p.runners_token_encrypted)
+  rescue => e
+    puts "#{p.id} #{p.path}: #{e.class}"
+  end
+end
+```
+If you do end up clearing/regenerating a token column based on a diagnosis, keep the *old* CNPG
+cluster/PVC around (Retain policy) until you've re-verified with the correct method — it's the
+only way to recover the original values if the first diagnosis turns out to be a false positive
+from using the wrong decrypt call.
 
 ## Useful Commands
 ```bash
