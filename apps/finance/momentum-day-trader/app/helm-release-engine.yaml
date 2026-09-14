@@ -71,6 +71,16 @@ spec:
     ingress:
       main:
         enabled: false
+    service:
+      main:
+        ports:
+          main:
+            port: 3000
+          ws:
+            enabled: true
+            port: 8081
+            protocol: tcp
+            targetPort: 8081
     persistence:
       app-data:
         enabled: true
