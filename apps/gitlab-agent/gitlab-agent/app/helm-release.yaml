@@ -1,0 +1,46 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gitlab-agent
+  namespace: gitlab-agent
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: gitlab-agent
+      version: 2.29.0
+      sourceRef:
+        kind: HelmRepository
+        name: gitlab
+        namespace: flux-system
+      interval: 60m
+  install:
+    createNamespace: false
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    replicas: 1
+    image:
+      repository: "registry.gitlab.com/gitlab-org/cluster-integration/gitlab-agent/agentk"
+      tag: "v19.3.2"
+    serviceAccount:
+      create: true
+      name: gitlab-agent
+    rbac:
+      create: false
+    config:
+      kasAddress: "grpc://gitlab-kas.gitlab.svc.cluster.local:8150"
+      secretName: gitlab-agent-token
+      operational_container_scanning:
+        enabled: false
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi

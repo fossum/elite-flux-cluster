@@ -56,6 +56,7 @@ spec:
         hostnames:
           - gitlab.thefoss.org
           - registry.thefoss.org
+          - kas.thefoss.org
 
     # The gitlab-runner namespace enforces PodSecurity "restricted". The chart
     # defaults already satisfy it apart from seccomp, added here. Helm merges
@@ -154,6 +155,11 @@ spec:
             namespace = "gitlab-runner-jobs"
             service_account = "gitlab-runner-job"
 
+            [runners.kubernetes.dns_config]
+              options = [
+                { name = "ndots", value = "1" }
+              ]
+
             # --- hard boundaries: every one of these MUST stay "" -----------
             # Left at their permissive defaults, a .gitlab-ci.yml could pick its
             # own namespace or ServiceAccount and walk straight out of the
@@ -223,7 +229,7 @@ spec:
             # chart-level hostAliases for the manager.
             [[runners.kubernetes.host_aliases]]
               ip = "${NGINX_EXTERNAL_IP}"
-              hostnames = ["gitlab.thefoss.org", "registry.thefoss.org"]
+              hostnames = ["gitlab.thefoss.org", "registry.thefoss.org", "kas.thefoss.org"]
 
             # Optional node isolation -- the cheap 80% of a dedicated VLAN node.
             # Keeps builds off whichever node runs GitLab/Gitaly and the

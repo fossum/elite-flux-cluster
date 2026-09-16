@@ -10,6 +10,7 @@ resources:
   - games
   - gitlab
   - gitlab-runner
+  - gitlab-agent
   - home
   - infrastructure
   - kube-system
