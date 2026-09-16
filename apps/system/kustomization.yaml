@@ -4,3 +4,4 @@ resources:
   - namespace.yaml
   - intel-plugin-op.yaml
   - intel-plugin-device.yaml
+  - nvidia-plugin.yaml
