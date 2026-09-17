@@ -155,11 +155,6 @@ spec:
             namespace = "gitlab-runner-jobs"
             service_account = "gitlab-runner-job"
 
-            [runners.kubernetes.dns_config]
-              options = [
-                { name = "ndots", value = "1" }
-              ]
-
             # --- hard boundaries: every one of these MUST stay "" -----------
             # Left at their permissive defaults, a .gitlab-ci.yml could pick its
             # own namespace or ServiceAccount and walk straight out of the
@@ -224,6 +219,11 @@ spec:
             service_memory_limit = "4Gi"
             service_ephemeral_storage_request = "1Gi"
             service_ephemeral_storage_limit = "20Gi"
+
+            [runners.kubernetes.dns_config]
+              options = [
+                { name = "ndots", value = "1" }
+              ]
 
             # DNS-independent path to GitLab for job pods, mirroring the
             # chart-level hostAliases for the manager.
