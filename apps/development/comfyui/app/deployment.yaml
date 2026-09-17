@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: comfyui
-          image: ai-dock/comfyui:latest
+          image: ghcr.io/ai-dock/comfyui:latest-cuda
           imagePullPolicy: Always
           ports:
             - name: http
