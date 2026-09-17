@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: comfyui
+  namespace: development
+  annotations:
+    nginx.org/websocket-services: comfyui
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "ComfyUI"
+    gethomepage.dev/description: "AI Image Generation"
+    gethomepage.dev/group: "Services"
+    gethomepage.dev/icon: "si-comfyui" # Simple icon placeholder
+spec:
+  ingressClassName: external
+  tls:
+    - hosts:
+        - comfyui.thefoss.org
+      secretName: comfyui-tls
+  rules:
+    - host: comfyui.thefoss.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: comfyui
+                port:
+                  number: 8188

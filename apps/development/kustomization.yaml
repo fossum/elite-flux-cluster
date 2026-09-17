@@ -5,3 +5,4 @@ resources:
   - copilot-cli/ks.yaml
   - development-workspace/ks.yaml
   - dev-box/ks.yaml
+  - comfyui/ks.yaml

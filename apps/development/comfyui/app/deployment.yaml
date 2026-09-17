@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comfyui
+  namespace: development
+  labels:
+    app: comfyui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: comfyui
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: comfyui
+    spec:
+      containers:
+        - name: comfyui
+          image: ai-dock/comfyui:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8188
+              protocol: TCP
+          env:
+            - name: DIRECT_ADDRESS
+              value: "0.0.0.0"
+            - name: DIRECT_ADDRESS_GET_IP
+              value: "false"
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - name: storage
+              mountPath: /workspace
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: comfyui-storage
