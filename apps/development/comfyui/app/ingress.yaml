@@ -5,6 +5,10 @@ metadata:
   namespace: development
   annotations:
     nginx.org/websocket-services: comfyui
+    nginx.org/proxy-connect-timeout: "3600s"
+    nginx.org/proxy-read-timeout: "3600s"
+    nginx.org/proxy-send-timeout: "3600s"
+    nginx.org/client-max-body-size: "0"
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "ComfyUI"
     gethomepage.dev/description: "AI Image Generation"
