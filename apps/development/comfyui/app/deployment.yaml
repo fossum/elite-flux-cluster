@@ -17,6 +17,7 @@ spec:
       labels:
         app: comfyui
     spec:
+      enableServiceLinks: false
       containers:
         - name: comfyui
           image: ghcr.io/ai-dock/comfyui:latest-cuda
@@ -26,9 +27,15 @@ spec:
               containerPort: 8188
               protocol: TCP
           env:
+            - name: COMFYUI_PORT
+              value: "8188"
             - name: DIRECT_ADDRESS
               value: "0.0.0.0"
             - name: DIRECT_ADDRESS_GET_IP
+              value: "false"
+            - name: WEB_ENABLE_AUTH
+              value: "false"
+            - name: CF_QUICK_TUNNELS
               value: "false"
           resources:
             limits:
