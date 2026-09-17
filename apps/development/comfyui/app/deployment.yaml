@@ -50,6 +50,8 @@ spec:
               value: "false"
             - name: CF_QUICK_TUNNELS
               value: "false"
+            - name: AUTO_UPDATE
+              value: "false"
           resources:
             limits:
               nvidia.com/gpu: 1
