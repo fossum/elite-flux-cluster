@@ -38,6 +38,8 @@ spec:
               containerPort: 8188
               protocol: TCP
           env:
+            - name: WORKSPACE
+              value: "/workspace"
             - name: COMFYUI_PORT
               value: "8188"
             - name: DIRECT_ADDRESS
