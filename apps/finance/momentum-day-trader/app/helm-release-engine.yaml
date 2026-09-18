@@ -33,6 +33,10 @@ spec:
       valuesKey: ENCRYPTION_KEY
       targetPath: workload.main.podSpec.containers.main.env.ENCRYPTION_KEY
     - kind: Secret
+      name: momentum-day-trader-secrets
+      valuesKey: VITE_GOOGLE_CLIENT_ID
+      targetPath: workload.main.podSpec.containers.main.env.VITE_GOOGLE_CLIENT_ID
+    - kind: Secret
       name: momentum-day-trader-cnpg-app
       valuesKey: uri
       targetPath: workload.main.podSpec.containers.main.env.DATABASE_URL
