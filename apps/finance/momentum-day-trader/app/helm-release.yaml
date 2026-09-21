@@ -105,11 +105,11 @@ spec:
               args:
                 - sh
                 - -c
-                - "until nc -z localhost 8081; do echo 'Waiting for python-engine to listen on port 8081...'; sleep 1; done; node dist/server.cjs"
+                - "until nc -z 127.0.0.1 8081; do echo 'Waiting for python-engine to listen on port 8081...'; sleep 1; done; node dist/server.cjs"
               env:
                 NODE_ENV: production
                 PORT: "3000"
-                PYTHON_ENGINE_WS_URL: ws://localhost:8081
+                PYTHON_ENGINE_WS_URL: ws://127.0.0.1:8081
                 BUILD_APP: "true"
             engine:
               enabled: true
