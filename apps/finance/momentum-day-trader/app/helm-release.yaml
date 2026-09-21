@@ -94,6 +94,9 @@ spec:
                     echo "Pulling latest code..."
                     cd /app && git pull
                   fi
+                  if [ -f "/app/python-engine/requirements.txt" ] && [ -d "/app/.venv" ]; then
+                    /app/.venv/bin/pip install --quiet -r /app/python-engine/requirements.txt || true
+                  fi
           containers:
             main:
               enabled: true
@@ -115,11 +118,13 @@ spec:
               args:
                 - sh
                 - -c
-                - "npm run start:engine"
+                - "export PATH=/app/.venv/bin:$PATH && npm run start:engine"
               env:
                 PORT: "3000"
                 BUILD_APP: "false"
                 FIREBASE_SERVICE_ACCOUNT_PATH: "/app/service-account.json"
+                VIRTUAL_ENV: "/app/.venv"
+                PATH: "/app/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
               probes:
                 liveness:
                   enabled: false
