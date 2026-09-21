@@ -40,6 +40,30 @@ spec:
       name: momentum-day-trader-cnpg-app
       valuesKey: uri
       targetPath: workload.main.podSpec.containers.main.env.DATABASE_URL
+    - kind: Secret
+      name: momentum-day-trader-secrets
+      valuesKey: GEMINI_API_KEY
+      targetPath: workload.main.podSpec.containers.engine.env.GEMINI_API_KEY
+    - kind: Secret
+      name: momentum-day-trader-secrets
+      valuesKey: FMP_API_KEY
+      targetPath: workload.main.podSpec.containers.engine.env.FMP_API_KEY
+    - kind: Secret
+      name: momentum-day-trader-secrets
+      valuesKey: APP_URL
+      targetPath: workload.main.podSpec.containers.engine.env.APP_URL
+    - kind: Secret
+      name: momentum-day-trader-secrets
+      valuesKey: ENCRYPTION_KEY
+      targetPath: workload.main.podSpec.containers.engine.env.ENCRYPTION_KEY
+    - kind: Secret
+      name: momentum-day-trader-secrets
+      valuesKey: VITE_GOOGLE_CLIENT_ID
+      targetPath: workload.main.podSpec.containers.engine.env.VITE_GOOGLE_CLIENT_ID
+    - kind: Secret
+      name: momentum-day-trader-cnpg-app
+      valuesKey: uri
+      targetPath: workload.main.podSpec.containers.engine.env.DATABASE_URL
 
   values:
     image:
@@ -55,13 +79,54 @@ spec:
             options:
               - name: ndots
                 value: "5"
+          initContainers:
+            init-db-and-sync:
+              enabled: true
+              type: init
+              imageSelector: image
+              command:
+                - sh
+                - -c
+                - |
+                  until nc -z -w 2 momentum-day-trader-cnpg-rw 5432; do echo "waiting for postgres..."; sleep 2; done;
+                  echo "Postgres is ready."
+                  if [ -d "/app/.git" ]; then
+                    echo "Pulling latest code..."
+                    cd /app && git pull
+                  fi
           containers:
             main:
+              enabled: true
+              primary: true
+              imageSelector: image
+              args:
+                - sh
+                - -c
+                - "until nc -z localhost 8081; do echo 'Waiting for python-engine to listen on port 8081...'; sleep 1; done; node dist/server.cjs"
               env:
                 NODE_ENV: production
                 PORT: "3000"
-                PYTHON_ENGINE_WS_URL: ws://momentum-engine-generic-npm:8081
+                PYTHON_ENGINE_WS_URL: ws://localhost:8081
                 BUILD_APP: "true"
+            engine:
+              enabled: true
+              primary: false
+              imageSelector: image
+              args:
+                - sh
+                - -c
+                - "npm run start:engine"
+              env:
+                PORT: "3000"
+                BUILD_APP: "false"
+                FIREBASE_SERVICE_ACCOUNT_PATH: "/app/service-account.json"
+              probes:
+                liveness:
+                  enabled: false
+                readiness:
+                  enabled: false
+                startup:
+                  enabled: false
     ingress:
       main:
         enabled: true
@@ -85,3 +150,4 @@ spec:
         type: pvc
         existingClaim: momentum-day-trader-pvc
         mountPath: /app
+        targetSelectAll: true

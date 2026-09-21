@@ -4,7 +4,6 @@ kind: Kustomization
 resources:
   - cnpg-cluster.yaml
   - helm-release.yaml
-  - helm-release-engine.yaml
   - helm-release-studio.yaml
   - storage.yaml
   - secret.secret.yaml
