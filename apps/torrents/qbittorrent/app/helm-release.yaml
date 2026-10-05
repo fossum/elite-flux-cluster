@@ -44,6 +44,9 @@ spec:
   values:
     securityContext:
       container:
+        runAsUser: 0
+        runAsGroup: 0
+        readOnlyRootFilesystem: false
         PUID: 1001
       pod:
         fsGroup: 1001
