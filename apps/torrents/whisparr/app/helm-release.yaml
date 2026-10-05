@@ -39,6 +39,14 @@ spec:
       targetPath: BASE_DOMAIN
   values:
     TZ: America/Los_Angeles
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              env:
+                PUID: 1001
+                PGID: 1001
     ingress:
       main:
         enabled: true
