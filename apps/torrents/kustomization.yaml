@@ -13,3 +13,4 @@ resources:
   - transmission/ks.yaml
   - vpn-config.secret.yaml
   - whisparr/ks.yaml
+  - qbittorrent/ks.yaml

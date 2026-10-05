@@ -1,0 +1,73 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: qbittorrent
+  namespace: torrents
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: enabled
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: qbittorrent
+      version: ^25.0.0
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+      interval: 15m
+  timeout: 20m
+  maxHistory: 3
+  driftDetection:
+    mode: warn
+  install:
+    createNamespace: true
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  valuesFrom:
+    - kind: ConfigMap
+      name: torrents-config
+      valuesKey: BASE_DOMAIN
+      targetPath: BASE_DOMAIN
+      optional: false
+    - kind: ConfigMap
+      name: vpn-addon-config
+      valuesKey: addons.yaml
+  values:
+    securityContext:
+      container:
+        PUID: 1001
+      pod:
+        fsGroup: 1001
+    persistence:
+      config:
+        enabled: true
+        storageClass: truenas-nfs-api-csi
+        size: 5Gi
+        retain: true
+      media:
+        enabled: true
+        type: nfs
+        path: /mnt/local-raid/no-backup/Test
+        mountPath: /media
+        server: truenas.${BASE_DOMAIN}
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: internal
+        hosts:
+          - host: qbittorrent.elite.internal
+        integrations:
+          traefik:
+            enabled: false
+          certManager:
+            enabled: true
+            certificateIssuer: elite-internal-ca
