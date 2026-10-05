@@ -2,6 +2,7 @@
     "recommendations": [
         "signageos.signageos-vscode-sops",
         "bierner.markdown-preview-github-styles",
-        "redhat.vscode-yaml"
+        "redhat.vscode-yaml",
+        "google.google-antigravity"
     ]
 }
