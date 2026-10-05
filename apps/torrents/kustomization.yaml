@@ -12,3 +12,4 @@ resources:
   - torrents.secret.yaml
   - transmission/ks.yaml
   - vpn-config.secret.yaml
+  - whisparr/ks.yaml
