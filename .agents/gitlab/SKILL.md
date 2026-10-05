@@ -314,3 +314,87 @@ kubectl auth can-i --list \
   service container; `rootlesskit: operation not permitted` means AppArmor/userns is restricted on
   the node; `failed to mount overlay` needs `--oci-worker-snapshotter=native`. Never "fix" these by
   setting the jobs namespace to PodSecurity `privileged`.
+
+### Programmatic Runner & Project Configuration
+
+Runners and project settings can be toggled programmatically via the GitLab REST API or Rails runner:
+
+- **Enable Instance / Shared Runners on a Project**:
+  ```bash
+  curl --request PUT --header "PRIVATE-TOKEN: <TOKEN>" \
+    "https://gitlab.thefoss.org/api/v4/projects/<PROJECT_ID_OR_ENCODED_PATH>" \
+    --data "shared_runners_enabled=true"
+  ```
+  Or via Rails runner:
+  ```ruby
+  Project.find(<PROJECT_ID>).update!(shared_runners_enabled: true)
+  ```
+- **Register a Dedicated Project Runner via API**:
+  ```bash
+  curl --request POST --header "PRIVATE-TOKEN: <TOKEN>" \
+    "https://gitlab.thefoss.org/api/v4/user/runners" \
+    --data "runner_type=project_type" \
+    --data "project_id=<PROJECT_ID>" \
+    --data "description=my-project-runner"
+  ```
+- **Assign an Existing Specific Runner**:
+  ```bash
+  curl --request POST --header "PRIVATE-TOKEN: <TOKEN>" \
+    "https://gitlab.thefoss.org/api/v4/projects/<PROJECT_ID>/runners" \
+    --data "runner_id=<RUNNER_ID>"
+  ```
+
+### Stalled Pending Jobs & Runner Cache Desync
+
+#### Symptom
+A pipeline is queued, but jobs remain indefinitely in `pending` state even though runners are online and `shared_runners_enabled` is `true`.
+
+#### Root Cause
+1. **Cached `ci_pending_builds`**: If a pipeline is created while `shared_runners_enabled` was `false`, GitLab denormalizes and saves `instance_runners_enabled: false` into `ci_pending_builds`. Toggling the project setting does NOT retroactively update already-enqueued build rows in PostgreSQL.
+2. **Runner Long-Polling**: `gitlab-runner` instances on active long-polling sessions can bottleneck and fail to discover newly eligible builds until the long-poll connection terminates.
+
+#### Recovery Procedure
+1. **Fix pending build cache & retry**:
+   Update cached flags in the database or retry the pipeline via Rails runner:
+   ```bash
+   # Option A: Update ci_pending_builds cache
+   kubectl -n gitlab exec gitlab-cnpg-main-17-1 -c postgres -- \
+     psql -U postgres gitlabhq_production -c "UPDATE ci_pending_builds SET instance_runners_enabled = true WHERE project_id = <PROJECT_ID>;"
+
+   # Option B: Re-evaluate via Rails runner
+   kubectl -n gitlab exec deploy/gitlab-toolbox -- \
+     gitlab-rails runner "p = Ci::Pipeline.find(<PIPELINE_ID>); p.builds.each { |b| b.drop!(:unknown_failure) if b.pending? }; p.retry_failed(User.find_by_username('ericfoss'))"
+   ```
+2. **Restart the Runner Deployment**:
+   Clear stalled long-polling connections and force an immediate queue poll:
+   ```bash
+   kubectl -n gitlab-runner rollout restart deployment gitlab-runner
+   ```
+
+## GitLab Agent for Kubernetes (KAS & agentk)
+
+Cluster connectivity for CI/CD deployments and Kubernetes cluster integration is managed by **GitLab Agent for Kubernetes** (`agentk`):
+
+- **Deployment**: `apps/gitlab-agent/gitlab-agent/app/helm-release.yaml` in the `gitlab-agent` namespace, connecting in-cluster to KAS (`grpc://gitlab-kas.gitlab.svc.cluster.local:8150`).
+- **KAS Ingress**: `kas.thefoss.org` (`gitlab.kas.ingress` in the GitLab HelmRelease).
+- **Agent Configuration Repo**: The agent (`k8s-agent`, id: 2) is registered to `traders/momentum-day-trader`. Its configuration file is located at `.gitlab/agents/k8s-agent/config.yaml`.
+- **RBAC**: Application rollout permissions are managed in `apps/gitlab-agent/rbac.yaml` (e.g. `gitlab-agent-finance-deployer` in namespace `finance`).
+
+### Attaching Projects to the Cluster (`ci_access`)
+
+To attach another repository (such as `traders/brokers-py`) to the cluster without deploying multiple agent pods:
+
+1. Edit `.gitlab/agents/k8s-agent/config.yaml` in the agent configuration repository (`traders/momentum-day-trader`):
+   ```yaml
+   ci_access:
+     projects:
+       - id: traders/momentum-day-trader
+       - id: traders/brokers-py
+     # Or authorize an entire group:
+     # groups:
+     #   - id: traders
+   ```
+2. Commit and push to the default branch (`main`).
+3. GitLab KAS automatically picks up the commit, registers an entry in `agent_project_authorizations`, and attaches the cluster to the project under **Operate > Kubernetes clusters**.
+4. CI/CD pipelines in authorized projects receive the cluster context via the injected `KUBECONFIG` (context: `traders/momentum-day-trader:k8s-agent`).
+
