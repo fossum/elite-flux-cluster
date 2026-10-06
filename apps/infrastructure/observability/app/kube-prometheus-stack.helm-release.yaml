@@ -340,7 +340,7 @@ spec:
             memory: 1Gi # Prevent compaction spikes from evicting Prometheus on a constrained cluster.
           limits:
             cpu: 750m
-            memory: 2Gi
+            memory: 4Gi
         storageSpec:
           volumeClaimTemplate:
             spec:

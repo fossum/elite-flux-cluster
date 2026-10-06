@@ -56,7 +56,7 @@ spec:
         storageClass: longhorn
         accessModes:
           - ReadWriteOnce
-        size: 10Gi # Local filesystem storage keeps Loki simple and avoids an external object store.
+        size: 25Gi # Local filesystem storage keeps Loki simple and avoids an external object store.
 
     backend:
       replicas: 0
