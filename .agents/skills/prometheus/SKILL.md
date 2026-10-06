@@ -1,9 +1,28 @@
 ---
 name: prometheus
-description: Prometheus, Alertmanager, and kube-prometheus-stack troubleshooting guide for the elite-flux-cluster. Use this when asked about monitoring, alerts, Flux health metrics, or K3s-specific Prometheus behavior.
+description: Prometheus, Alertmanager, and kube-prometheus-stack troubleshooting guide and diagnostic tooling for the elite-flux-cluster. Use this when asked about monitoring, active alerts, scrape target failures, PromQL queries, Flux health metrics, or K3s-specific Prometheus behavior.
 ---
 
-# Prometheus Troubleshooting Skill — elite-flux-cluster
+# Prometheus Troubleshooting & Diagnostic Skill — elite-flux-cluster
+
+## Diagnostic Helper Tool
+The skill includes a zero-dependency CLI script located at [`.agents/skills/prometheus/scripts/prom_tool.py`](file:///home/ericfoss/development/elite-flux-cluster/.agents/skills/prometheus/scripts/prom_tool.py).
+It queries Prometheus and Alertmanager through the Kubernetes API server proxy (`kubectl get --raw`), eliminating the need for port-forwarding or relying on curl/wget inside distroless containers.
+
+```bash
+# 1. Fetch active alerts grouped by alert name & severity with resource summaries
+.agents/skills/prometheus/scripts/prom_tool.py alerts
+
+# Show verbose descriptions for alerts
+.agents/skills/prometheus/scripts/prom_tool.py alerts --verbose
+
+# 2. Inspect failing or down scrape targets with endpoint URLs and errors
+.agents/skills/prometheus/scripts/prom_tool.py targets
+
+# 3. Execute arbitrary PromQL queries directly
+.agents/skills/prometheus/scripts/prom_tool.py query 'up{job="node-exporter"}'
+.agents/skills/prometheus/scripts/prom_tool.py query 'gotk_resource_info{ready!="True", suspended!="true"}'
+```
 
 ## Deployment Overview
 - **Namespace**: `observability`
@@ -48,6 +67,11 @@ description: Prometheus, Alertmanager, and kube-prometheus-stack troubleshooting
 
 ## Common Failure Modes
 
+### Prometheus Pod OOMKilled
+- **Symptom**: `prometheus-kube-prometheus-stack-0` crashes periodically (Exit Code 137, `Reason: OOMKilled`).
+- **Cause**: The container memory limit (default 2Gi) is exceeded during TSDB compaction or heavy queries.
+- **Fix**: Increase `resources.limits.memory` and `requests.memory` in `apps/infrastructure/observability/app/kube-prometheus-stack.helm-release.yaml` to 3Gi or 4Gi.
+
 ### HelmRelease fails to reconcile
 - **Symptom**: `observability/kube-prometheus-stack` stays `Ready=False`.
 - **Likely cause**: an invalid `valuesFrom` lookup for `cluster-config`.
@@ -73,12 +97,11 @@ description: Prometheus, Alertmanager, and kube-prometheus-stack troubleshooting
 - **Symptoms**:
   - `KubePodNotReady`
   - `KubeDaemonSetRolloutStuck`
-  - pending `svclb-*ingress-nginx*` pods in `kube-system`
-- **Root cause**: both internal and external LoadBalancer Services expose `80/443`; if they target the same nodes, K3s ServiceLB creates unschedulable pods due to host-port conflicts.
+  - pending `svclb-*` pods in `kube-system`
+- **Root cause**: both internal and external LoadBalancer Services expose conflicting host ports or target nodes without required labels; if they target the same nodes, K3s ServiceLB creates unschedulable pods due to host-port conflicts.
 - **Fix pattern**:
   - put ServiceLB in allow-list mode with `svccontroller.k3s.cattle.io/enablelb=true` on intended nodes
   - split ingress services into pools with `svccontroller.k3s.cattle.io/lbpool=<pool>` on nodes and matching Service labels
-- **Important**: those ingress Services may be managed outside this repo, so live-cluster inspection may be required.
 
 ### Large batches of failed-job alerts
 - Some `KubeJobFailed` alerts can come from stale historical Jobs rather than active breakage.
@@ -113,7 +136,8 @@ kubectl get secret -n observability alertmanager-config
 # Check K3s ServiceLB state during ingress alert investigations
 kubectl get daemonset,pods -n kube-system | grep svclb
 
-# Port-forward Prometheus and inspect current alerts
-kubectl port-forward -n observability svc/kube-prometheus-stack-prometheus 9090
-curl -s http://127.0.0.1:9090/api/v1/alerts
+# Raw API server proxy queries (no port-forwarding required)
+kubectl get --raw /api/v1/namespaces/observability/services/kube-prometheus-stack-alertmanager:9093/proxy/api/v2/alerts
+kubectl get --raw /api/v1/namespaces/observability/services/kube-prometheus-stack-prometheus:9090/proxy/api/v1/targets
+kubectl get --raw "/api/v1/namespaces/observability/services/kube-prometheus-stack-prometheus:9090/proxy/api/v1/query?query=up"
 ```
