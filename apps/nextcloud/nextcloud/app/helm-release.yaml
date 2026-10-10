@@ -4,6 +4,7 @@ metadata:
   name: nextcloud
   namespace: nextcloud
 spec:
+  suspend: true
   interval: 30m
   timeout: 20m
   chart:
