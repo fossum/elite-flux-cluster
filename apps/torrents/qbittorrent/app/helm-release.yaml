@@ -44,10 +44,13 @@ spec:
   values:
     securityContext:
       container:
+        PUID: 1001
         runAsUser: 1001
         runAsGroup: 1001
         readOnlyRootFilesystem: false
       pod:
+        runAsUser: 1001
+        runAsGroup: 1001
         fsGroup: 1001
     persistence:
       config:

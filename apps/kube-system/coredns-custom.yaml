@@ -8,6 +8,9 @@ data:
     thefoss.org:53 {
         errors
         cache 30
+        template IN ANY cluster.local.thefoss.org {
+            rcode NXDOMAIN
+        }
         hosts {
             192.168.1.10 truenas.thefoss.org
             192.168.1.10 truenas.thefoss.org.thefoss.org

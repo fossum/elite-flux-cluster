@@ -198,4 +198,106 @@ This guide contains step-by-step instructions for diagnosing and resolving compl
   Update the check to support both development (.ts) and production bundle (.cjs) extensions:
   ```typescript
   if (process.argv[1] && (process.argv[1].endsWith('engine.ts') || process.argv[1].endsWith('engine.cjs')))
-  ```
+```
+
+---
+
+## 5. K3s ServiceLB (klipper-lb) Port Hijack & Host SSH Lockout
+
+### Symptoms
+* Attempting to SSH to a node's physical LAN IP (`ssh <node-ip>`) prompts with an unexpected ED25519 host key fingerprint (e.g. matching `nobody@gitlab-shared-secrets...` or another container).
+* Authentication fails with `Permission denied (publickey,keyboard-interactive)` even though valid user keys exist in the host's `~/.ssh/authorized_keys`.
+* VPN/Tailscale SSH works normally (because it operates over a virtual interface), but direct LAN SSH is broken.
+
+### Root Cause
+When a Kubernetes `Service` of type `LoadBalancer` exposes port 22 (such as `gitlab-gitlab-shell` for Git SSH), K3s's built-in ServiceLB (`klipper-lb`) controller automatically deploys a DaemonSet (`svclb-*`) that binds `hostPort: 22` on every node's physical IP address. This intercepts incoming traffic on port 22 on the physical host and redirects it to the container instead of the host's OpenSSH server.
+
+### Resolution
+1. When using MetalLB or dedicated IP pools for LoadBalancers, disable K3s ServiceLB on the conflicting service by adding the annotation:
+   ```yaml
+   metadata:
+     annotations:
+       svccontroller.k3s.cattle.io/enablelb: "false"
+   ```
+2. Delete the rogue ServiceLB DaemonSet in `kube-system`:
+   ```bash
+   kubectl delete daemonset -n kube-system svclb-<service-name>-<hash>
+   ```
+3. Once deleted, port 22 on the physical nodes will immediately be freed back to the host operating system's `sshd`.
+4. Ensure clients remove the container's cached host key fingerprint from `~/.ssh/known_hosts`:
+   ```bash
+   ssh-keygen -R <node-ip>
+   ```
+
+---
+
+## 6. Kubernetes `ndots:5` DNS Search Domain Wildcard Hijacking
+
+### Symptoms
+* Workloads experience intermittent connection timeouts or connection refused when attempting to reach internal cluster services (e.g., `dial tcp <WAN-IP>:6379: i/o timeout` connecting to `redis.infrastructure.svc.cluster.local:6379`).
+* The problem may appear node-dependent (working when scheduled on some nodes, failing on others).
+
+### Root Cause
+1. Kubernetes pods inherit search domains from the host's `/etc/resolv.conf` (often assigned via router DHCP, e.g. `thefoss.org`).
+2. Pod `/etc/resolv.conf` defaults to `options ndots:5`. Any internal domain with fewer than 5 dots (e.g. 4-dot names like `<service>.<namespace>.svc.cluster.local`) is treated as relative, prompting the resolver to iterate through each search domain before querying the absolute name:
+   `redis.infrastructure.svc.cluster.local.thefoss.org`
+3. If the host search domain is a public domain with a wildcard DNS record (`*.thefoss.org -> <WAN-IP>`), public DNS returns the router's WAN IP. The resolver stops searching and attempts to connect to the external router IP instead of the internal ClusterIP.
+4. If CoreDNS has a standalone `.server` block for that domain (e.g. `thefoss.server`), CoreDNS forwards the query to upstream DNS without checking Kubernetes internal service records.
+
+### Resolution
+1. **Router DHCP Domain**: Configure router DHCP option 15 to hand out a private, non-wildcard local domain (e.g. `thefoss.local` or `.internal`) instead of a public domain with wildcard records.
+2. **CoreDNS Clean Overrides**: Avoid creating separate `domain.org:53` `.server` blocks in CoreDNS for local host overrides. Instead, use `custom/*.override` which injects rules inside the primary `.:53` Kubernetes zone so internal service lookups are never bypassed:
+   ```yaml
+   apiVersion: v1
+   kind: ConfigMap
+   metadata:
+     name: coredns-custom
+     namespace: kube-system
+   data:
+     truenas.override: |
+       hosts {
+           192.168.1.10 truenas.thefoss.org
+           fallthrough
+       }
+   ```
+3. **CoreDNS Safety Template**: If a `.server` block for the search domain is required, prevent relative cluster queries from leaking upstream by adding an explicit NXDOMAIN template:
+   ```corefile
+   template IN ANY cluster.local.<domain> {
+       rcode NXDOMAIN
+   }
+   ```
+
+---
+
+## 7. Node Maintenance & Eviction with Longhorn and CNPG
+
+### Preparing a Node for Maintenance / Disk Replacement
+1. **Evacuate Longhorn Storage**:
+   * Patch the Longhorn node and disk to stop scheduling and request replica eviction:
+     ```bash
+     kubectl -n longhorn-system patch nodes.longhorn.io <node-name> --type=merge -p '{"spec":{"allowScheduling":false,"evictionRequested":true,"disks":{"<disk-name>":{"allowScheduling":false,"evictionRequested":true}}}}'
+     ```
+   * Verify that replica count on the node reaches `0`:
+     ```bash
+     kubectl -n longhorn-system get replicas -o json | jq '[.items[] | select(.spec.nodeID=="<node-name>")] | length'
+     ```
+2. **Handle PodDisruptionBudgets (PDBs)**:
+   * **Longhorn `instance-manager`**: Longhorn runs an `instance-manager` pod on each node with a strict `minAvailable: 1` PDB. Standard `kubectl drain` will hang or fail. Always exclude instance-manager from drain:
+     ```bash
+     kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data --pod-selector='longhorn.io/component!=instance-manager'
+     ```
+   * **CloudNative-PG (CNPG)**: If a single-instance CNPG database or primary pod blocks drain via its primary PDB, temporarily disable it:
+     ```bash
+     kubectl patch cluster.postgresql.cnpg.io <cluster-name> -n <namespace> --type=merge -p '{"spec":{"enablePDB":false}}'
+     ```
+3. **Restoring the Node Post-Maintenance**:
+   * Uncordon node: `kubectl uncordon <node-name>`
+   * Re-enable Longhorn scheduling and disable eviction:
+     ```bash
+     kubectl -n longhorn-system patch nodes.longhorn.io <node-name> --type=merge -p '{"spec":{"allowScheduling":true,"evictionRequested":false,"disks":{"<disk-name>":{"allowScheduling":true,"evictionRequested":false}}}}'
+     ```
+   * Restore CNPG PDBs:
+     ```bash
+     kubectl patch cluster.postgresql.cnpg.io <cluster-name> -n <namespace> --type=merge -p '{"spec":{"enablePDB":true}}'
+     ```
+

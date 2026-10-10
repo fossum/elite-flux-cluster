@@ -71,6 +71,18 @@ All PersistentVolume (PV) resources defined in or provisioned for this GitOps cl
 - **Rationale**: When namespaces or application PVCs are updated, replaced, or deleted by FluxCD during reconciliations, `Retain` ensures that the underlying storage volumes on TrueNAS (NFS/iSCSI) or Longhorn remain intact in a `Released` state rather than being automatically deleted.
 - **Recovery Pattern**: Released PVs can be re-bound to new PVCs by clearing their `.spec.claimRef` (`kubectl patch pv <pv-name> -p '{"spec":{"claimRef":null}}'`) to make them `Available`, then creating a PVC specifying `volumeName: <pv-name>`.
 
+### 7. LoadBalancer Services & K3s ServiceLB (klipper-lb)
+
+This cluster uses **MetalLB** for dedicated LoadBalancer VIP allocation (`192.168.1.x`). K3s's built-in ServiceLB (`klipper-lb`) should not bind `hostPort` across all physical nodes for services that conflict with host daemons.
+
+- **Host Daemon Port Protection**: For any `type: LoadBalancer` service exposing standard host management ports (especially SSH port 22 or DNS port 53), you **must** explicitly disable K3s ServiceLB by adding the annotation:
+  ```yaml
+  metadata:
+    annotations:
+      svccontroller.k3s.cattle.io/enablelb: "false"
+  ```
+- **Rationale**: Without this annotation, K3s deploys `svclb-*` daemonset pods that bind `hostPort: 22` on every node's physical IP address, intercepting host SSH traffic and routing it into the pod container instead of the host's OpenSSH server.
+
 ## Developer Workflow
 
 1.  **Modify YAML**: Make changes to `HelmRelease` files, `ConfigMap`s, or other Kubernetes manifests.
