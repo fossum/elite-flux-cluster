@@ -23,6 +23,13 @@ spec:
       tolerations:
         {{- toYaml .Values.tolerations | nindent 8 }}
       {{- end }}
+      {{- if and .Values.podOptions .Values.podOptions.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.podOptions.nodeSelector | nindent 8 }}
+      {{- else if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
       initContainers:
         - name: set-permissions
           image: opensuse/leap

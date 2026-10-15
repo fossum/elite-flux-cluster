@@ -11,3 +11,19 @@ data:
           operator: "Equal"
           value: "gpu-gaming"
           effect: "NoSchedule"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ark-placement-config
+  namespace: games
+data:
+  values.yaml: |
+    podOptions:
+      nodeSelector:
+        dedicated: "gpu-gaming"
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "gpu-gaming"
+          effect: "NoSchedule"

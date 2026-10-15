@@ -20,7 +20,7 @@ spec:
       remediateLastFailure: false
   valuesFrom:
     - kind: ConfigMap
-      name: game-placement-config
+      name: ark-placement-config
   values:
     # TZ: "America/Los_Angeles"
     service:
