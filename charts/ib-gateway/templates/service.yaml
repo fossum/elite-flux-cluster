@@ -2,8 +2,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "ib-gateway.fullname" . }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   type: {{ .Values.service.type }}
+  {{- if and (eq .Values.service.type "LoadBalancer") .Values.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP }}
+  {{- end }}
   selector:
     app: {{ include "ib-gateway.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}

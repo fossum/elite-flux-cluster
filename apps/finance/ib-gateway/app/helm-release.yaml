@@ -21,3 +21,4 @@ spec:
       existingSecret: ib-gateway-credentials
     service:
       type: LoadBalancer
+      loadBalancerIP: "192.168.1.165"
