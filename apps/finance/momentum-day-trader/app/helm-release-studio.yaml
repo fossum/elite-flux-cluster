@@ -21,6 +21,8 @@ spec:
       valuesKey: uri
       targetPath: workload.main.podSpec.containers.main.env.DATABASE_URL
   values:
+    podOptions:
+      defaultAffinity: false
     secret:
       service-account:
         enabled: false

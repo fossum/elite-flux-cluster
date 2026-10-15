@@ -38,6 +38,11 @@ spec:
       config:
         driver: freenas-api-nfs
 
+    node:
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+
     controller:
       driver:
         enabled: true

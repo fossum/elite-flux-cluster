@@ -29,6 +29,13 @@ spec:
         options:
           - name: ndots
             value: "1"
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "gpu-gaming"
+          effect: "NoSchedule"
+      nodeSelector:
+        dedicated: "gpu-gaming"
       containers:
         - name: comfyui
           image: ghcr.io/ai-dock/comfyui:latest-cuda

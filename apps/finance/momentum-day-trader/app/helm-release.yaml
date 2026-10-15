@@ -66,6 +66,8 @@ spec:
       targetPath: workload.main.podSpec.containers.engine.env.DATABASE_URL
 
   values:
+    podOptions:
+      defaultAffinity: false
     image:
       repository: fossum/generic-npm
       tag: latest

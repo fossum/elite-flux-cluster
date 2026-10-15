@@ -33,6 +33,16 @@ spec:
       repository: nvcr.io/nvidia/k8s-device-plugin
       tag: v0.17.0
     runtimeClassName: nvidia
+    tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "dedicated"
+        operator: "Equal"
+        value: "gpu-gaming"
+        effect: "NoSchedule"
     config:
       map:
         default: |-
