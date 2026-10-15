@@ -17,6 +17,8 @@ spec:
       interval: 10m
   valuesFrom:
     - kind: ConfigMap
+      name: game-placement-config
+    - kind: ConfigMap
       name: game-config
       valuesKey: venture_mc_fqdn
       targetPath: "service.main.annotations.mc-router\\.itzg\\.me\\/externalServerName"

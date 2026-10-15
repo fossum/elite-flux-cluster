@@ -16,6 +16,13 @@ spec:
         app: {{ include "ark-server.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if and .Values.podOptions .Values.podOptions.tolerations }}
+      tolerations:
+        {{- toYaml .Values.podOptions.tolerations | nindent 8 }}
+      {{- else if .Values.tolerations }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
       initContainers:
         - name: set-permissions
           image: opensuse/leap

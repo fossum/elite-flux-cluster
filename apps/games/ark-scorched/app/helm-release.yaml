@@ -16,6 +16,8 @@ spec:
       interval: 5m
   valuesFrom:
     - kind: ConfigMap
+      name: game-placement-config
+    - kind: ConfigMap
       name: game-config
       valuesKey: ark_scorched_lb_ip
       targetPath: spec.values.service.main.loadBalancerIP

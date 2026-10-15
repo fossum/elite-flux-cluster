@@ -25,6 +25,8 @@ spec:
       retries: 3
   valuesFrom:
     - kind: ConfigMap
+      name: game-placement-config
+    - kind: ConfigMap
       name: game-config
       valuesKey: britannia_lb_ip
       targetPath: "spec.values.service.main.loadBalancerIP"

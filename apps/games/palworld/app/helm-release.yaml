@@ -26,6 +26,8 @@ spec:
       retries: 3
   valuesFrom:
     - kind: ConfigMap
+      name: game-placement-config
+    - kind: ConfigMap
       name: game-config
       valuesKey: BASE_DOMAIN
       targetPath: BASE_DOMAIN
