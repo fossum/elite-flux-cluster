@@ -83,6 +83,24 @@ This cluster uses **MetalLB** for dedicated LoadBalancer VIP allocation (`192.16
   ```
 - **Rationale**: Without this annotation, K3s deploys `svclb-*` daemonset pods that bind `hostPort: 22` on every node's physical IP address, intercepting host SSH traffic and routing it into the pod container instead of the host's OpenSSH server.
 
+### 8. Dedicated GPU & Gaming Workload Placement (`elite-remote-node1`)
+
+The node `elite-remote-node1` is a temporary, high-resource machine (16-core CPU, 150 GiB RAM, Tesla P40 GPU) dedicated to GPU and gaming workloads. It is tainted with `dedicated=gpu-gaming:NoSchedule` and labeled `dedicated=gpu-gaming`.
+
+Workloads must be classified into one of three scheduling patterns:
+
+1. **Soft Preference (Light / Standard Game Servers)**:
+   - **Workloads**: Valheim, Minecraft, Palworld.
+   - **Configuration**: Use `game-placement-config` via `valuesFrom` providing only `podOptions.tolerations: [{key: dedicated, value: gpu-gaming, effect: NoSchedule}]`.
+   - **Behavior**: Kubernetes default `NodeResourcesLeastAllocated` scoring naturally places them on `elite-remote-node1` when online. When `elite-remote-node1` is powered down, they safely reschedule onto `elite1`–`elite5`.
+2. **Hard Pinning (Resource-Heavy Workloads)**:
+   - **Workloads**: ARK Survival Ascended (`ark-scorched`, `ark-ragnarok`, `ark-aberration`).
+   - **Configuration**: Use `ark-placement-config` via `valuesFrom` providing both the toleration AND `podOptions.nodeSelector: { dedicated: "gpu-gaming" }`.
+   - **Rationale**: ARK servers require 20–30+ GiB RAM and heavy ephemeral disk space. They must NEVER schedule onto `elite1`–`elite5` to prevent node memory exhaustion, disk filling, or control-plane evictions. If `elite-remote-node1` is powered off, ARK pods must stay `Pending`.
+3. **Core Gateways & Reverse Proxies**:
+   - **Workloads**: `minecraft-router`.
+   - **Configuration**: Do NOT apply the gaming toleration. Routers with static LoadBalancer IPs must stay rooted on always-on cluster nodes (`elite1`–`elite5`).
+
 ## Developer Workflow
 
 1.  **Modify YAML**: Make changes to `HelmRelease` files, `ConfigMap`s, or other Kubernetes manifests.

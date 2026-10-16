@@ -24,3 +24,20 @@ If a container uses Selenium, ChromeDriver, Xvfb, or any workloads requiring dis
       runAsGroup: 0
       readOnlyRootFilesystem: false
   ```
+
+## 3. Primary Service Requirement
+TrueCharts enforces that at least one enabled service must be marked as primary (`primary: true`).
+- Disabling `service.main` (`service.main.enabled: false`) without explicitly setting `primary: true` on an alternative service will crash chart rendering with:
+  ```
+  execution error at (.../common.yaml): Service - At least one enabled service must be primary
+  ```
+- If an application uses an alternative service for ingress or external traffic, prefer keeping `service.main.enabled: true` with `type: ClusterIP` rather than setting `enabled: false`.
+
+## 4. `nodeSelector` vs `affinity.nodeAffinity`
+- TrueCharts common library (`_affinity.tpl`) will fail Helm template rendering with `fail "TODO: not implemented"` if `affinity.nodeAffinity` is passed via values.
+- To schedule or pin pods, always use `podOptions.nodeSelector` or `workload.<workload-name>.podSpec.nodeSelector`.
+
+## 5. MetalLB Shared IPs & Custom Chart LoadBalancers
+- **Sharing Keys**: MetalLB only allows multiple services to share a single IP if they declare matching `metallb.io/allow-shared-ip` annotations and non-conflicting ports/protocols.
+- **Custom Charts**: When authoring or configuring custom Helm charts with `type: LoadBalancer` (e.g. `ib-gateway`), always template `loadBalancerIP: {{ .Values.service.loadBalancerIP }}`. Without an explicit IP, MetalLB will auto-assign the lowest available IP from the pool (e.g. `192.168.1.151`), potentially conflicting with statically-addressed services like Valheim.
+
