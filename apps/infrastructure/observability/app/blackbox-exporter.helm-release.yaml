@@ -25,6 +25,7 @@ spec:
     remediation:
       retries: 3
   values:
+    fullnameOverride: blackbox-exporter
     config:
       modules:
         http_2xx:
