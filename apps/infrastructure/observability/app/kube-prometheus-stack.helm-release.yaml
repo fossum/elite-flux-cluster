@@ -45,6 +45,7 @@ spec:
       disabled:
         KubeControllerManagerDown: true
         KubeSchedulerDown: true
+        KubeVersionMismatch: true
 
     grafana:
       enabled: false
