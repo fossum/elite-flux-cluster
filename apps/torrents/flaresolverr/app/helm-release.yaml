@@ -51,10 +51,3 @@ spec:
                 LOG_LEVEL: info
                 LOG_HTML: "false"
                 CAPTCHA_SOLVER: turnstile
-
-    persistence:
-      shm:
-        enabled: true
-        type: emptyDir
-        medium: Memory
-        mountPath: /dev/shm
