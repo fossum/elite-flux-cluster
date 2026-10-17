@@ -51,3 +51,8 @@ spec:
                 LOG_LEVEL: info
                 LOG_HTML: "false"
                 CAPTCHA_SOLVER: turnstile
+
+    persistence:
+      config:
+        enabled: true
+        type: emptyDir
