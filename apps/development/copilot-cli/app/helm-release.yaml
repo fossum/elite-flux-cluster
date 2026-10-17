@@ -4,6 +4,7 @@ metadata:
   name: copilot-cli
   namespace: development
 spec:
+  suspend: true
   interval: 15m
   timeout: 15m
   chart:

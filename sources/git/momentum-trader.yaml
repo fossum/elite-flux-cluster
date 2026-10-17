@@ -4,6 +4,7 @@ metadata:
   name: momentum-day-trader
   namespace: flux-system
 spec:
+  suspend: true
   interval: 5m
   url: https://gitlab.thefoss.org/ericfoss/momentum-day-trader.git
   ref:

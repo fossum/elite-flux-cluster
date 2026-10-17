@@ -13,6 +13,8 @@ spec:
           serviceTemplate:
             metadata:
               name: momentum-day-trader-cnpg-ro-lb
+              annotations:
+                svccontroller.k3s.cattle.io/enablelb: "false"
             spec:
               type: LoadBalancer
               loadBalancerIP: "192.168.1.158"

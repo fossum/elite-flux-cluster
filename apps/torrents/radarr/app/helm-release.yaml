@@ -48,6 +48,10 @@ spec:
       name: torrents-config
       valuesKey: HP_API_RADARR
       targetPath: workload.main.podSpec.containers.main.env.RADARR__AUTH__APIKEY
+    - kind: ConfigMap
+      name: torrents-config
+      valuesKey: HP_API_RADARR
+      targetPath: workload.main.podSpec.containers.exportarr.env.APIKEY
   values:
     TZ: America/Los_Angeles
     workload:

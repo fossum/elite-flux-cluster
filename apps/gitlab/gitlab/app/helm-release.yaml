@@ -154,6 +154,21 @@ spec:
             enabled: true
             schedule: "0 2 * * 0"
 
+      gitaly:
+        securityContext:
+          fsGroupChangePolicy: OnRootMismatch
+        persistence:
+          volumeName: pvc-d27bcb0a-03a0-408b-9494-df2ede8f1140
+        ingress:
+          tls:
+            secretName: gitlab-gitaly-tls
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: "2"
+            memory: 2Gi
 
     gitlab-runner:
       install: false
@@ -165,22 +180,6 @@ spec:
       ingress:
         tls:
           secretName: gitlab-registry-tls
-
-    gitaly:
-      podSecurityContext:
-        fsGroupChangePolicy: OnRootMismatch
-      persistence:
-        volumeName: pvc-d27bcb0a-03a0-408b-9494-df2ede8f1140
-      ingress:
-        tls:
-          secretName: gitlab-gitaly-tls
-      resources:
-        requests:
-          cpu: 500m
-          memory: 1Gi
-        limits:
-          cpu: "2"
-          memory: 2Gi
 
     redis:
       install: false

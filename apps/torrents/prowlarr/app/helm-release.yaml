@@ -46,6 +46,10 @@ spec:
       valuesKey: HP_API_PROWLARR
       targetPath: workload.main.podSpec.containers.main.env.PROWLARR__AUTH__APIKEY
     - kind: ConfigMap
+      name: torrents-config
+      valuesKey: HP_API_PROWLARR
+      targetPath: workload.main.podSpec.containers.exportarr.env.APIKEY
+    - kind: ConfigMap
       name: vpn-addon-config
       valuesKey: addons.yaml
   values:

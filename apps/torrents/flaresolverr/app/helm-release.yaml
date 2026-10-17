@@ -35,6 +35,7 @@ spec:
       name: vpn-addon-config
       valuesKey: addons.yaml
   values:
+    TZ: America/Los_Angeles
     securityContext:
       container:
         runAsUser: 0
@@ -50,7 +51,6 @@ spec:
                 LOG_LEVEL: info
                 LOG_HTML: "false"
                 CAPTCHA_SOLVER: turnstile
-                TZ: America/Los_Angeles
 
     persistence:
       shm:

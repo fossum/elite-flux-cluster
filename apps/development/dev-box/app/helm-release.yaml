@@ -4,6 +4,7 @@ metadata:
   name: dev-box
   namespace: development
 spec:
+  suspend: true
   chart:
     spec:
       # Use the local chart from this repository instead of a remote Helm repo.

@@ -93,6 +93,7 @@ persistence:
     existingClaim: ""
 
 tailscale:
+  enabled: true
   image:
     repository: ghcr.io/tailscale/tailscale
     tag: stable

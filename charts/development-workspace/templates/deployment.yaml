@@ -162,6 +162,7 @@ spec:
               containerPort: {{ .Values.ag2r.port }}
               protocol: TCP
           {{- end }}
+        {{- if .Values.tailscale.enabled }}
         - name: tailscale
           image: {{ .Values.tailscale.image.repository }}:{{ .Values.tailscale.image.tag }}
           imagePullPolicy: {{ .Values.tailscale.image.pullPolicy }}
@@ -206,6 +207,7 @@ spec:
               mountPath: /var/lib/tailscale
             - name: tmp
               mountPath: /tmp
+        {{- end }}
       volumes:
         - name: bootstrap-scripts
           configMap:

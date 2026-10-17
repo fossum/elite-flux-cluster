@@ -237,6 +237,7 @@ spec:
         enabled: true
         size: 1Gi
     tailscale:
+      enabled: false
       image:
         tag: stable
     ag2r:

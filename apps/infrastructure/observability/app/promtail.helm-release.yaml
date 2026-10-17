@@ -29,6 +29,9 @@ spec:
   values:
     daemonset:
       enabled: true
+    tolerations:
+      - effect: NoSchedule
+        operator: Exists
     config:
       clients:
         - url: http://loki:3100/loki/api/v1/push

@@ -45,6 +45,10 @@ spec:
       name: torrents-config
       valuesKey: HP_API_SONARR
       targetPath: workload.main.podSpec.containers.main.env.SONARR__AUTH__APIKEY
+    - kind: ConfigMap
+      name: torrents-config
+      valuesKey: HP_API_SONARR
+      targetPath: workload.main.podSpec.containers.exportarr.env.APIKEY
   values:
     TZ: America/Los_Angeles
     workload:

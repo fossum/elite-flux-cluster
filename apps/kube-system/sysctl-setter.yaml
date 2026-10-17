@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: sysctl-setter
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: sysctl-setter
+  template:
+    metadata:
+      labels:
+        name: sysctl-setter
+    spec:
+      hostPID: true
+      hostNetwork: true
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+      initContainers:
+        - name: sysctl-setter
+          image: alpine:latest
+          securityContext:
+            privileged: true
+          command:
+            - sh
+            - -c
+            - |
+              sysctl -w fs.inotify.max_user_instances=1024
+              sysctl -w fs.inotify.max_user_watches=1048576
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.10

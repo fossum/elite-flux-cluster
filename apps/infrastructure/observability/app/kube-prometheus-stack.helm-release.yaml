@@ -167,6 +167,7 @@ spec:
                       exported_namespace: [metadata, namespace]
                       ready: [status, conditions, "[type=Ready]", status]
                       suspended: [spec, suspend]
+                      type: [spec, type]
                       revision: [status, artifact, revision]
                       url: [spec, url]
               - groupVersionKind:
@@ -215,7 +216,7 @@ spec:
           - name: flux.health
             rules:
               - alert: FluxResourceNotReady
-                expr: gotk_resource_info{customresource_kind=~"Kustomization|HelmRelease|GitRepository|Bucket|HelmRepository|HelmChart|OCIRepository", ready!="True", suspended!="true"} == 1
+                expr: gotk_resource_info{customresource_kind=~"Kustomization|HelmRelease|GitRepository|Bucket|HelmRepository|HelmChart|OCIRepository", ready!="True", suspended!="true", type!="oci"} == 1
                 for: 10m
                 labels:
                   severity: warning
