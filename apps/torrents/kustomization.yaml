@@ -4,6 +4,7 @@ resources:
   - namespace.yaml
   # - pvc.yaml
   - flaresolverr/ks.yaml
+  - jellyfin/ks.yaml
   - lazy-librarian/ks.yaml
   - prowlarr/ks.yaml
   # - readarr/ks.yaml
