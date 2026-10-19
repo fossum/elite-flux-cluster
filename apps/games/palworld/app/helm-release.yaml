@@ -30,15 +30,15 @@ spec:
     - kind: ConfigMap
       name: game-config
       valuesKey: BASE_DOMAIN
-      targetPath: BASE_DOMAIN
+      targetPath: palworld.game.PublicIP
     - kind: ConfigMap
       name: game-config
       valuesKey: GAME_PASSWORD
-      targetPath: GAME_PASSWORD
+      targetPath: palworld.game.ServerPassword
     - kind: ConfigMap
       name: game-config
       valuesKey: RCON_PASSWORD
-      targetPath: RCON_PASSWORD
+      targetPath: palworld.game.AdminPassword
   values:
     global:
       fallbackDefaults:
@@ -46,14 +46,23 @@ spec:
 
     TZ: "America/Los_Angeles"
 
+    persistence:
+      steamcmd:
+        enabled: true
+        storageClass: "truenas-nfs-api-csi"
+        retain: true
+        volumeName: pvc-894ddc3d-af52-4f32-91c3-18b8b305df12
+      serverfiles:
+        enabled: true
+        storageClass: "truenas-nfs-api-csi"
+        retain: true
+        volumeName: pvc-8ad969e0-8558-429e-bddf-76406e048439
+
     palworld:
       game:
         ServerName: "Venture Pals"
         ServerDescription: "Venture Brothers Dedicated Palworld Server"
-        ServerPassword: "{{ .Values.GAME_PASSWORD }}"
-        AdminPassword: "{{ .Values.RCON_PASSWORD }}"
         bUseAuth: true
-        PublicIP: "{{ .Values.BASE_DOMAIN }}"
         # AllowConnectPlatform: "Steam|Xbox"
       params:
         - -players=32
