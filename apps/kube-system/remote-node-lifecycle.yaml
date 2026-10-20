@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: remote-node-lifecycle
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: remote-node-lifecycle
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: remote-node-lifecycle
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: remote-node-lifecycle
+subjects:
+  - kind: ServiceAccount
+    name: remote-node-lifecycle
+    namespace: kube-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: remote-node-lifecycle
+  namespace: kube-system
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: remote-node-lifecycle
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: remote-node-lifecycle
+    spec:
+      serviceAccountName: remote-node-lifecycle
+      containers:
+        - name: controller
+          image: docker.io/alpine/k8s:1.32.4
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -u
+              NODE="elite-remote-node1"
+              echo "Starting lifecycle watcher for ${NODE}..."
+              while true; do
+                READY=$(kubectl get node "${NODE}" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "")
+                TAINTS=$(kubectl get node "${NODE}" -o jsonpath='{.spec.taints[*].key}' 2>/dev/null || echo "")
+                if [ "${READY}" = "True" ]; then
+                  case " ${TAINTS} " in
+                    *" node.kubernetes.io/out-of-service "*)
+                      echo "${NODE} is Ready=True; removing out-of-service taints..."
+                      kubectl taint nodes "${NODE}" node.kubernetes.io/out-of-service:NoExecute- node.kubernetes.io/out-of-service:NoSchedule- || true
+                      ;;
+                  esac
+                elif [ -n "${READY}" ]; then
+                  case " ${TAINTS} " in
+                    *" node.kubernetes.io/out-of-service "*)
+                      ;;
+                    *)
+                      echo "${NODE} is Ready=${READY}; applying out-of-service=nodeshutdown taints..."
+                      kubectl taint nodes "${NODE}" node.kubernetes.io/out-of-service=nodeshutdown:NoExecute node.kubernetes.io/out-of-service=nodeshutdown:NoSchedule --overwrite || true
+                      ;;
+                  esac
+                  kubectl delete pdb -n longhorn-system -l "longhorn.io/node=${NODE}" --ignore-not-found >/dev/null 2>&1 || true
+                fi
+                sleep 20
+              done
+          resources:
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi

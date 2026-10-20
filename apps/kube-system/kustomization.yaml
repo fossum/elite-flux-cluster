@@ -4,3 +4,4 @@ resources:
   - node-discovery.yaml
   - coredns-custom.yaml
   - sysctl-setter.yaml
+  - remote-node-lifecycle.yaml
