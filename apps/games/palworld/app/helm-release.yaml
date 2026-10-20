@@ -29,10 +29,6 @@ spec:
       name: game-placement-config
     - kind: ConfigMap
       name: game-config
-      valuesKey: BASE_DOMAIN
-      targetPath: palworld.game.PublicIP
-    - kind: ConfigMap
-      name: game-config
       valuesKey: GAME_PASSWORD
       targetPath: palworld.game.ServerPassword
     - kind: ConfigMap
@@ -59,12 +55,14 @@ spec:
         volumeName: pvc-8ad969e0-8558-429e-bddf-76406e048439
 
     palworld:
+      update_public_ip: true
       game:
         ServerName: "Venture Pals"
         ServerDescription: "Venture Brothers Dedicated Palworld Server"
         bUseAuth: true
         # AllowConnectPlatform: "Steam|Xbox"
       params:
+        - -publiclobby
         - -players=32
 
     service:
