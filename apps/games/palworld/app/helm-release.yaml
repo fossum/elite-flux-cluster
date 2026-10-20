@@ -56,6 +56,10 @@ spec:
 
     palworld:
       update_public_ip: true
+      backup:
+        enabled: true
+        interval: 120
+        to_keep: 2160
       game:
         ServerName: "Venture Pals"
         ServerDescription: "Venture Brothers Dedicated Palworld Server"
@@ -69,10 +73,20 @@ spec:
         bIsMultiplay: true
         bCanPickupOtherGuildDeathPenaltyDrop: true
         bExistPlayerAfterLogout: true
+        bIsUseBackupSaveData: true
         # AllowConnectPlatform: "Steam|Xbox"
       params:
         - -publiclobby
         - -players=32
+
+    workload:
+      main:
+        strategy: Recreate
+        podSpec:
+          containers:
+            main:
+              env:
+                BACKUPS_TO_KEEP: "2160"
 
     service:
       main:
