@@ -60,6 +60,15 @@ spec:
         ServerName: "Venture Pals"
         ServerDescription: "Venture Brothers Dedicated Palworld Server"
         bUseAuth: true
+        Difficulty: "Difficult"
+        ExpRate: 1.2
+        BuildObjectDeteriorationDamageRate: 0
+        BaseCampMaxNum: 5
+        BaseCampMaxNumInGuild: 4
+        PalEggDefaultHatchingTime: 36.0
+        bIsMultiplay: true
+        bCanPickupOtherGuildDeathPenaltyDrop: true
+        bExistPlayerAfterLogout: true
         # AllowConnectPlatform: "Steam|Xbox"
       params:
         - -publiclobby
