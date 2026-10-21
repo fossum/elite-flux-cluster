@@ -49,10 +49,13 @@ spec:
         image:
           registry: docker.io/democraticcsi/democratic-csi
           tag: next
+      externalAttacher:
+        enabled: false
 
     csiDriver:
       name: "org.democratic-csi.api.nfs"
       enabled: true
+      attachRequired: false
 
     storageClasses:
       - name: truenas-nfs-api-csi
