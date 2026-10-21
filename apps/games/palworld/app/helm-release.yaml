@@ -67,8 +67,8 @@ spec:
         Difficulty: "Difficult"
         ExpRate: 1.2
         BuildObjectDeteriorationDamageRate: 0
-        BaseCampMaxNum: 5
-        BaseCampMaxNumInGuild: 4
+        BaseCampMaxNum: 128
+        BaseCampMaxNumInGuild: 5
         PalEggDefaultHatchingTime: 36.0
         bIsMultiplay: true
         bCanPickupOtherGuildDeathPenaltyDrop: true
