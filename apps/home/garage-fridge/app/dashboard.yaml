@@ -70,7 +70,7 @@ data:
           },
           "gridPos": {
             "h": 5,
-            "w": 8,
+            "w": 6,
             "x": 0,
             "y": 0
           },
@@ -99,7 +99,7 @@ data:
               "editorMode": "code",
               "format": "time_series",
               "rawQuery": true,
-              "rawSql": "SELECT\n  datetime AS \"time\",\n  fridge AS \"Fridge\"\nFROM garage\nWHERE\n  $__timeFilter(datetime)\nORDER BY 1",
+              "rawSql": "SELECT datetime AS \"time\", fridge AS \"Fridge\" FROM (SELECT datetime, fridge FROM garage ORDER BY datetime DESC LIMIT 100) sub ORDER BY datetime ASC",
               "refId": "A"
             }
           ],
@@ -141,8 +141,8 @@ data:
           },
           "gridPos": {
             "h": 5,
-            "w": 8,
-            "x": 8,
+            "w": 6,
+            "x": 6,
             "y": 0
           },
           "id": 2,
@@ -170,7 +170,7 @@ data:
               "editorMode": "code",
               "format": "time_series",
               "rawQuery": true,
-              "rawSql": "SELECT\n  datetime AS \"time\",\n  freezer AS \"Freezer\"\nFROM garage\nWHERE\n  $__timeFilter(datetime)\nORDER BY 1",
+              "rawSql": "SELECT datetime AS \"time\", freezer AS \"Freezer\" FROM (SELECT datetime, freezer FROM garage ORDER BY datetime DESC LIMIT 100) sub ORDER BY datetime ASC",
               "refId": "A"
             }
           ],
@@ -216,8 +216,8 @@ data:
           },
           "gridPos": {
             "h": 5,
-            "w": 8,
-            "x": 16,
+            "w": 6,
+            "x": 12,
             "y": 0
           },
           "id": 3,
@@ -245,11 +245,73 @@ data:
               "editorMode": "code",
               "format": "time_series",
               "rawQuery": true,
-              "rawSql": "SELECT\n  datetime AS \"time\",\n  ambient AS \"Ambient\"\nFROM garage\nWHERE\n  $__timeFilter(datetime)\nORDER BY 1",
+              "rawSql": "SELECT datetime AS \"time\", ambient AS \"Ambient\" FROM (SELECT datetime, ambient FROM garage ORDER BY datetime DESC LIMIT 100) sub ORDER BY datetime ASC",
               "refId": "A"
             }
           ],
           "title": "Garage Ambient Temperature",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "garage-fridge-postgres"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "dateTimeAsLocal"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 6,
+            "x": 18,
+            "y": 0
+          },
+          "id": 6,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "pluginVersion": "12.0.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "postgres",
+                "uid": "garage-fridge-postgres"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "SELECT datetime AS \"time\" FROM garage ORDER BY datetime DESC LIMIT 1",
+              "refId": "A"
+            }
+          ],
+          "title": "Last Sensor Reading",
           "type": "stat"
         },
         {
@@ -482,7 +544,7 @@ data:
         "list": []
       },
       "time": {
-        "from": "now-6h",
+        "from": "now-24h",
         "to": "now"
       },
       "timepicker": {
@@ -499,6 +561,6 @@ data:
       "timezone": "browser",
       "title": "Garage Fridge & Temperature",
       "uid": "garage-fridge-temp",
-      "version": 1,
+      "version": 3,
       "weekStart": ""
     }
