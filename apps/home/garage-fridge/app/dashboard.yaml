@@ -269,10 +269,18 @@ data:
                   {
                     "color": "green",
                     "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 60
+                  },
+                  {
+                    "color": "red",
+                    "value": 300
                   }
                 ]
               },
-              "unit": "dateTimeAsLocal"
+              "unit": "s"
             },
             "overrides": []
           },
@@ -284,7 +292,7 @@ data:
           },
           "id": 6,
           "options": {
-            "colorMode": "value",
+            "colorMode": "background",
             "graphMode": "none",
             "justifyMode": "auto",
             "orientation": "auto",
@@ -305,13 +313,13 @@ data:
                 "uid": "garage-fridge-postgres"
               },
               "editorMode": "code",
-              "format": "table",
+              "format": "time_series",
               "rawQuery": true,
-              "rawSql": "SELECT datetime AS \"time\" FROM garage ORDER BY datetime DESC LIMIT 1",
+              "rawSql": "SELECT datetime AS \"time\", ROUND(EXTRACT(EPOCH FROM (NOW() - datetime))) AS \"Age\" FROM garage ORDER BY datetime DESC LIMIT 1",
               "refId": "A"
             }
           ],
-          "title": "Last Sensor Reading",
+          "title": "Time Since Last Reading",
           "type": "stat"
         },
         {
@@ -561,6 +569,6 @@ data:
       "timezone": "browser",
       "title": "Garage Fridge & Temperature",
       "uid": "garage-fridge-temp",
-      "version": 3,
+      "version": 4,
       "weekStart": ""
     }
