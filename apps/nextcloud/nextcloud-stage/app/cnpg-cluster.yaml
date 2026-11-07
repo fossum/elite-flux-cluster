@@ -1,0 +1,27 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: nextcloud-cnpg-main
+  namespace: nextcloud
+spec:
+  instances: 2
+
+  imageName: "ghcr.io/cloudnative-pg/postgresql:17.4"
+
+  bootstrap:
+    initdb:
+      database: nextcloud
+      owner: nextcloud
+
+  storage:
+    size: "20Gi"
+    storageClass: "truenas-nfs-api-csi"
+
+  walStorage:
+    size: "10Gi"
+    storageClass: "longhorn"
+
+  monitoring:
+    enablePodMonitor: true
+
+  enableSuperuserAccess: true
