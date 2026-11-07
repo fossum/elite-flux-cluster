@@ -25,3 +25,29 @@ spec:
     enablePodMonitor: true
 
   enableSuperuserAccess: true
+
+  backup:
+    retentionPolicy: "14d"
+    target: primary
+    barmanObjectStore:
+      destinationPath: "s3://nextcloud-postgres-backup/"
+      endpointURL: "http://minio-api.storage.svc.cluster.local:10106"
+      s3Credentials:
+        accessKeyId:
+          name: nextcloud-cnpg-s3-backup-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: nextcloud-cnpg-s3-backup-creds
+          key: ACCESS_SECRET_KEY
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: nextcloud-cnpg-main-daily
+  namespace: nextcloud
+spec:
+  cluster:
+    name: nextcloud-cnpg-main
+  schedule: "0 0 3 * * *"
+  backupOwnerReference: self
+  method: barmanObjectStore
