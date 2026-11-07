@@ -83,6 +83,8 @@ spec:
       main:
         enabled: true
         ingressClassName: internal
+        annotations:
+          nginx.org/websocket-services: minio
         hosts:
           - host: minio.elite.internal
         integrations:
