@@ -101,6 +101,20 @@ Workloads must be classified into one of three scheduling patterns:
    - **Workloads**: `minecraft-router`.
    - **Configuration**: Do NOT apply the gaming toleration. Routers with static LoadBalancer IPs must stay rooted on always-on cluster nodes (`elite1`–`elite5`).
 
+### 9. CloudNative-PG (CNPG) Tiered Storage & High Availability Guardrails
+
+For all CloudNative-PG database clusters deployed in this repository:
+
+- **Tiered Storage Architecture**:
+  - **`walStorage` on Longhorn SSDs**: Always bind `walStorage` to `longhorn` for sub-millisecond `fsync` transaction commits. Size `walStorage.size` to **at least 30Gi**.
+  - **`storage` on TrueNAS**: Always bind main heap `storage` (`PGDATA`) to `truenas-nfs-api-csi` (or `truenas-iscsi-csi`) for high-capacity bulk tables and snapshots.
+  - **In-Use Resizing**: Configure `resizeInUseVolumes: true` on both tiers.
+- **WAL Parameter Alignment**:
+  - Keep `archive_timeout` at `15min` (avoid <= 5min to prevent excessive idle WAL segment generation on Longhorn).
+  - Cap `max_wal_size: "10GB"` and `wal_keep_size: "2048MB"` to ensure checkpoints recycle local WAL segments before exceeding Longhorn capacity.
+  - Always configure Barman S3 archiving (`barmanObjectStore`) to continuously drain local WAL segments to MinIO object storage.
+- **Standby Recovery Protocol**: If a standby replica fails `pg_rewind` due to diverged or corrupt WAL segments, resolve by deleting the standby pod and its PVCs. Do not perform manual WAL surgery; allow the CNPG operator to recreate and stream a fresh `pg_basebackup` from the primary. See `.agents/skills/cnpg-gitops-recovery/SKILL.md` for complete playbooks.
+
 ## Developer Workflow
 
 1.  **Modify YAML**: Make changes to `HelmRelease` files, `ConfigMap`s, or other Kubernetes manifests.

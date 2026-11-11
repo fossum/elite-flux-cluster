@@ -207,3 +207,133 @@ format as the app's own MinIO storage secret (see the `gitlab` skill for that di
 `kubectl apply --dry-run=server -f <file>`, which runs CNPG's real admission webhooks) catches
 schema mistakes — like the `roles:` rejection above — for free, without needing docs or guessing.
 Do this before pushing through GitOps, not after a failed reconcile.
+
+---
+
+## 5. CNPG Tiered Storage Architecture (Longhorn SSD + TrueNAS Bulk)
+
+PostgreSQL write throughput and client transaction latency are bounded by `fsync` time on Write-Ahead Logs (`pg_wal`). Table data access, however, is heavily buffered in RAM (`shared_buffers` and Linux page cache) and requires bulk capacity.
+
+### The Tiered Architecture Pattern
+In this cluster, CNPG databases should be configured with split storage:
+
+1. **`walStorage` -> `storageClass: longhorn` (Fast NVMe/SATA SSD Block Storage)**:
+   - **Purpose**: Low-latency synchronous writes for transaction commits (`pg_wal`).
+   - **Behavior**: Longhorn provides distributed block storage with sub-millisecond fsyncs, preventing NFS RPC commit stalls.
+   - **Role**: Serves purely as a high-speed **transient ring buffer**. WALs should be continuously drained to MinIO S3 object storage via Barman.
+2. **`storage` -> `storageClass: truenas-nfs-api-csi` (or `truenas-iscsi-csi`) (High-Capacity ZFS Storage)**:
+   - **Purpose**: Bulk table, index, and heap storage (`PGDATA`).
+   - **Behavior**: TrueNAS handles hundreds of GiBs to TiBs of data with snapshots, RAIDZ protection, and large capacity pools.
+
+### Recommended Cluster Manifest Template
+```yaml
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: <app>-cnpg-main
+spec:
+  instances: 2
+
+  # Bulk Data Storage on TrueNAS
+  storage:
+    size: 50Gi                    # Size according to long-term app data needs
+    storageClass: truenas-nfs-api-csi
+    resizeInUseVolumes: true
+
+  # High-Speed WAL Buffer on Longhorn SSDs
+  walStorage:
+    size: 30Gi                    # Minimum 30Gi for safety buffer
+    storageClass: longhorn
+    resizeInUseVolumes: true
+
+  postgresql:
+    parameters:
+      # Sizing & rotation parameters (see Section 6)
+      archive_timeout: "15min"
+      wal_keep_size: "2048MB"
+      max_wal_size: "10GB"
+      min_wal_size: "2GB"
+      checkpoint_completion_target: "0.9"
+      checkpoint_timeout: "15min"
+
+  backup:
+    retentionPolicy: "14d"
+    target: primary
+    barmanObjectStore:
+      destinationPath: "s3://<app>-postgres-backup/"
+      endpointURL: "http://minio-api.storage.svc.cluster.local:10106"
+      s3Credentials:
+        accessKeyId:
+          name: <app>-cnpg-s3-backup-creds
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: <app>-cnpg-s3-backup-creds
+          key: ACCESS_SECRET_KEY
+```
+
+---
+
+## 6. Aligning PostgreSQL Parameters for Fast WAL on Limited SSDs
+
+Because Longhorn uses local node SSDs with limited total capacity, the WAL buffer must not retain unneeded historical segments. The following parameter alignment prevents WAL volume exhaustion:
+
+| Parameter | Recommended Value | Purpose & Interaction |
+| :--- | :--- | :--- |
+| `archive_timeout` | `15min` (or `10min`) | Sets maximum age before a WAL segment is archived. Avoid `5min` or less on moderate workloads: 5min forces 16MB every 5m (~4.6 GiB/day) even when idle, rapidly filling a 10–20Gi volume during backup target slowdowns. 15min produces only ~1.5 GiB/day while still meeting 15m RPO. |
+| `wal_keep_size` | `2048MB` (2 GiB) | Maximum volume of WAL segments kept for streaming replicas before relying on Barman / replication slots. Never leave unbounded or larger than 20% of `walStorage.size`. |
+| `max_wal_size` | `10GB` | Maximum size to let the WAL grow between automatic checkpoints. Soft limit; must remain well under `walStorage.size` (e.g. 10GB max on a 30GB volume) so checkpoints trigger before disk alerts occur. |
+| `min_wal_size` | `2GB` | Prevents PostgreSQL from constantly deallocating and reallocating WAL files during normal load cycles. |
+| `checkpoint_completion_target`| `0.9` | Spreads checkpoint I/O over 90% of the checkpoint duration, smoothing out disk writes to TrueNAS and Longhorn. |
+| `barmanObjectStore` | Configured | Offloads archived WALs off Longhorn to MinIO S3 storage, allowing CNPG to safely delete archived local segments. |
+
+---
+
+## 7. Recovering from Low-Disk Space Lockout (`Detected low-disk space condition`)
+
+### Symptoms
+- Cluster status: `Not enough disk space`.
+- Pod logs:
+  ```json
+  {"msg":"Checking for free disk space for WALs before starting PostgreSQL"}
+  {"msg":"Detected low-disk space condition, avoid starting the instance"}
+  ```
+- Operator logs: `Insufficient disk space detected in a pod. PostgreSQL cannot proceed until the PVC group is enlarged`.
+
+### Resolution Workflow
+1. **Enlarge Manifest & Live Resources**:
+   - Update `walStorage.size` to `30Gi` in the GitOps manifest (`cnpg-cluster.yaml`).
+   - Patch live `Cluster` and affected PVCs:
+     ```bash
+     kubectl patch cluster <cluster-name> -n <namespace> --type='json' -p='[{"op":"replace","path":"/spec/walStorage/size","value":"30Gi"}]'
+     kubectl patch pvc <instance>-wal -n <namespace> -p '{"spec":{"resources":{"requests":{"storage":"30Gi"}}}}'
+     ```
+2. **Remount & Filesystem Expansion**:
+   - If the pod is in CrashLoopBackOff, delete the pod so kubelet can attach and resize the ext4 filesystem:
+     ```bash
+     kubectl delete pod <instance-pod> -n <namespace>
+     ```
+
+---
+
+## 8. Resynchronizing Standby Replicas When `pg_rewind` Fails
+
+### Symptoms
+- Standby replica pod in CrashLoopBackOff.
+- Pod logs:
+  ```
+  pg_rewind: servers diverged at WAL location ...
+  pg_rewind: error: could not find previous WAL record at ...: invalid magic number 0000 in WAL segment ...
+  Failed to execute pg_rewind: exit status 1
+  ```
+- **Cause**: Abrupt termination during low disk space leaves a trailing WAL segment with corrupted trailing/magic bytes. When another instance is promoted, `pg_rewind` cannot read through the corrupt segment.
+
+### Resolution Workflow (Re-clone via `pg_basebackup`)
+Do NOT attempt binary editing of WAL files on the replica. Force a clean re-clone:
+1. Verify the primary is running: `kubectl get cluster <cluster-name> -n <namespace>`.
+2. Delete the broken replica pod and both its PVCs:
+   ```bash
+   kubectl delete pod <broken-pod> -n <namespace>
+   kubectl delete pvc <broken-pod> <broken-pod>-wal -n <namespace>
+   ```
+3. The CNPG operator immediately spawns a `<cluster>-<index>-join-<hash>` pod to pull a fresh `pg_basebackup` from the primary and re-establishes streaming replication.
+4. Ensure the newly provisioned PVs are patched with `persistentVolumeReclaimPolicy: Retain`.
