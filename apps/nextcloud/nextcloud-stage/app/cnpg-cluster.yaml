@@ -14,11 +14,11 @@ spec:
       owner: nextcloud
 
   storage:
-    size: "20Gi"
+    size: "30Gi"
     storageClass: "truenas-nfs-api-csi"
 
   walStorage:
-    size: "10Gi"
+    size: "30Gi"
     storageClass: "longhorn"
 
   monitoring:
