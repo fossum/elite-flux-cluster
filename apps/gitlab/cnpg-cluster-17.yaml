@@ -6,7 +6,7 @@ metadata:
 spec:
   instances: 1
 
-  imageName: "ghcr.io/cloudnative-pg/postgresql:17.5"
+  imageName: "ghcr.io/cloudnative-pg/postgresql:17.11"
 
   # Bootstraps this new PG17 cluster by logically importing gitlabhq_production
   # (via pg_dump/pg_restore) from the live PG16 cluster below. CNPG has no
@@ -39,6 +39,16 @@ spec:
   storage:
     size: "40Gi"
     storageClass: "longhorn"
+    resizeInUseVolumes: true
+
+  postgresql:
+    parameters:
+      archive_timeout: "15min"
+      wal_keep_size: "2048MB"
+      max_wal_size: "10GB"
+      min_wal_size: "2GB"
+      checkpoint_completion_target: "0.9"
+      checkpoint_timeout: "15min"
 
   monitoring:
     enablePodMonitor: true
