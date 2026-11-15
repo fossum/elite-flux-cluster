@@ -6,7 +6,7 @@ metadata:
 spec:
   instances: 2
 
-  imageName: "ghcr.io/cloudnative-pg/postgresql:17.4"
+  imageName: "ghcr.io/cloudnative-pg/postgresql:17.11"
 
   bootstrap:
     initdb:
@@ -14,12 +14,23 @@ spec:
       owner: nextcloud
 
   storage:
-    size: "20Gi"
+    size: "30Gi"
     storageClass: "truenas-nfs-api-csi"
+    resizeInUseVolumes: true
 
   walStorage:
-    size: "10Gi"
+    size: "30Gi"
     storageClass: "longhorn"
+    resizeInUseVolumes: true
+
+  postgresql:
+    parameters:
+      archive_timeout: "15min"
+      wal_keep_size: "2048MB"
+      max_wal_size: "10GB"
+      min_wal_size: "2GB"
+      checkpoint_completion_target: "0.9"
+      checkpoint_timeout: "15min"
 
   monitoring:
     enablePodMonitor: true
