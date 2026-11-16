@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: palworld-restarter
+  namespace: games
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: palworld-restarter
+  namespace: games
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: ["palworld"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: palworld-restarter
+  namespace: games
+subjects:
+  - kind: ServiceAccount
+    name: palworld-restarter
+    namespace: games
+roleRef:
+  kind: Role
+  name: palworld-restarter
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: palworld-daily-restart
+  namespace: games
+spec:
+  schedule: "55 3 * * *"
+  timeZone: "America/Los_Angeles"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 600
+      template:
+        spec:
+          serviceAccountName: palworld-restarter
+          restartPolicy: OnFailure
+          initContainers:
+            - name: announce-and-wait
+              image: curlimages/curl:8.11.1
+              env:
+                - name: ADMIN_PASSWORD
+                  valueFrom:
+                    configMapKeyRef:
+                      name: game-config
+                      key: RCON_PASSWORD
+              command:
+                - sh
+                - -c
+                - |
+                  API_URL="http://palworld-api.games.svc.cluster.local:8212/v1/api"
+                  curl -fsS -u "admin:${ADMIN_PASSWORD}" -X POST "${API_URL}/announce" \
+                    -H "Content-Type: application/json" \
+                    -d '{"message":"Server will restart in 5 minutes for daily maintenance."}' || true
+                  sleep 240
+                  curl -fsS -u "admin:${ADMIN_PASSWORD}" -X POST "${API_URL}/announce" \
+                    -H "Content-Type: application/json" \
+                    -d '{"message":"Server will restart in 1 minute for daily maintenance."}' || true
+                  sleep 60
+                  curl -fsS -u "admin:${ADMIN_PASSWORD}" -X POST "${API_URL}/save" || true
+          containers:
+            - name: kubectl
+              image: registry.k8s.io/kubectl:v1.33.0
+              command:
+                - kubectl
+                - rollout
+                - restart
+                - deployment/palworld
+                - -n
+                - games
