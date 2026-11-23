@@ -50,7 +50,7 @@ spec:
       config:
         enabled: true
         storageClass: truenas-iscsi-api-csi
-        size: 100Gi
+        size: 200Gi
         accessModes:
           - ReadWriteOnce
         retain: true
